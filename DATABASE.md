@@ -3,6 +3,18 @@
 Banco PostgreSQL no Supabase. Arquivos:
 - `supabase/schema.sql` — tipos, tabelas, índices, triggers e funções.
 - `supabase/schema_rls.sql` — habilita RLS e cria as políticas (rode **depois**).
+- `supabase/seed.sql` — dados de **desenvolvimento** (rode por último, só em dev).
+
+## Acesso pela aplicação
+A aplicação nunca consulta o Supabase direto nas páginas: leituras passam por
+`lib/db/queries.ts` (tipadas, em `lib/db/types.ts`) e escritas por Server Actions em
+`lib/actions/*` (validadas por `lib/validation.ts`, autorizadas por `getActor()`).
+Ambas usam o client server-side (cookies → RLS).
+
+## Seed de desenvolvimento
+`supabase/seed.sql` insere usuários demo (senha `nexisx123`): admin, responsável,
+profissional e escola, além de 2 crianças, vínculos, tarefas, diário, timeline e
+solicitações. **Não usar em produção** (insere direto em `auth.users`).
 
 ## Tipos (enums)
 - `role_type`: `admin | responsavel | profissional | escola | consultor`

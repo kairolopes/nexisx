@@ -27,3 +27,20 @@ export async function requireRole(roles: Role[]): Promise<SessionProfile> {
   }
   return session;
 }
+
+/** Erro de autorização para uso em Server Actions (sem redirect). */
+export class AuthzError extends Error {}
+
+/**
+ * Versão de `requireRole` para Server Actions: em vez de redirecionar, lança
+ * `AuthzError` (capturado e convertido em `ActionResult` de falha). Sem `roles`,
+ * apenas exige sessão válida.
+ */
+export async function getActor(roles?: Role[]): Promise<SessionProfile> {
+  const session = await getSessionProfile();
+  if (!session) throw new AuthzError("Sessão expirada. Faça login novamente.");
+  if (roles && !roles.includes(session.profile.role)) {
+    throw new AuthzError("Você não tem permissão para esta ação.");
+  }
+  return session;
+}

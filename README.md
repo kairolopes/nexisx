@@ -26,6 +26,7 @@ cp .env.example .env.local   # preencha com seu projeto Supabase
 # 3. Banco de dados (no SQL Editor do Supabase, nesta ordem)
 #    supabase/schema.sql
 #    supabase/schema_rls.sql
+#    supabase/seed.sql      # opcional — apenas em DEV (usuários demo, senha nexisx123)
 
 # 4. Desenvolvimento
 npm run dev
@@ -51,7 +52,9 @@ components/
   site/ app/ effects/# blocos do site, do dashboard e efeitos visuais
 lib/
   supabase/          # clients (browser, server, middleware)
-  auth.ts navigation.ts mchat.ts types.ts utils.ts
+  db/                # camada de dados: types.ts + queries.ts (leitura tipada)
+  actions/           # Server Actions de escrita (validadas + autorizadas)
+  auth.ts guard.ts navigation.ts mchat.ts validation.ts types.ts utils.ts
 supabase/
   schema.sql schema_rls.sql
 ```

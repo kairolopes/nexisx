@@ -3,6 +3,27 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Fase 2 · Bloco B (camada de dados e Server Actions)
+
+### Adicionado
+- **`lib/db/types.ts`** — tipos das linhas de todas as tabelas (fonte única de tipos do banco).
+- **`lib/db/queries.ts`** — camada de leitura tipada por entidade (children, guardians,
+  professionals, schools, tasks, task_completions, parent_diary_entries,
+  neuro_timeline_events, sensory_room_requests, genetic_exam_requests, uploaded_documents,
+  screening_reports, mchat_sessions, facial_analyses). As páginas não chamam o Supabase
+  diretamente; leituras toleram falha (RLS/sem config → lista vazia).
+- **`lib/validation.ts`** — validação leve (texto obrigatório, UUID, data, faixa de inteiro,
+  enum) + tipo `ActionResult`.
+- **`lib/actions/*`** — Server Actions de escrita: criar/atualizar criança, criar entrada
+  de diário, criar tarefa, concluir tarefa, criar solicitação de sala sensorial, criar
+  solicitação de exame genético, salvar sessão M-CHAT, salvar respostas M-CHAT e salvar
+  relatório preliminar de triagem. Cada action valida input e papel (`getActor`) e
+  retorna `ActionResult` (erros tratados, nunca vazam stack).
+- **`supabase/seed.sql`** — dados de desenvolvimento (admin, responsável, profissional,
+  escola, 2 crianças, vínculos, tarefas, diário, timeline e solicitações).
+
+> As telas ainda consomem mocks — a conexão à camada de dados é o Bloco C.
+
 ## [Não lançado] — Fase 2 · Bloco A (segurança de auth/roles)
 
 ### Segurança

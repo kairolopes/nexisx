@@ -24,6 +24,12 @@ salas sensoriais — para famílias, profissionais, escolas/clínicas e a opera�
 - **Modo demo (apenas dev):** sem Supabase configurado, `lib/auth.ts` retorna um perfil
   admin demo **somente em desenvolvimento** (`NODE_ENV !== "production"`), permitindo
   navegar a área interna localmente sem backend. Em produção nunca há fallback.
+- **Camada de dados (`lib/db/`):** toda leitura passa por `lib/db/queries.ts` (tipada por
+  entidade); as páginas não chamam o Supabase diretamente. Escritas ficam em
+  `lib/actions/*` como **Server Actions**, validadas por `lib/validation.ts` e autorizadas
+  por `getActor()` em `lib/guard.ts`. Leitura e escrita usam o client server-side
+  (cookies → RLS), de modo que sessão e políticas são respeitadas em todas as operações.
+  As actions retornam `ActionResult` (`{ ok, data | error }`) — nunca lançam para a UI.
 
 ## Limites do MVP
 - Análise facial e alguns dados de dashboard são **ilustrativos/protótipos** (sem
