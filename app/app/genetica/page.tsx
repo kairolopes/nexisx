@@ -1,29 +1,44 @@
 import { PageHeader } from "@/components/app/page-header";
 import { DataTable } from "@/components/app/data-table";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/site/notice";
 import { requireRole } from "@/lib/guard";
-
-const rows = [
-  ["Helena Martins", "Exoma", "Solicitado", <Badge key="1" variant="warning">Em análise</Badge>],
-  ["Pedro Almeida", "CGH Array", "Laudo recebido", <Badge key="2" variant="success">Concluído</Badge>],
-  ["Lívia Rocha", "Painel TEA", "Aguardando coleta", <Badge key="3" variant="default">Pendente</Badge>],
-];
+import { listGeneticExamRequests, listChildren } from "@/lib/db/queries";
+import { GeneticRequestForm } from "@/components/app/genetic-request-form";
+import { formatDate } from "@/lib/utils";
 
 export default async function GeneticaPage() {
   await requireRole(["admin", "responsavel", "profissional", "consultor"]);
+  const [requests, children] = await Promise.all([listGeneticExamRequests(), listChildren()]);
+
   return (
     <>
       <PageHeader
         title="Exames genéticos"
         description="Solicitações de exames e acompanhamento do status."
-        action={<Button variant="gradient">Solicitar exame</Button>}
+        action={<GeneticRequestForm childOptions={children.map((c) => ({ id: c.id, full_name: c.full_name }))} />}
       />
       <Notice className="mb-6">
         O NexisX organiza informações e não substitui médico geneticista ou neuropediatra.
       </Notice>
-      <DataTable columns={["Paciente", "Exame", "Etapa", "Status"]} rows={rows} />
+
+      {requests.length === 0 ? (
+        <Card>
+          <CardContent className="px-6 py-16 text-center text-sm text-muted-foreground">
+            Nenhuma solicitação de exame ainda.
+          </CardContent>
+        </Card>
+      ) : (
+        <DataTable
+          columns={["Exame", "Solicitado em", "Status"]}
+          rows={requests.map((r) => [
+            r.exam_type ?? "—",
+            formatDate(r.created_at),
+            <Badge key={r.id} variant={r.status === "solicitado" ? "warning" : "success"}>{r.status}</Badge>,
+          ])}
+        />
+      )}
     </>
   );
 }

@@ -1,55 +1,89 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { PageHeader } from "@/components/app/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Timeline } from "@/components/app/timeline";
+import { formatDate } from "@/lib/utils";
+import { childAge } from "@/lib/age";
+import {
+  getChild,
+  listTimelineEvents,
+  listTasks,
+  listDiaryEntries,
+  listScreeningReports,
+} from "@/lib/db/queries";
 
-const profile = {
-  name: "Helena Martins",
-  dados: [
-    ["Idade", "2 anos e 8 meses"],
-    ["Escola", "Escola Aurora"],
-    ["Responsáveis", "Ana Martins (mãe)"],
-    ["Profissionais", "Dra. Carla (Neuroped.)"],
-  ],
-  clinico: [
-    ["Diagnósticos informados", "Em investigação"],
-    ["Hipóteses", "TEA (a confirmar)"],
-    ["Medicamentos", "Nenhum informado"],
-  ],
-  sensorial: [
-    ["Preferências sensoriais", "Estímulos visuais suaves"],
-    ["Gatilhos", "Ruídos altos, multidão"],
-    ["Comunicação", "Pré-verbal, gestos"],
-    ["Alimentação", "Seletiva"],
-    ["Sono", "Fragmentado"],
-  ],
-};
+export default async function ChildProfilePage({ params }: { params: { id: string } }) {
+  const child = await getChild(params.id);
+  if (!child) notFound();
 
-export default function ChildProfilePage() {
+  const [events, tasks, diary, reports] = await Promise.all([
+    listTimelineEvents(child.id),
+    listTasks(child.id),
+    listDiaryEntries(child.id),
+    listScreeningReports(child.id),
+  ]);
+
+  const concluidas = tasks.filter((t) => t.status === "concluida").length;
+
   return (
     <>
-      <Link href="/app/criancas" className="mb-4 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+      <Link
+        href="/app/criancas"
+        className="mb-4 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+      >
         <ArrowLeft className="h-4 w-4" /> Voltar
       </Link>
-      <PageHeader title={profile.name} description="Perfil completo e histórico." />
+      <PageHeader title={child.full_name} description="Perfil completo e histórico." />
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <DetailCard title="Dados pessoais" rows={profile.dados} />
-        <DetailCard title="Histórico clínico" rows={profile.clinico} />
-        <DetailCard title="Perfil sensorial" rows={profile.sensorial} />
+        <DetailCard
+          title="Dados pessoais"
+          rows={[
+            ["Idade", childAge(child.birth_date)],
+            ["Nascimento", child.birth_date ? formatDate(child.birth_date) : "—"],
+            ["Cadastrado em", formatDate(child.created_at)],
+          ]}
+        />
+        <DetailCard
+          title="Acompanhamento"
+          rows={[
+            ["Tarefas", String(tasks.length)],
+            ["Concluídas", String(concluidas)],
+            ["Relatórios", String(reports.length)],
+          ]}
+        />
+        <Card>
+          <CardHeader>
+            <CardTitle>Observações</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">{child.notes ?? "Sem observações."}</p>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1.4fr]">
         <Card>
           <CardHeader>
-            <CardTitle>Status atual</CardTitle>
+            <CardTitle>Diário recente</CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            <Badge variant="warning">Triagem em andamento</Badge>
-            <Badge variant="default">M-CHAT: moderado</Badge>
-            <Badge variant="secondary">Acompanhamento ativo</Badge>
+          <CardContent className="space-y-3">
+            {diary.length === 0 ? (
+              <Empty text="Sem registros no diário." />
+            ) : (
+              diary.slice(0, 4).map((d) => (
+                <div key={d.id} className="rounded-xl border border-border p-4">
+                  <div className="flex items-center justify-between">
+                    <Badge variant="secondary">{d.mood ?? "registro"}</Badge>
+                    <span className="text-xs text-muted-foreground">{formatDate(d.created_at)}</span>
+                  </div>
+                  {d.notes && <p className="mt-2 text-sm text-muted-foreground">{d.notes}</p>}
+                </div>
+              ))
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -57,7 +91,7 @@ export default function ChildProfilePage() {
             <CardTitle>Linha do tempo</CardTitle>
           </CardHeader>
           <CardContent>
-            <Timeline />
+            <Timeline events={events} />
           </CardContent>
         </Card>
       </div>
@@ -80,5 +114,13 @@ function DetailCard({ title, rows }: { title: string; rows: string[][] }) {
         ))}
       </CardContent>
     </Card>
+  );
+}
+
+function Empty({ text }: { text: string }) {
+  return (
+    <div className="rounded-xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">
+      {text}
+    </div>
   );
 }

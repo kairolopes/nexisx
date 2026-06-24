@@ -1,31 +1,64 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Upload, Loader2, ScanFace } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { Notice } from "@/components/site/notice";
+import { createFacialAnalysis } from "@/lib/actions/facial";
 
 type Status = "idle" | "ready" | "analyzing" | "done";
 
-export function FacialAnalysis() {
+interface ChildOption {
+  id: string;
+  full_name: string;
+}
+
+export function FacialAnalysis({ childOptions }: { childOptions: ChildOption[] }) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
   const [preview, setPreview] = useState<string | null>(null);
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
+  const [childId, setChildId] = useState(childOptions[0]?.id ?? "");
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
 
   function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    const url = URL.createObjectURL(file);
-    setPreview(url);
+    setPreview(URL.createObjectURL(file));
     setStatus("ready");
   }
 
   function analyze() {
     setStatus("analyzing");
-    setTimeout(() => setStatus("done"), 2200);
+    setError(null);
+    // Análise simulada (sem IA/upload reais nesta fase). Ao concluir, registra a
+    // estrutura mínima em facial_analyses se houver criança selecionada.
+    setTimeout(() => {
+      setStatus("done");
+      if (!childId) return;
+      startTransition(async () => {
+        const res = await createFacialAnalysis({
+          child_id: childId,
+          consent: true,
+          result: "Atenção moderada (resultado ilustrativo)",
+          observations:
+            "Resultado preliminar simulado. Complementar com M-CHAT e avaliação profissional.",
+          recommendation: "Avaliação com neuropediatra e/ou psicólogo especializado.",
+        });
+        if (!res.ok) setError(res.error);
+        else {
+          setSaved(true);
+          router.refresh();
+        }
+      });
+    }, 1800);
   }
 
   return (
@@ -47,6 +80,22 @@ export function FacialAnalysis() {
             )}
             <input type="file" accept="image/*" className="hidden" onChange={onFile} />
           </label>
+
+          {childOptions.length > 1 && (
+            <div className="space-y-2">
+              <Label htmlFor="f-child">Criança</Label>
+              <select
+                id="f-child"
+                value={childId}
+                onChange={(e) => setChildId(e.target.value)}
+                className="flex h-11 w-full rounded-xl border border-input bg-background/60 px-4 text-sm"
+              >
+                {childOptions.map((c) => (
+                  <option key={c.id} value={c.id}>{c.full_name}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <label className="flex items-start gap-3 text-sm">
             <input
@@ -70,6 +119,11 @@ export function FacialAnalysis() {
             {status === "analyzing" && <Loader2 className="h-4 w-4 animate-spin" />}
             <ScanFace className="h-4 w-4" /> Analisar imagem
           </Button>
+          {childOptions.length === 0 && (
+            <p className="text-xs text-muted-foreground">
+              Sem criança vinculada: a análise é apenas demonstrativa e não será registrada.
+            </p>
+          )}
         </CardContent>
       </Card>
 
@@ -85,12 +139,7 @@ export function FacialAnalysis() {
 
           <AnimatePresence mode="wait">
             {status === "done" ? (
-              <motion.div
-                key="result"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-4"
-              >
+              <motion.div key="result" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Status</span>
                   <Badge variant="success">Análise concluída</Badge>
@@ -106,20 +155,12 @@ export function FacialAnalysis() {
                     encaminhar para avaliação de profissional habilitado.
                   </p>
                 </div>
-                <div className="rounded-xl bg-primary/5 p-4 text-sm">
-                  <p className="font-medium text-primary">Recomendação de encaminhamento</p>
-                  <p className="mt-1 text-muted-foreground">
-                    Avaliação com neuropediatra e/ou psicólogo especializado.
-                  </p>
-                </div>
+                {pending && <p className="text-xs text-muted-foreground">Registrando análise...</p>}
+                {saved && <p className="text-xs text-emerald-600">Análise registrada no acompanhamento.</p>}
+                {error && <p className="text-xs text-destructive">{error}</p>}
               </motion.div>
             ) : (
-              <motion.div
-                key="empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground"
-              >
+              <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
                 {status === "analyzing" ? (
                   <>
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />

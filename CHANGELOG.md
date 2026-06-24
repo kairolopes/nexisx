@@ -3,6 +3,35 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Fase 2 · Bloco C (conexão de telas reais)
+
+### Conectado ao Supabase (mocks removidos)
+- **Dashboard** — contadores reais (crianças, triagens, em acompanhamento, tarefas
+  concluídas, solicitações de sala, exames, laudos/documentos, relatórios pendentes) +
+  atividade recente da linha do tempo; empty states quando vazio.
+- **Crianças** — lista e perfil reais (idade calculada, diário recente, linha do tempo,
+  contagem de tarefas/relatórios) com `notFound()` e empty states.
+- **Linha do tempo** — eventos reais (`neuro_timeline_events`).
+- **Tarefas** — leitura real + criação e conclusão via Server Actions (com pontuação,
+  papéis e atualização via `router.refresh()`).
+- **Diário dos pais** — leitura real + criação via Server Action.
+- **Solicitações comerciais / Salas sensoriais (admin)** — listas reais de
+  `sensory_room_requests`. **Formulário público de contato** agora grava lead real.
+- **Exames genéticos** — criação via Server Action + lista real.
+- **Triagem** — M-CHAT salva `mchat_sessions` + `mchat_answers` e gera
+  `screening_reports` (quando profissional/admin). Análise facial registra estrutura
+  mínima em `facial_analyses` (consentimento + resultado), **ainda sem upload de imagem**.
+
+### Adicionado
+- `lib/age.ts` (cálculo de idade), `countRows()` em `lib/db/queries.ts`,
+  `lib/actions/facial.ts` (registro mínimo, sem Storage).
+- `Timeline` refatorado para receber eventos via props.
+
+### Ainda mockado (intencional — próximas fases)
+- Relatórios evolutivos, visão geral da triagem, detalhe do relatório de triagem,
+  jogos (protótipo, sem `game_sessions`), tabelas admin (responsáveis, profissionais,
+  escolas, usuários) e configurações. Upload de fotos/laudos depende do Storage (Bloco D).
+
 ## [Não lançado] — Fase 2 · Bloco B (camada de dados e Server Actions)
 
 ### Adicionado

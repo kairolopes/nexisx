@@ -47,6 +47,33 @@ async function safeOne<T>(run: (db: Db) => QueryResult): Promise<T | null> {
   }
 }
 
+type CountTable =
+  | "children"
+  | "guardians"
+  | "professionals"
+  | "schools"
+  | "tasks"
+  | "task_completions"
+  | "parent_diary_entries"
+  | "neuro_timeline_events"
+  | "sensory_room_requests"
+  | "genetic_exam_requests"
+  | "uploaded_documents"
+  | "screening_reports"
+  | "mchat_sessions"
+  | "facial_analyses";
+
+/** Conta linhas de uma tabela respeitando RLS. Em erro/sem config → 0. */
+export async function countRows(table: CountTable): Promise<number> {
+  try {
+    const db = createClient();
+    const { count } = await db.from(table).select("*", { count: "exact", head: true });
+    return count ?? 0;
+  } catch {
+    return 0;
+  }
+}
+
 // ---------------- children ----------------
 export function listChildren() {
   return safeList<ChildRow>((db) =>

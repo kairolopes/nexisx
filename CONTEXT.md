@@ -31,11 +31,18 @@ salas sensoriais — para famílias, profissionais, escolas/clínicas e a opera�
   (cookies → RLS), de modo que sessão e políticas são respeitadas em todas as operações.
   As actions retornam `ActionResult` (`{ ok, data | error }`) — nunca lançam para a UI.
 
+## Estado das telas (Bloco C)
+Conectadas a dados reais: dashboard, crianças (lista/perfil), linha do tempo, tarefas
+(criar/concluir), diário dos pais, solicitações comerciais/salas (admin), exames
+genéticos e triagem (M-CHAT → sessão+respostas+relatório; análise facial → registro
+mínimo). Telas conectadas têm empty states profissionais.
+
 ## Limites do MVP
-- Análise facial e alguns dados de dashboard são **ilustrativos/protótipos** (sem
-  inferência de IA real nem persistência completa) — a estrutura (tabelas, telas,
-  fluxo) está pronta para integração.
-- Jogos começam como protótipos visuais funcionais (ex.: jogo da memória).
+- **Análise facial** continua simulada (sem IA), mas já registra estrutura mínima em
+  `facial_analyses` — **sem upload de imagem** (Storage fica para o Bloco D).
+- **Ainda mockados:** relatórios evolutivos, visão geral/detalhe de relatório de triagem,
+  jogos (protótipo), tabelas admin (responsáveis, profissionais, escolas, usuários) e
+  configurações.
 
 ## Próximos passos sugeridos
 1. Conectar formulários às tabelas via Server Actions.

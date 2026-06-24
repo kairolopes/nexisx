@@ -1,27 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Plus, Trophy } from "lucide-react";
+import { Plus, Trophy, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { createTask, completeTask } from "@/lib/actions/tasks";
+import type { TaskRow } from "@/lib/db/types";
 import type { TaskStatus } from "@/lib/types";
-
-interface Task {
-  id: number;
-  title: string;
-  category: string;
-  points: number;
-  status: TaskStatus;
-}
-
-const initial: Task[] = [
-  { id: 1, title: "Rotina da manhã com pictogramas", category: "Casa", points: 10, status: "pendente" },
-  { id: 2, title: "Atividade de associação (cores)", category: "Terapia", points: 15, status: "em_andamento" },
-  { id: 3, title: "Leitura compartilhada", category: "Escola", points: 10, status: "pendente" },
-  { id: 4, title: "Exercício de respiração", category: "Regulação", points: 5, status: "concluida" },
-  { id: 5, title: "Jogo de memória", category: "Cognição", points: 20, status: "em_andamento" },
-];
 
 const columns: { key: TaskStatus; label: string }[] = [
   { key: "pendente", label: "Pendente" },
@@ -29,62 +19,160 @@ const columns: { key: TaskStatus; label: string }[] = [
   { key: "concluida", label: "Concluída" },
 ];
 
-const order: TaskStatus[] = ["pendente", "em_andamento", "concluida"];
+interface ChildOption {
+  id: string;
+  full_name: string;
+}
 
-export function TasksBoard() {
-  const [tasks, setTasks] = useState(initial);
+export function TasksBoard({
+  tasks,
+  childOptions,
+  canManage,
+}: {
+  tasks: TaskRow[];
+  childOptions: ChildOption[];
+  canManage: boolean;
+}) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [title, setTitle] = useState("");
+  const [category, setCategory] = useState("");
+  const [points, setPoints] = useState(10);
+  const [childId, setChildId] = useState(childOptions[0]?.id ?? "");
 
-  function advance(id: number) {
-    setTasks((prev) =>
-      prev.map((t) => {
-        if (t.id !== id) return t;
-        const idx = order.indexOf(t.status);
-        return { ...t, status: order[Math.min(idx + 1, order.length - 1)] };
-      })
-    );
+  const totalPoints = tasks
+    .filter((t) => t.status === "concluida")
+    .reduce((s, t) => s + (t.points ?? 0), 0);
+
+  function onComplete(id: string) {
+    setError(null);
+    startTransition(async () => {
+      const res = await completeTask(id);
+      if (!res.ok) setError(res.error);
+      else router.refresh();
+    });
   }
 
-  const points = tasks.filter((t) => t.status === "concluida").reduce((s, t) => s + t.points, 0);
+  function onCreate(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    startTransition(async () => {
+      const res = await createTask({ child_id: childId, title, category, points });
+      if (!res.ok) {
+        setError(res.error);
+        return;
+      }
+      setTitle("");
+      setCategory("");
+      setPoints(10);
+      setShowForm(false);
+      router.refresh();
+    });
+  }
 
   return (
     <>
-      <div className="mb-6 flex items-center gap-3 rounded-2xl bg-gradient-to-r from-primary/10 to-accent/10 p-4">
-        <Trophy className="h-6 w-6 text-amber-500" />
-        <span className="font-medium">Pontuação acumulada: {points} pts</span>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-primary/10 to-accent/10 p-4">
+        <span className="flex items-center gap-3 font-medium">
+          <Trophy className="h-6 w-6 text-amber-500" /> Pontuação acumulada: {totalPoints} pts
+        </span>
+        {canManage && childOptions.length > 0 && (
+          <Button variant="gradient" size="sm" onClick={() => setShowForm((v) => !v)}>
+            <Plus className="h-4 w-4" /> Nova tarefa
+          </Button>
+        )}
       </div>
-      <div className="grid gap-4 md:grid-cols-3">
-        {columns.map((col) => (
-          <div key={col.key} className="space-y-3">
-            <div className="flex items-center justify-between px-1">
-              <h3 className="font-semibold">{col.label}</h3>
-              <Badge variant="outline">{tasks.filter((t) => t.status === col.key).length}</Badge>
-            </div>
-            {tasks
-              .filter((t) => t.status === col.key)
-              .map((t) => (
-                <motion.div key={t.id} layout>
-                  <Card
-                    className="cursor-pointer transition-all hover:shadow-md"
-                    onClick={() => advance(t.id)}
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-medium">{t.title}</p>
-                        <span className="shrink-0 text-xs text-primary">+{t.points}</span>
-                      </div>
-                      <Badge variant="secondary" className="mt-3">{t.category}</Badge>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            {col.key === "pendente" && (
-              <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border py-3 text-sm text-muted-foreground hover:border-primary/40">
-                <Plus className="h-4 w-4" /> Nova tarefa
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
+
+      {error && (
+        <p className="mb-4 rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</p>
+      )}
+
+      {showForm && canManage && (
+        <Card className="mb-6">
+          <CardContent className="p-5">
+            <form onSubmit={onCreate} className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="t-title">Título</Label>
+                <Input id="t-title" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="Ex.: Rotina da manhã" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="t-cat">Categoria</Label>
+                <Input id="t-cat" value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Casa, Terapia..." />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="t-points">Pontos</Label>
+                <Input id="t-points" type="number" min={0} max={1000} value={points} onChange={(e) => setPoints(Number(e.target.value))} />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="t-child">Criança</Label>
+                <select
+                  id="t-child"
+                  value={childId}
+                  onChange={(e) => setChildId(e.target.value)}
+                  className="flex h-11 w-full rounded-xl border border-input bg-background/60 px-4 text-sm"
+                >
+                  {childOptions.map((c) => (
+                    <option key={c.id} value={c.id}>{c.full_name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="sm:col-span-2">
+                <Button type="submit" variant="gradient" disabled={pending}>
+                  {pending && <Loader2 className="h-4 w-4 animate-spin" />} Criar tarefa
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+
+      {tasks.length === 0 ? (
+        <Card>
+          <CardContent className="px-6 py-16 text-center text-sm text-muted-foreground">
+            Nenhuma tarefa cadastrada ainda.
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-3">
+          {columns.map((col) => {
+            const list = tasks.filter((t) => t.status === col.key);
+            return (
+              <div key={col.key} className="space-y-3">
+                <div className="flex items-center justify-between px-1">
+                  <h3 className="font-semibold">{col.label}</h3>
+                  <Badge variant="outline">{list.length}</Badge>
+                </div>
+                {list.map((t) => (
+                  <motion.div key={t.id} layout>
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="text-sm font-medium">{t.title}</p>
+                          <span className="shrink-0 text-xs text-primary">+{t.points}</span>
+                        </div>
+                        {t.category && <Badge variant="secondary" className="mt-3">{t.category}</Badge>}
+                        {t.status !== "concluida" && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="mt-3 w-full"
+                            disabled={pending}
+                            onClick={() => onComplete(t.id)}
+                          >
+                            Concluir
+                          </Button>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </>
   );
 }
