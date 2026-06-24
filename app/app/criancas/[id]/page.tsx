@@ -5,28 +5,35 @@ import { PageHeader } from "@/components/app/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Timeline } from "@/components/app/timeline";
+import { FileUploader } from "@/components/app/file-uploader";
+import { DocumentsList } from "@/components/app/documents-list";
 import { formatDate } from "@/lib/utils";
 import { childAge } from "@/lib/age";
+import { BUCKETS } from "@/lib/storage";
 import {
   getChild,
   listTimelineEvents,
   listTasks,
   listDiaryEntries,
   listScreeningReports,
+  listDocuments,
 } from "@/lib/db/queries";
 
 export default async function ChildProfilePage({ params }: { params: { id: string } }) {
   const child = await getChild(params.id);
   if (!child) notFound();
 
-  const [events, tasks, diary, reports] = await Promise.all([
+  const [events, tasks, diary, reports, docs] = await Promise.all([
     listTimelineEvents(child.id),
     listTasks(child.id),
     listDiaryEntries(child.id),
     listScreeningReports(child.id),
+    listDocuments(child.id),
   ]);
 
   const concluidas = tasks.filter((t) => t.status === "concluida").length;
+  // Documentos gerais (laudos genéticos ficam na tela de Laudos, em outro bucket).
+  const childDocs = docs.filter((d) => d.doc_type !== "laudo_genetico");
 
   return (
     <>
@@ -95,6 +102,12 @@ export default async function ChildProfilePage({ params }: { params: { id: strin
           </CardContent>
         </Card>
       </div>
+
+      <section className="mt-6 space-y-4">
+        <h2 className="font-display text-lg font-semibold">Documentos</h2>
+        <FileUploader childOptions={[{ id: child.id, full_name: child.full_name }]} kind="document" />
+        <DocumentsList docs={childDocs} bucket={BUCKETS.documents} />
+      </section>
     </>
   );
 }

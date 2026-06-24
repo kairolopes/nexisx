@@ -3,7 +3,17 @@
 Banco PostgreSQL no Supabase. Arquivos:
 - `supabase/schema.sql` — tipos, tabelas, índices, triggers e funções.
 - `supabase/schema_rls.sql` — habilita RLS e cria as políticas (rode **depois**).
+- `supabase/storage.sql` — buckets privados e policies de Storage (rode após o RLS).
 - `supabase/seed.sql` — dados de **desenvolvimento** (rode por último, só em dev).
+
+## Storage
+Três buckets **privados**: `facial-photos`, `genetic-reports`, `child-documents`.
+Convenção de caminho: `<child_id>/<uuid>.<ext>` — o 1º segmento é o `child_id`, o que
+permite às policies de `storage.objects` reaproveitarem `can_access_child()` (mesmo
+escopo por papel do RLS das tabelas), via a função `storage_child_id(name)`.
+Acesso aos arquivos só por **URL assinada temporária** (`getSignedFileUrl`); nada é
+público. Upload/leitura passam por `lib/storage/` e pelas Server Actions de
+`lib/actions/uploads.ts`.
 
 ## Acesso pela aplicação
 A aplicação nunca consulta o Supabase direto nas páginas: leituras passam por

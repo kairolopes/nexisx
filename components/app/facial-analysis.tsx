@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Notice } from "@/components/site/notice";
-import { createFacialAnalysis } from "@/lib/actions/facial";
+import { submitFacialAnalysis } from "@/lib/actions/uploads";
 
 type Status = "idle" | "ready" | "analyzing" | "done";
 
@@ -21,6 +21,7 @@ interface ChildOption {
 export function FacialAnalysis({ childOptions }: { childOptions: ChildOption[] }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
@@ -28,37 +29,40 @@ export function FacialAnalysis({ childOptions }: { childOptions: ChildOption[] }
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
+  const hasChild = childOptions.length > 0;
+
   function onFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setPreview(URL.createObjectURL(file));
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setFile(f);
+    setPreview(URL.createObjectURL(f));
     setStatus("ready");
   }
 
   function analyze() {
-    setStatus("analyzing");
     setError(null);
-    // Análise simulada (sem IA/upload reais nesta fase). Ao concluir, registra a
-    // estrutura mínima em facial_analyses se houver criança selecionada.
+    if (!file || !childId) {
+      setError("Selecione uma foto e uma criança.");
+      return;
+    }
+    setStatus("analyzing");
+    // Resultado da análise permanece SIMULADO (sem IA). O upload da foto é real:
+    // envia para o bucket facial-photos e salva o storage_path em facial_analyses.
     setTimeout(() => {
-      setStatus("done");
-      if (!childId) return;
       startTransition(async () => {
-        const res = await createFacialAnalysis({
-          child_id: childId,
-          consent: true,
-          result: "Atenção moderada (resultado ilustrativo)",
-          observations:
-            "Resultado preliminar simulado. Complementar com M-CHAT e avaliação profissional.",
-          recommendation: "Avaliação com neuropediatra e/ou psicólogo especializado.",
-        });
+        const form = new FormData();
+        form.set("childId", childId);
+        form.set("consent", "true");
+        form.set("file", file);
+        const res = await submitFacialAnalysis(form);
+        setStatus("done");
         if (!res.ok) setError(res.error);
         else {
           setSaved(true);
           router.refresh();
         }
       });
-    }, 1800);
+    }, 1500);
   }
 
   return (
@@ -113,15 +117,15 @@ export function FacialAnalysis({ childOptions }: { childOptions: ChildOption[] }
           <Button
             variant="gradient"
             className="w-full"
-            disabled={status !== "ready" || !consent}
+            disabled={status !== "ready" || !consent || !hasChild || pending}
             onClick={analyze}
           >
             {status === "analyzing" && <Loader2 className="h-4 w-4 animate-spin" />}
             <ScanFace className="h-4 w-4" /> Analisar imagem
           </Button>
-          {childOptions.length === 0 && (
+          {!hasChild && (
             <p className="text-xs text-muted-foreground">
-              Sem criança vinculada: a análise é apenas demonstrativa e não será registrada.
+              Sem criança vinculada à sua conta, não é possível registrar a análise.
             </p>
           )}
         </CardContent>

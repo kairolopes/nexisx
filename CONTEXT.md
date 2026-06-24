@@ -37,9 +37,15 @@ Conectadas a dados reais: dashboard, crianças (lista/perfil), linha do tempo, t
 genéticos e triagem (M-CHAT → sessão+respostas+relatório; análise facial → registro
 mínimo). Telas conectadas têm empty states profissionais.
 
+## Storage (Bloco D)
+Buckets privados (`facial-photos`, `genetic-reports`, `child-documents`) com policies que
+reusam `can_access_child()` (caminho `<child_id>/...`). Upload via `lib/storage/` +
+Server Actions; acesso só por URL assinada temporária. Conectados: análise facial (foto
+real), laudos genéticos e documentos da criança.
+
 ## Limites do MVP
-- **Análise facial** continua simulada (sem IA), mas já registra estrutura mínima em
-  `facial_analyses` — **sem upload de imagem** (Storage fica para o Bloco D).
+- **Análise facial** continua simulada (sem IA), mas já faz **upload real da foto** e
+  salva o `storage_path` em `facial_analyses`.
 - **Ainda mockados:** relatórios evolutivos, visão geral/detalhe de relatório de triagem,
   jogos (protótipo), tabelas admin (responsáveis, profissionais, escolas, usuários) e
   configurações.

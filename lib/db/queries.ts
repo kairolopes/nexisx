@@ -167,6 +167,17 @@ export function listDocuments(childId?: string) {
   });
 }
 
+/** Laudos genéticos (uploaded_documents com doc_type = 'laudo_genetico'). */
+export function listGeneticReports() {
+  return safeList<UploadedDocumentRow>((db) =>
+    db
+      .from("uploaded_documents")
+      .select("*")
+      .eq("doc_type", "laudo_genetico")
+      .order("created_at", { ascending: false }),
+  );
+}
+
 // ---------------- screening_reports ----------------
 export function listScreeningReports(childId?: string) {
   return safeList<ScreeningReportRow>((db) => {

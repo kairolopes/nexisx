@@ -3,6 +3,35 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Fase 2 · Bloco D (Supabase Storage)
+
+### Adicionado
+- **`supabase/storage.sql`** — buckets privados `facial-photos`, `genetic-reports`,
+  `child-documents` + policies de `storage.objects` (select/insert/update/delete) que
+  reaproveitam `can_access_child()` via `storage_child_id()` (1º segmento do caminho =
+  `child_id`). Mesmo escopo por papel do RLS das tabelas.
+- **`lib/storage/index.ts`** — camada de upload: `uploadFacialPhoto`, `uploadGeneticReport`,
+  `uploadChildDocument`, `getSignedFileUrl`, `deleteFileIfAllowed`. Valida tipo (MIME),
+  extensão, tamanho máximo (8 MB fotos / 20 MB laudos e documentos), caminho seguro
+  (`<child_id>/<uuid>.<ext>`) e autenticação.
+- **`lib/actions/uploads.ts`** — Server Actions (FormData): `submitFacialAnalysis`,
+  `uploadGeneticReportDoc`, `uploadChildDocumentDoc`. Fazem upload e registram em
+  `facial_analyses` / `uploaded_documents`.
+- Componentes **`FileUploader`** (client) e **`DocumentsList`** (server, gera URLs
+  assinadas temporárias — nunca públicas).
+
+### Conectado
+- **Triagem › Análise facial** — upload REAL da foto (bucket `facial-photos`),
+  `storage_path` salvo em `facial_analyses`; preview local antes do envio; resultado
+  **ainda simulado** (sem IA).
+- **Laudos** — upload de laudo (PDF/imagem) → `genetic-reports` + `uploaded_documents`,
+  com lista e download via URL assinada.
+- **Perfil da criança › Documentos** — upload geral (relatórios médicos/escolares,
+  avaliações, complementares) → `child-documents` + lista segura.
+
+### Removido
+- `lib/actions/facial.ts` (registro sem upload) — substituído por `submitFacialAnalysis`.
+
 ## [Não lançado] — Fase 2 · Bloco C (conexão de telas reais)
 
 ### Conectado ao Supabase (mocks removidos)
