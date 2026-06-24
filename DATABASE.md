@@ -24,10 +24,20 @@ Banco PostgreSQL no Supabase. Arquivos:
 
 ## Funções auxiliares
 - `handle_new_user()` — cria `profiles` ao registrar usuário (trigger em `auth.users`).
+  **O papel é sempre `responsavel`** — nunca lido de `raw_user_meta_data` (esse dado vem
+  do cliente e poderia forjar `admin`).
+- `enforce_role_change()` — trigger `before update` em `profiles`: se quem edita não é
+  admin (e há `auth.uid()`), qualquer mudança de `role` é revertida silenciosamente.
+  Promoção de papel só por **admin** ou **service_role/SQL direto** (contexto sem
+  `auth.uid()`).
 - `current_role()` — papel do usuário atual.
 - `is_admin()` — booleano.
 - `can_access_child(child_id)` — coração da autorização: verdadeiro se o usuário for
   admin, responsável dono, profissional vinculado ou escola autorizada.
+
+> **Promover um usuário** (ex.: a profissional): faça-o como admin ou via service_role,
+> por ex. `update profiles set role = 'profissional' where id = '...';`. Um usuário comum
+> não consegue alterar o próprio papel.
 
 ## Política de acesso (RLS)
 | Papel | Acesso |

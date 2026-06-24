@@ -3,6 +3,7 @@ import { DataTable } from "@/components/app/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/site/notice";
+import { requireRole } from "@/lib/guard";
 
 const rows = [
   ["Helena Martins", "Exoma", "Solicitado", <Badge key="1" variant="warning">Em análise</Badge>],
@@ -10,7 +11,8 @@ const rows = [
   ["Lívia Rocha", "Painel TEA", "Aguardando coleta", <Badge key="3" variant="default">Pendente</Badge>],
 ];
 
-export default function GeneticaPage() {
+export default async function GeneticaPage() {
+  await requireRole(["admin", "responsavel", "profissional", "consultor"]);
   return (
     <>
       <PageHeader

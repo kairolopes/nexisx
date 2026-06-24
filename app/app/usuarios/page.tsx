@@ -3,6 +3,7 @@ import { DataTable } from "@/components/app/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ROLE_LABELS } from "@/lib/types";
+import { requireRole } from "@/lib/guard";
 
 const rows = [
   ["admin@nexisx.com.br", <Badge key="1">{ROLE_LABELS.admin}</Badge>, "Tudo"],
@@ -12,7 +13,8 @@ const rows = [
   ["consultor@nexisx.com.br", <Badge key="5" variant="warning">{ROLE_LABELS.consultor}</Badge>, "Solicitações comerciais"],
 ];
 
-export default function UsuariosPage() {
+export default async function UsuariosPage() {
+  await requireRole(["admin"]);
   return (
     <>
       <PageHeader

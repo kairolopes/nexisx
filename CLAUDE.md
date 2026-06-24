@@ -20,7 +20,10 @@ site público + sistemas internos protegidos por login e RLS.
 - **Supabase:** use `lib/supabase/server.ts` em Server Components/Actions,
   `lib/supabase/client.ts` no browser e `lib/supabase/middleware.ts` para refresh de sessão.
 - **Auth/roles:** papéis em `lib/types.ts` (`Role`). Navegação por papel em
-  `lib/navigation.ts`. Perfil da sessão em `lib/auth.ts` (com fallback demo admin).
+  `lib/navigation.ts`. Perfil da sessão em `lib/auth.ts` (fallback demo admin **só em
+  dev**). **Toda página restrita** deve chamar `requireRole([...])` de `lib/guard.ts` no
+  topo do Server Component — não confie apenas no menu nem só no RLS (defesa em camadas).
+  O papel é fonte única em `profiles`; nunca o leia de `user_metadata`.
 - **Efeitos visuais:** `components/effects` (ParticleField em Canvas 2D, Reveal/Stagger
   com Framer Motion). Keyframes Tailwind em `tailwind.config.ts`.
 
@@ -32,4 +35,6 @@ com `child_id`, inclua-a no array `child_tables` do bloco de políticas.
 ## Cuidados
 - Manter os **avisos obrigatórios** (análise facial e M-CHAT não fecham diagnóstico).
 - Não expor `SUPABASE_SERVICE_ROLE_KEY` no client.
+- Nunca conceder papel a partir de dados do cliente (signup entra como `responsavel`;
+  promoção só por admin/service_role).
 - Sempre rodar `lint`, `typecheck` e `build` antes de concluir mudanças.

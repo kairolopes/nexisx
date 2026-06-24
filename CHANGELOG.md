@@ -3,6 +3,22 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Fase 2 · Bloco A (segurança de auth/roles)
+
+### Segurança
+- **Trigger `handle_new_user()`**: o papel no signup agora é **sempre `responsavel`** —
+  nunca lido de `raw_user_meta_data` (evita escalonamento de privilégio pelo cliente).
+- **Nova trigger `enforce_role_change()`**: bloqueia troca do próprio `role` em `profiles`
+  por quem não é admin; promoção só por admin ou service_role.
+- **`lib/auth.ts`**: o perfil "demo" (admin) passa a existir **apenas em desenvolvimento**.
+  Em produção, sem sessão/perfil real ou em erro de Supabase, retorna `null` (a área
+  protegida redireciona para `/login`). Papel lido só de `profiles`, nunca de `user_metadata`.
+- **Novo `lib/guard.ts`** com `requireSession()` e `requireRole(roles[])`.
+- **Proteção de rota por papel** aplicada (defesa em profundidade além do RLS) em:
+  usuários, configurações, responsáveis, profissionais, escolas, solicitações,
+  salas sensoriais (comercial), laudos e exames genéticos. Acesso por URL direta de
+  um papel não autorizado agora redireciona para `/app`.
+
 ## [0.1.0] — 2026-06-24
 
 ### Adicionado

@@ -2,6 +2,7 @@ import { PageHeader } from "@/components/app/page-header";
 import { DataTable } from "@/components/app/data-table";
 import { StatCard } from "@/components/app/stat-card";
 import { Badge } from "@/components/ui/badge";
+import { requireRole } from "@/lib/guard";
 
 const rows = [
   ["Escola Aurora", "Escola", "São Paulo", <Badge key="1" variant="warning">Orçamento</Badge>],
@@ -9,7 +10,8 @@ const rows = [
   ["Família Lima", "Residência", "Recife", <Badge key="3" variant="default">Novo lead</Badge>],
 ];
 
-export default function SalasSensoriaisAdminPage() {
+export default async function SalasSensoriaisAdminPage() {
+  await requireRole(["admin", "consultor"]);
   return (
     <>
       <PageHeader title="Salas sensoriais" description="Gestão de solicitações de projeto." />

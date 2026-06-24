@@ -1,6 +1,7 @@
 import { PageHeader } from "@/components/app/page-header";
 import { DataTable } from "@/components/app/data-table";
 import { Button } from "@/components/ui/button";
+import { requireRole } from "@/lib/guard";
 
 const rows = [
   ["Ana Martins", "Mãe", "Helena Martins", "(00) 90000-0001"],
@@ -8,7 +9,8 @@ const rows = [
   ["Júlia Rocha", "Mãe", "Lívia Rocha", "(00) 90000-0003"],
 ];
 
-export default function ResponsaveisPage() {
+export default async function ResponsaveisPage() {
+  await requireRole(["admin"]);
   return (
     <>
       <PageHeader title="Responsáveis" description="Famílias cadastradas." action={<Button variant="gradient">Adicionar</Button>} />
