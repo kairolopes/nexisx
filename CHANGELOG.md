@@ -3,6 +3,21 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Documentação de visão de produto
+
+### Adicionado
+- **`VISION.md`** — documento de visão de empresa e produto (não trata de código): missão,
+  visão de 5 anos, valores, públicos, posicionamento premium, experiência desejada,
+  filosofia de UX (referências de qualidade: Stripe, Linear, Notion, Vercel, Raycast),
+  filosofia de IA (assistiva, nunca substitui profissionais), produtos do ecossistema,
+  roadmap estratégico, regras inquebráveis e como qualquer IA deve pensar ao trabalhar no
+  NexisX.
+
+### Alterado
+- **`README.md`** — seção Documentação passa a listar `VISION.md`.
+- **`CLAUDE.md`** — a leitura obrigatória antes de qualquer tarefa passa a incluir
+  `VISION.md`.
+
 ## [Não lançado] — Documentação de handoff e governança
 
 ### Adicionado

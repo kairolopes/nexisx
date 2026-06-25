@@ -8,6 +8,7 @@ site público + sistemas internos protegidos por login e RLS.
 **Antes de qualquer alteração no projeto, toda IA deve ler obrigatoriamente:**
 
 - `README.md`
+- `VISION.md`
 - `AI_CONTEXT.md`
 - `HANDOFF.md`
 - `CONTEXT.md`
@@ -15,8 +16,9 @@ site público + sistemas internos protegidos por login e RLS.
 - `DATABASE.md`
 - `DEPLOY.md`
 
-**Nenhuma implementação deve começar antes dessa leitura.** As regras permanentes do
-projeto estão consolidadas em `PROJECT_RULES.md` (a "constituição" do NexisX).
+**Nenhuma implementação deve começar antes dessa leitura.** O `VISION.md` define a visão de
+empresa/produto e a filosofia de UX e IA que todo trabalho deve honrar; as regras permanentes
+do projeto estão consolidadas em `PROJECT_RULES.md` (a "constituição" do NexisX).
 
 ## Comandos
 - `npm run dev` — desenvolvimento

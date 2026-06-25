@@ -63,6 +63,7 @@ supabase/
 
 ## Documentação
 
+- [VISION.md](VISION.md) — visão de empresa e produto (missão, posicionamento, filosofia de UX/IA)
 - [AI_CONTEXT.md](AI_CONTEXT.md) — contexto técnico essencial (briefing < 5 min para IA)
 - [HANDOFF.md](HANDOFF.md) — handoff completo do projeto (estado, arquitetura, banco, fluxos)
 - [PROJECT_RULES.md](PROJECT_RULES.md) — "constituição" do projeto (regras permanentes)
