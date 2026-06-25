@@ -21,6 +21,11 @@ salas sensoriais — para famílias, profissionais, escolas/clínicas e a opera�
   service_role (triggers `handle_new_user` e `enforce_role_change`).
 - **Camada visual:** design system próprio (tokens HSL em `globals.css`), componentes
   estilo shadcn, animações com Framer Motion e um hero com Canvas 2D.
+- **Design tokens premium (Fase 2.5 / Onda 1):** escala de elevação `--shadow-1..4`
+  (utilitários `elevation-1..4` / `shadow-elevation-*`), superfícies (`surface-card`,
+  `surface-panel`), `glass-card`, `gradient-border`, tipografia fluida (`heading-xl/lg/md`),
+  `text-balance`/`text-pretty`, `section-spacing` e `container-premium`. Foco de teclado
+  global e `prefers-reduced-motion` respeitado. Preferir esses utilitários a valores avulsos.
 - **Modo demo (apenas dev):** sem Supabase configurado, `lib/auth.ts` retorna um perfil
   admin demo **somente em desenvolvimento** (`NODE_ENV !== "production"`), permitindo
   navegar a área interna localmente sem backend. Em produção nunca há fallback.

@@ -21,7 +21,7 @@ export function StatCard({
     accent: "from-accent/15 to-accent/5 text-accent",
   };
   return (
-    <Card className="transition-all hover:shadow-lg">
+    <Card className="hover:-translate-y-0.5 hover:shadow-elevation-2">
       <CardContent className="flex items-center gap-4 p-6">
         <div className={cn("grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br", accentMap[accent])}>
           <NavIcon name={icon} className="h-6 w-6" />

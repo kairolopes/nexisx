@@ -3,6 +3,33 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Fase 2.5 · Onda 1 (design tokens & fundação premium)
+
+### Design tokens
+- **Escala de elevação** (`--shadow-1..4`, sombras multicamada suaves) + utilitários
+  `elevation-1..4` e tokens Tailwind `shadow-elevation-1..4`.
+- **Escala de radius** (`--radius-sm/md/lg/xl`) e **superfícies** (`--surface`,
+  `--surface-elevated`) para hierarquia de planos.
+- **Contraste/acessibilidade:** `--muted-foreground` mais escuro (AA ~5:1), `--input`
+  com borda mais visível, ajuste fino de primary/secondary/accent/destructive.
+- **Foco de teclado global** (`:focus-visible` com anel consistente) e respeito a
+  `prefers-reduced-motion`.
+
+### Utilitários premium
+- `surface-card`, `surface-panel`, `glass-card`, `gradient-border`, `text-balance`,
+  `text-pretty`, tipografia fluida (`heading-xl/lg/md`), `section-spacing`,
+  `container-premium`.
+
+### Componentes base
+- **Card** com elevação resting (`shadow-elevation-1`) e transição suave.
+- **Button** com sombras de elevação (menos "colorido pesado").
+- **Input/Textarea** com hover de borda + anel de foco refinado.
+- **Badge** com contraste melhor (success/warning AA, inclusive dark) e borda sutil.
+- **PageHeader** com `heading-md` + descrição `text-pretty`.
+- **EmptyState** com ícone decorativo e ação opcional; **StatCard** com hover de elevação.
+
+> Mudanças de acabamento — sem redesenhar páginas, sem alterar marca, banco, auth ou Storage.
+
 ## [Não lançado] — Fase 2 · Bloco E (hardening e preparação para deploy)
 
 ### Conectado (mocks removidos)

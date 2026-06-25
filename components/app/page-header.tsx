@@ -10,8 +10,10 @@ export function PageHeader({
   return (
     <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h1 className="font-display text-2xl font-bold tracking-tight">{title}</h1>
-        {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
+        <h1 className="heading-md">{title}</h1>
+        {description && (
+          <p className="mt-1.5 max-w-2xl text-pretty text-sm text-muted-foreground">{description}</p>
+        )}
       </div>
       {action}
     </div>

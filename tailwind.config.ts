@@ -50,6 +50,12 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      boxShadow: {
+        "elevation-1": "var(--shadow-1)",
+        "elevation-2": "var(--shadow-2)",
+        "elevation-3": "var(--shadow-3)",
+        "elevation-4": "var(--shadow-4)",
+      },
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
         display: ["var(--font-display)", "system-ui", "sans-serif"],
