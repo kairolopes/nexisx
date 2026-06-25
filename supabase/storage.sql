@@ -47,9 +47,15 @@ declare
   buckets text[] := array['facial-photos','genetic-reports','child-documents'];
 begin
   foreach b in array buckets loop
+    -- idempotência: remove policies anteriores antes de recriar
+    execute format('drop policy if exists %I on storage.objects;', b || '_select');
+    execute format('drop policy if exists %I on storage.objects;', b || '_insert');
+    execute format('drop policy if exists %I on storage.objects;', b || '_update');
+    execute format('drop policy if exists %I on storage.objects;', b || '_delete');
+
     -- leitura
     execute format($f$
-      create policy %1$L on storage.objects for select
+      create policy %1$I on storage.objects for select
       using (
         bucket_id = %2$L
         and public.storage_child_id(name) is not null
@@ -58,7 +64,7 @@ begin
 
     -- upload
     execute format($f$
-      create policy %1$L on storage.objects for insert
+      create policy %1$I on storage.objects for insert
       with check (
         bucket_id = %2$L
         and public.storage_child_id(name) is not null
@@ -67,7 +73,7 @@ begin
 
     -- atualização
     execute format($f$
-      create policy %1$L on storage.objects for update
+      create policy %1$I on storage.objects for update
       using (
         bucket_id = %2$L
         and public.can_access_child(public.storage_child_id(name))
@@ -75,7 +81,7 @@ begin
 
     -- exclusão
     execute format($f$
-      create policy %1$L on storage.objects for delete
+      create policy %1$I on storage.objects for delete
       using (
         bucket_id = %2$L
         and public.can_access_child(public.storage_child_id(name))
