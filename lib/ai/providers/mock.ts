@@ -1,13 +1,12 @@
-// MockProvider — único provedor da primeira entrega (Passo 1).
-// Implementa TODAS as capacidades de forma DETERMINÍSTICA (derivada do requestId),
-// permitindo construir e testar a camada e os fluxos ponta a ponta sem chave de
-// API, sem custo e sem decidir o provedor real. As saídas respeitam estritamente
-// os contratos e a linguagem de TRIAGEM (nunca diagnóstico).
+// MockProvider — único provedor desta fase.
+// A triagem comportamental é composta DELEGANDO aos módulos do domínio
+// (behavioral/*): extração de landmarks → 7 sinais (6 features + atenção social
+// derivada) → agregação (risco) → explicabilidade. Assim há UMA implementação do
+// pipeline, exercitável ponta a ponta sem chave de API, custo ou provedor real.
+// As saídas respeitam os contratos e a linguagem de TRIAGEM (nunca diagnóstico).
 
 import type { AIProvider } from "../core/provider";
-import { sha256Hex } from "../shared/hash";
 import {
-  BEHAVIORAL_SIGNALS,
   type AICallOptions,
   type AICapability,
   type BehavioralScreeningInput,
@@ -15,38 +14,24 @@ import {
   type BehavioralSignalResult,
   type GeneticSummaryInput,
   type GeneticSummaryOutput,
-  type RiskLevel,
   type ScreeningRecommendation,
 } from "../core/types";
+import { aggregateSignals, deriveSocialAttention } from "../behavioral/aggregate";
+import { assessCaptureQuality } from "../behavioral/capture-quality";
+import { explainSignals } from "../behavioral/explain";
+import { extractLandmarks } from "../behavioral/features/landmarks";
+import { extractHeadMovement } from "../behavioral/features/headpose";
+import { extractGaze } from "../behavioral/features/gaze";
+import { extractExpressions } from "../behavioral/features/expressions";
+import { extractResponseToName } from "../behavioral/features/response";
+import { extractBlinkRate } from "../behavioral/features/blink";
+import { extractMotorBehavior } from "../behavioral/features/motor";
 
 const SUPPORTED: readonly AICapability[] = [
   "behavioral.digitalScreening",
   "behavioral.staticPhoto",
   "text.geneticSummary",
 ];
-
-/** Pseudo-aleatório determinístico em [0,1) a partir de um seed hex e um offset. */
-function pseudo(seedHex: string, offset: number): number {
-  const span = seedHex.length - 8;
-  const start = span > 0 ? (offset * 4) % span : 0;
-  const hex = seedHex.slice(start, start + 8);
-  return parseInt(hex, 16) / 0xffffffff;
-}
-
-function round2(n: number): number {
-  return Math.round(n * 100) / 100;
-}
-
-function avg(values: number[]): number {
-  if (values.length === 0) return 0;
-  return values.reduce((a, b) => a + b, 0) / values.length;
-}
-
-function levelFromScore(score: number): RiskLevel {
-  if (score >= 0.66) return "alto";
-  if (score >= 0.33) return "moderado";
-  return "baixo";
-}
 
 export class MockProvider implements AIProvider {
   readonly id = "mock";
@@ -58,39 +43,32 @@ export class MockProvider implements AIProvider {
 
   async behavioralScreening(
     input: BehavioralScreeningInput,
-    opts: AICallOptions,
+    _opts: AICallOptions,
   ): Promise<BehavioralScreeningOutput> {
-    const seed = sha256Hex(`${opts.requestId}:${input.mediaKind}`);
-    const isPhoto = input.mediaKind === "photo";
+    const captureQuality = assessCaptureQuality(input).score;
+    const landmarks = extractLandmarks(input);
 
-    // Foto (etapa inicial simples) tende a menor qualidade/confiança que vídeo.
-    const captureQuality = round2(
-      isPhoto ? 0.5 + pseudo(seed, 0) * 0.25 : 0.7 + pseudo(seed, 0) * 0.25,
+    // 6 sinais extraídos das features + 1 sinal composto (atenção social).
+    const base: BehavioralSignalResult[] = [
+      extractGaze(input, landmarks),
+      extractHeadMovement(input, landmarks),
+      extractExpressions(input, landmarks),
+      extractResponseToName(input, landmarks),
+      extractBlinkRate(input, landmarks),
+      extractMotorBehavior(input, landmarks),
+    ];
+    const signals: BehavioralSignalResult[] = [
+      deriveSocialAttention(base),
+      ...base,
+    ];
+
+    const { riskScore, riskLevel, predictionConfidence } = aggregateSignals(
+      signals,
+      captureQuality,
     );
 
-    const signals: BehavioralSignalResult[] = BEHAVIORAL_SIGNALS.map(
-      (signal, i) => ({
-        signal,
-        indicator: round2(pseudo(seed, i + 1)),
-        confidence: round2(
-          (isPhoto ? 0.5 : 0.7) * (0.7 + pseudo(seed, i + 8) * 0.3),
-        ),
-        note: `Indicador do sinal "${signal}" estimado a partir da coleta (mock).`,
-      }),
-    );
-
-    const riskScore = round2(avg(signals.map((s) => s.indicator)));
-    const riskLevel = levelFromScore(riskScore);
-    const predictionConfidence = round2(
-      avg(signals.map((s) => s.confidence)) * captureQuality,
-    );
-
-    const recaptureRequired = captureQuality < 0.6;
-    const recommendation: ScreeningRecommendation = recaptureRequired
-      ? "repetir_coleta"
-      : riskLevel === "baixo"
-        ? "acompanhar"
-        : "encaminhar";
+    const recommendation: ScreeningRecommendation =
+      riskLevel === "baixo" ? "acompanhar" : "encaminhar";
 
     return {
       schemaVersion: 1,
@@ -99,23 +77,18 @@ export class MockProvider implements AIProvider {
       riskLevel,
       predictionConfidence,
       signals,
-      explanation:
-        "Resultado de TRIAGEM assistiva (mock): combina indicadores comportamentais " +
-        "para orientar o encaminhamento. Não é diagnóstico.",
+      explanation: explainSignals(signals),
       recommendation,
-      recaptureRequired,
+      recaptureRequired: false,
       disclaimerRequired: true,
     };
   }
 
   async geneticSummary(
     input: GeneticSummaryInput,
-    opts: AICallOptions,
+    _opts: AICallOptions,
   ): Promise<GeneticSummaryOutput> {
-    // Seed mantém o determinismo; o conteúdo é ilustrativo (mock).
-    void sha256Hex(`${opts.requestId}:${input.audience}`);
     const isFamily = input.audience === "family";
-
     return {
       schemaVersion: 1,
       summary: isFamily
@@ -123,10 +96,7 @@ export class MockProvider implements AIProvider {
           "passos; não substitui o geneticista."
         : "Resumo técnico para o profissional (mock). Apresenta achados de forma " +
           "estruturada; não substitui avaliação especializada.",
-      keyPoints: [
-        "Ponto de atenção 1 (mock).",
-        "Ponto de atenção 2 (mock).",
-      ],
+      keyPoints: ["Ponto de atenção 1 (mock).", "Ponto de atenção 2 (mock)."],
       disclaimerRequired: true,
     };
   }

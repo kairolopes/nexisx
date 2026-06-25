@@ -3,6 +3,34 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Fase 3 · Triagem Digital Assistiva (domínio comportamental — mock)
+
+Implementação funcional do domínio comportamental em `lib/ai/behavioral/`, exercitando o
+pipeline ponta a ponta com o **MockProvider** (determinístico, sem chave/custo/IA real).
+**Sem UI, rota, Server Action, processamento de vídeo ou provedor real.** Linguagem
+estritamente de triagem (triagem, sinais, indicadores, risco, encaminhamento).
+
+### Implementado
+- **`features/landmarks.ts`** — extração de landmarks (determinística a partir dos bytes
+  da mídia) + helpers `frac`/`round2`; base geométrica dos demais sinais.
+- **6 features → 6 sinais:** `gaze` (olhar), `headpose` (head_movement), `expressions`
+  (facial_expression), `response` (response_to_name, usa `stimuli`), `blink` (blink_rate,
+  só vídeo), `motor` (motor_behavior, só vídeo).
+- **`aggregate.ts`** — `deriveSocialAttention` (7º sinal, composto de olhar + cabeça) e
+  `aggregateSignals` (risco ponderado pela confiança + confiança da predição limitada pela
+  qualidade da coleta) com `levelFromScore`.
+- **`capture-quality.ts`** — porteiro do pipeline: score de qualidade + `recaptureRequired`
+  (repetir coleta se baixa) e motivos legíveis.
+- **`explain.ts`** — explicabilidade: destaca os sinais que mais elevaram o risco de triagem.
+- **`parser.ts`** — valida `schemaVersion`, faixas [0,1] e enums; converte divergências em
+  `AIValidationError`.
+- **`service.ts`** — orquestra: qualidade (porteiro, não chama IA se baixa) → provedor
+  (Mock) → validação; sempre retorna `Result`, nunca lança.
+- **`fusion.ts`** — fusão comportamental + M-CHAT (adota o maior risco por prudência;
+  concordância eleva a confiança), com os casos só-comportamental, só-M-CHAT e sem dados.
+- **`providers/mock.ts`** — refatorado para **delegar** aos módulos do domínio (uma única
+  implementação do pipeline), removendo a geração de sinais inline.
+
 ## [Não lançado] — Fase 3 · Triagem Digital Assistiva (base de banco e storage)
 
 Base de dados e Storage da **Análise Comportamental Digital** (fenotipagem por vídeo +
