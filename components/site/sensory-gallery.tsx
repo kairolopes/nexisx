@@ -27,9 +27,39 @@ export function SensoryGallery() {
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className={`absolute inset-0 bg-gradient-to-br ${items[active].gradient}`}
           >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.35),transparent_50%)]" />
+            {/* brilho ambiente */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.4),transparent_55%)]" />
+            <div className="absolute inset-0 animate-pulse-glow bg-[radial-gradient(circle_at_75%_75%,rgba(255,255,255,0.25),transparent_45%)]" />
+
+            {/* "fibras ópticas" — linhas luminosas sutis */}
+            <div className="absolute inset-0 overflow-hidden opacity-60">
+              {[18, 38, 58, 78].map((left, i) => (
+                <span
+                  key={left}
+                  className="absolute top-0 h-full w-px bg-gradient-to-b from-transparent via-white/70 to-transparent animate-pulse-glow"
+                  style={{ left: `${left}%`, animationDelay: `${i * 0.6}s` }}
+                />
+              ))}
+            </div>
+
+            {/* pontos de luz (LED) flutuantes */}
+            <div className="absolute inset-0">
+              {[
+                { l: "20%", t: "30%", d: "0s" },
+                { l: "70%", t: "25%", d: "0.8s" },
+                { l: "45%", t: "60%", d: "1.4s" },
+                { l: "80%", t: "65%", d: "2s" },
+              ].map((p) => (
+                <span
+                  key={p.l + p.t}
+                  className="absolute h-2.5 w-2.5 rounded-full bg-white/80 blur-[1px] animate-float"
+                  style={{ left: p.l, top: p.t, animationDelay: p.d }}
+                />
+              ))}
+            </div>
+
             <div className="absolute bottom-0 left-0 p-8">
-              <span className="rounded-full bg-black/20 px-4 py-1.5 text-sm font-medium text-white backdrop-blur">
+              <span className="rounded-full bg-black/25 px-4 py-1.5 text-sm font-medium text-white backdrop-blur">
                 {items[active].title}
               </span>
             </div>

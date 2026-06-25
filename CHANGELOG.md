@@ -3,6 +3,32 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Fase 2.5 · Onda 5 (site público premium)
+
+### Mockups em código (sem imagens externas)
+- `DashboardMockup` e `FloatingChip` — mockup do produto construído com Tailwind/tokens.
+
+### Home
+- **Hero** redesenhado em duas colunas: texto + CTA + indicadores, e **mockup flutuante**
+  do produto com chips, sobre o `ParticleField` (Canvas 2D) e `gradient-mesh`.
+- Nova seção **Jornada NexisX** (`Journey`) — timeline de 8 etapas (cadastro → análise
+  facial → M-CHAT → relatório → DNA → sala sensorial → acompanhamento → tarefas/jogos)
+  com reveal animado.
+- Nova seção **Como funciona a triagem** (`TriagemExplainer`) — explica o ambiente
+  seguro com login e as 3 etapas, com **avisos obrigatórios** (não é diagnóstico).
+- Nova seção **Credibilidade** (`Credibility`) — "Projetado para famílias/profissionais/
+  escolas/clínicas" + "LGPD by design / Dados protegidos / Acesso por perfil". Sem
+  depoimentos ou clientes inventados.
+
+### Páginas
+- **Salas Sensoriais:** galeria com sensação de luz/fibra óptica/LED em código
+  (glows pulsantes, "fibras" luminosas e pontos de LED flutuantes).
+- **DNA / Exoma:** diagrama de fluxo `GeneticsFlow` (laudo → organização → resumo para
+  família → resumo técnico), responsivo.
+
+> Movimento com moderação, respeitando `prefers-reduced-motion`. Sem imagens/assets
+> externos, sem tocar na plataforma interna, auth, banco, Storage ou roles.
+
 ## [Não lançado] — Fase 2.5 · Onda 4 (plataforma premium e microinterações)
 
 ### Dashboard reorganizado
