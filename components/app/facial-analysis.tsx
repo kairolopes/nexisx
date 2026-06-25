@@ -1,31 +1,74 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Upload, Loader2, ScanFace } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Notice } from "@/components/site/notice";
+import { submitFacialAnalysis } from "@/lib/actions/uploads";
+import { useToast } from "@/components/ui/toast";
 
 type Status = "idle" | "ready" | "analyzing" | "done";
 
-export function FacialAnalysis() {
+interface ChildOption {
+  id: string;
+  full_name: string;
+}
+
+export function FacialAnalysis({ childOptions }: { childOptions: ChildOption[] }) {
+  const router = useRouter();
+  const toast = useToast();
+  const [pending, startTransition] = useTransition();
+  const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
+  const [childId, setChildId] = useState(childOptions[0]?.id ?? "");
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  const hasChild = childOptions.length > 0;
 
   function onFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    setPreview(url);
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setFile(f);
+    setPreview(URL.createObjectURL(f));
     setStatus("ready");
   }
 
   function analyze() {
+    setError(null);
+    if (!file || !childId) {
+      setError("Selecione uma foto e uma criança.");
+      return;
+    }
     setStatus("analyzing");
-    setTimeout(() => setStatus("done"), 2200);
+    // Resultado da análise permanece SIMULADO (sem IA). O upload da foto é real:
+    // envia para o bucket facial-photos e salva o storage_path em facial_analyses.
+    setTimeout(() => {
+      startTransition(async () => {
+        const form = new FormData();
+        form.set("childId", childId);
+        form.set("consent", "true");
+        form.set("file", file);
+        const res = await submitFacialAnalysis(form);
+        setStatus("done");
+        if (!res.ok) {
+          setError(res.error);
+          toast.error(res.error);
+        } else {
+          setSaved(true);
+          toast.success("Foto enviada e análise registrada.");
+          router.refresh();
+        }
+      });
+    }, 1500);
   }
 
   return (
@@ -48,6 +91,22 @@ export function FacialAnalysis() {
             <input type="file" accept="image/*" className="hidden" onChange={onFile} />
           </label>
 
+          {childOptions.length > 1 && (
+            <div className="space-y-2">
+              <Label htmlFor="f-child">Criança</Label>
+              <Select value={childId} onValueChange={setChildId}>
+                <SelectTrigger id="f-child">
+                  <SelectValue placeholder="Selecione a criança" />
+                </SelectTrigger>
+                <SelectContent>
+                  {childOptions.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>{c.full_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           <label className="flex items-start gap-3 text-sm">
             <input
               type="checkbox"
@@ -64,12 +123,17 @@ export function FacialAnalysis() {
           <Button
             variant="gradient"
             className="w-full"
-            disabled={status !== "ready" || !consent}
+            disabled={status !== "ready" || !consent || !hasChild || pending}
             onClick={analyze}
           >
             {status === "analyzing" && <Loader2 className="h-4 w-4 animate-spin" />}
             <ScanFace className="h-4 w-4" /> Analisar imagem
           </Button>
+          {!hasChild && (
+            <p className="text-xs text-muted-foreground">
+              Sem criança vinculada à sua conta, não é possível registrar a análise.
+            </p>
+          )}
         </CardContent>
       </Card>
 
@@ -85,12 +149,7 @@ export function FacialAnalysis() {
 
           <AnimatePresence mode="wait">
             {status === "done" ? (
-              <motion.div
-                key="result"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-4"
-              >
+              <motion.div key="result" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Status</span>
                   <Badge variant="success">Análise concluída</Badge>
@@ -106,20 +165,12 @@ export function FacialAnalysis() {
                     encaminhar para avaliação de profissional habilitado.
                   </p>
                 </div>
-                <div className="rounded-xl bg-primary/5 p-4 text-sm">
-                  <p className="font-medium text-primary">Recomendação de encaminhamento</p>
-                  <p className="mt-1 text-muted-foreground">
-                    Avaliação com neuropediatra e/ou psicólogo especializado.
-                  </p>
-                </div>
+                {pending && <p className="text-xs text-muted-foreground">Registrando análise...</p>}
+                {saved && <p className="text-xs text-emerald-600">Análise registrada no acompanhamento.</p>}
+                {error && <p className="text-xs text-destructive">{error}</p>}
               </motion.div>
             ) : (
-              <motion.div
-                key="empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground"
-              >
+              <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
                 {status === "analyzing" ? (
                   <>
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />

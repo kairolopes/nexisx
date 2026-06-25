@@ -26,13 +26,3 @@ export interface Profile {
   avatar_url: string | null;
   created_at: string;
 }
-
-export interface Child {
-  id: string;
-  full_name: string;
-  birth_date: string | null;
-  guardian_id: string;
-  school_id: string | null;
-  notes: string | null;
-  created_at: string;
-}

@@ -34,7 +34,11 @@ create table if not exists profiles (
   created_at timestamptz not null default now()
 );
 
--- Cria profile automaticamente ao criar usuário
+-- Cria profile automaticamente ao criar usuário.
+-- SEGURANÇA: o papel (role) NUNCA é lido de raw_user_meta_data — esse dado vem do
+-- cliente e poderia ser forjado (escalonamento de privilégio). Todo novo usuário
+-- entra como 'responsavel'. A promoção para admin/profissional/escola/consultor só
+-- pode ser feita por um admin (políticas RLS de profiles) ou pela service_role.
 create or replace function public.handle_new_user()
 returns trigger language plpgsql security definer set search_path = public as $$
 begin
@@ -42,11 +46,31 @@ begin
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'full_name', split_part(new.email,'@',1)),
-    coalesce((new.raw_user_meta_data->>'role')::role_type, 'responsavel')
+    'responsavel'  -- papel padrão fixo; nunca vindo do cliente
   )
   on conflict (id) do nothing;
   return new;
 end $$;
+
+-- SEGURANÇA: impede que um usuário comum altere o próprio papel via UPDATE em profiles.
+-- Mesmo com a policy profiles_self_update, esta trigger trava a troca de role por
+-- quem não é admin. Quem pode promover: admin (is_admin) ou service_role/SQL direto
+-- (contexto sem auth.uid(), usado apenas no backend confiável).
+create or replace function public.enforce_role_change()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if new.role is distinct from old.role
+     and auth.uid() is not null      -- service_role / SQL direto: contexto confiável
+     and not public.is_admin() then
+    new.role := old.role;  -- ignora silenciosamente a tentativa de troca de papel
+  end if;
+  return new;
+end $$;
+
+drop trigger if exists on_profile_role_update on public.profiles;
+create trigger on_profile_role_update
+  before update on public.profiles
+  for each row execute function public.enforce_role_change();
 
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created

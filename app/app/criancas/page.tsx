@@ -1,20 +1,16 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/app/page-header";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { MotionList, MotionItem } from "@/components/app/motion";
 import { initials } from "@/lib/utils";
+import { listChildren } from "@/lib/db/queries";
+import { childAge } from "@/lib/age";
 
-const children = [
-  { id: "1", name: "Helena Martins", age: "2a 8m", status: "Triagem", variant: "warning" as const },
-  { id: "2", name: "Theo Souza", age: "5a", status: "Acompanhamento", variant: "success" as const },
-  { id: "3", name: "Lívia Rocha", age: "3a 2m", status: "M-CHAT", variant: "default" as const },
-  { id: "4", name: "Pedro Almeida", age: "6a", status: "Exoma", variant: "secondary" as const },
-  { id: "5", name: "Manuela Dias", age: "4a", status: "Acompanhamento", variant: "success" as const },
-  { id: "6", name: "Bento Lima", age: "2a 1m", status: "Triagem", variant: "warning" as const },
-];
+export default async function CriancasPage() {
+  const children = await listChildren();
 
-export default function CriancasPage() {
   return (
     <>
       <PageHeader
@@ -22,24 +18,38 @@ export default function CriancasPage() {
         description="Perfis em triagem e acompanhamento."
         action={<Button variant="gradient">Cadastrar criança</Button>}
       />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {children.map((c) => (
-          <Link key={c.id} href={`/app/criancas/${c.id}`}>
-            <Card className="h-full transition-all hover:-translate-y-1 hover:shadow-lg">
-              <CardContent className="flex items-center gap-4 p-6">
-                <span className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-primary to-accent text-lg font-semibold text-white">
-                  {initials(c.name)}
-                </span>
-                <div className="flex-1">
-                  <p className="font-display font-semibold">{c.name}</p>
-                  <p className="text-sm text-muted-foreground">{c.age}</p>
-                </div>
-                <Badge variant={c.variant}>{c.status}</Badge>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
-      </div>
+
+      {children.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center gap-2 px-6 py-16 text-center">
+            <p className="font-display text-lg font-semibold">Nenhuma criança cadastrada</p>
+            <p className="max-w-sm text-sm text-muted-foreground">
+              Quando uma criança for cadastrada (ou os dados de exemplo forem carregados),
+              ela aparecerá aqui.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <MotionList className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {children.map((c) => (
+            <MotionItem key={c.id}>
+              <Link href={`/app/criancas/${c.id}`} className="block h-full">
+                <Card className="group h-full hover:-translate-y-1 hover:border-primary/30 hover:shadow-elevation-3">
+                  <CardContent className="flex items-center gap-4 p-6">
+                    <Avatar className="h-14 w-14 transition-transform duration-300 group-hover:scale-105">
+                      <AvatarFallback className="text-lg">{initials(c.full_name)}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <p className="font-display font-semibold">{c.full_name}</p>
+                      <p className="text-sm text-muted-foreground">{childAge(c.birth_date)}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            </MotionItem>
+          ))}
+        </MotionList>
+      )}
     </>
   );
 }

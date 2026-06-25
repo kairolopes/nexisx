@@ -4,6 +4,7 @@ import { Dna, Microscope, FileText, Sparkles } from "lucide-react";
 import { PageHero } from "@/components/site/page-hero";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/effects/reveal";
 import { Notice } from "@/components/site/notice";
+import { GeneticsFlow } from "@/components/site/genetics-flow";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -93,6 +94,16 @@ export default function DnaPage() {
             </div>
           </Reveal>
         </div>
+      </section>
+
+      <section className="container py-20">
+        <Reveal className="mx-auto mb-12 max-w-2xl text-center">
+          <h2 className="font-display text-3xl font-bold">Como o NexisX organiza um laudo</h2>
+          <p className="mt-4 text-pretty text-muted-foreground">
+            Do recebimento à orientação — com clareza para a família e para o profissional.
+          </p>
+        </Reveal>
+        <GeneticsFlow />
       </section>
 
       <section className="container py-20 text-center">

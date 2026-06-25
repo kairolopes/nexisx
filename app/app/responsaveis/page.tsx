@@ -1,18 +1,32 @@
 import { PageHeader } from "@/components/app/page-header";
 import { DataTable } from "@/components/app/data-table";
+import { EmptyState } from "@/components/app/empty-state";
 import { Button } from "@/components/ui/button";
+import { requireRole } from "@/lib/guard";
+import { listGuardians } from "@/lib/db/queries";
 
-const rows = [
-  ["Ana Martins", "Mãe", "Helena Martins", "(00) 90000-0001"],
-  ["Carlos Souza", "Pai", "Theo Souza", "(00) 90000-0002"],
-  ["Júlia Rocha", "Mãe", "Lívia Rocha", "(00) 90000-0003"],
-];
+export default async function ResponsaveisPage() {
+  await requireRole(["admin"]);
+  const guardians = await listGuardians();
 
-export default function ResponsaveisPage() {
   return (
     <>
-      <PageHeader title="Responsáveis" description="Famílias cadastradas." action={<Button variant="gradient">Adicionar</Button>} />
-      <DataTable columns={["Nome", "Vínculo", "Criança", "Contato"]} rows={rows} />
+      <PageHeader
+        title="Responsáveis"
+        description="Famílias cadastradas."
+        action={<Button variant="gradient">Adicionar</Button>}
+      />
+      {guardians.length === 0 ? (
+        <EmptyState
+          title="Nenhum responsável cadastrado"
+          description="Responsáveis cadastrados (ou do seed de desenvolvimento) aparecerão aqui."
+        />
+      ) : (
+        <DataTable
+          columns={["Nome", "Vínculo", "Telefone", "E-mail"]}
+          rows={guardians.map((g) => [g.full_name, g.relationship ?? "—", g.phone ?? "—", g.email ?? "—"])}
+        />
+      )}
     </>
   );
 }
