@@ -2,6 +2,7 @@ import { PageHeader } from "@/components/app/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/app/empty-state";
+import { MotionList, MotionItem } from "@/components/app/motion";
 import { Notice } from "@/components/site/notice";
 import { requireSession } from "@/lib/guard";
 import { listScreeningReports, listChildren } from "@/lib/db/queries";
@@ -34,9 +35,10 @@ export default async function RelatorioTriagemPage() {
           description="Ao concluir um M-CHAT e salvá-lo, o relatório preliminar aparece aqui."
         />
       ) : (
-        <div className="grid gap-4 lg:grid-cols-2">
+        <MotionList className="grid gap-4 lg:grid-cols-2">
           {reports.map((r) => (
-            <Card key={r.id}>
+            <MotionItem key={r.id}>
+            <Card className="h-full transition-colors hover:border-primary/30">
               <CardHeader className="flex-row items-center justify-between space-y-0">
                 <CardTitle>{r.child_id ? nameById.get(r.child_id) ?? "Criança" : "Triagem"}</CardTitle>
                 {r.priority && (
@@ -54,8 +56,9 @@ export default async function RelatorioTriagemPage() {
                 {r.next_steps && <p className="text-muted-foreground">{r.next_steps}</p>}
               </CardContent>
             </Card>
+            </MotionItem>
           ))}
-        </div>
+        </MotionList>
       )}
     </>
   );

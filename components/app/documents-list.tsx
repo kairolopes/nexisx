@@ -1,6 +1,7 @@
 import { FileText, Download } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { MotionList, MotionItem } from "@/components/app/motion";
 import { formatDate } from "@/lib/utils";
 import { getSignedFileUrl, type BucketId } from "@/lib/storage";
 import type { UploadedDocumentRow } from "@/lib/db/types";
@@ -33,9 +34,10 @@ export async function DocumentsList({
   );
 
   return (
-    <div className="space-y-3">
+    <MotionList className="space-y-3">
       {withUrls.map(({ doc, url }) => (
-        <Card key={doc.id}>
+        <MotionItem key={doc.id}>
+        <Card className="transition-colors hover:border-primary/30">
           <CardContent className="flex items-center gap-4 p-4">
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
               <FileText className="h-5 w-5" />
@@ -59,7 +61,8 @@ export async function DocumentsList({
             )}
           </CardContent>
         </Card>
+        </MotionItem>
       ))}
-    </div>
+    </MotionList>
   );
 }

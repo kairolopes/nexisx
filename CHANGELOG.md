@@ -20,6 +20,10 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
   concluir (texto riscado + selo "Concluída").
 - **M-CHAT:** ícone de conclusão com animação spring.
 
+### Listas internas (complemento)
+- Stagger + hover refinado também em **laudos/documentos** (`DocumentsList`),
+  **relatórios de triagem** e **jogos** (grade de categorias).
+
 > Sem funcionalidade nova, IA, PDF, banco, Storage, auth ou alteração do site público.
 
 ## [Não lançado] — Fase 2.5 · Onda 3 (biblioteca de componentes premium)

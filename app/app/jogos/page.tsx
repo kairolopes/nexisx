@@ -1,6 +1,7 @@
 import { PageHeader } from "@/components/app/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { MotionList, MotionItem } from "@/components/app/motion";
 import { MemoryGame } from "@/components/app/memory-game";
 
 const categories = [
@@ -23,22 +24,24 @@ export default function JogosPage() {
       />
 
       <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <div className="grid gap-4 sm:grid-cols-2">
+        <MotionList className="grid gap-4 sm:grid-cols-2">
           {categories.map((c) => (
-            <Card key={c.title} className="overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
-              <div className={`h-2 w-full bg-gradient-to-r ${c.color}`} />
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-display font-semibold">{c.title}</h3>
-                  <Badge variant="outline">{c.phases} fases</Badge>
-                </div>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Atividades adaptativas com pontuação e feedback.
-                </p>
-              </CardContent>
-            </Card>
+            <MotionItem key={c.title}>
+              <Card className="h-full overflow-hidden hover:-translate-y-1 hover:shadow-elevation-3">
+                <div className={`h-2 w-full bg-gradient-to-r ${c.color}`} />
+                <CardContent className="p-5">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-display font-semibold">{c.title}</h3>
+                    <Badge variant="outline">{c.phases} fases</Badge>
+                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Atividades adaptativas com pontuação e feedback.
+                  </p>
+                </CardContent>
+              </Card>
+            </MotionItem>
           ))}
-        </div>
+        </MotionList>
 
         <div>
           <h3 className="mb-3 font-display font-semibold">Jogo da memória</h3>
