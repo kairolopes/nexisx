@@ -3,6 +3,34 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Fase 3 · Pipeline de processamento comportamental (arquitetura)
+
+Refatora a Triagem Digital Assistiva numa **pipeline de 18 etapas independentes**, alinhada
+ao fluxo de fenotipagem comportamental digital do artigo da Nature Medicine (2023). Apenas
+a **arquitetura** + implementações **Mock determinísticas** — sem provider real, sem
+alterar banco/Storage/UI/rotas. `facial_analyses` intacta.
+
+### Adicionado (`lib/ai/behavioral/pipeline/`)
+- **`types.ts`** — contratos tipados entre etapas (`PipelineStage<I,O>`, `VideoSource`,
+  `FrameSet`, `PreprocessedFrameSet`, `ChildDetection`, `FaceTracks`, `SignalSeries`,
+  `SignalStageResult`, `AggregatedSignals`, `FeatureVector`, `BehavioralPipelineResult`...).
+- **`series.ts`** — gerador determinístico de séries temporais por sinal.
+- **18 etapas** em `pipeline/stages/`, cada uma com interface própria e classe `Mock*`:
+  ingest, frames, preprocess, detect-child, track-face, track-eyes, head-pose, expressions,
+  blink, response, body-movement, temporal-aggregate, feature-vector, capture-quality,
+  confidence, explainability, fusion, result. Nenhuma depende de provider; cada uma é
+  trocável por MediaPipe/OpenFace/OpenCV/YOLO/PyTorch sem afetar o restante.
+- **`pipeline/index.ts`** — orquestrador `runBehavioralPipeline` (contrato público) e
+  `runBehavioralPipelineDetailed` (com vetor de features, séries e qualidade da coleta).
+
+### Alterado
+- **`lib/ai/providers/mock.ts`** — `behavioralScreening` passa a **delegar à pipeline**
+  (remove a composição inline); reaproveita features/aggregate/explain/capture-quality como
+  implementação interna das etapas (fonte única).
+- **`lib/ai/index.ts`** — exporta `runBehavioralPipeline`, `runBehavioralPipelineDetailed`
+  e os tipos `PipelineStage`/`PipelineContext`/`BehavioralPipelineResult`.
+- **`CONTEXT.md`** — documenta a pipeline.
+
 ## [Não lançado] — Fase 3 · Triagem Digital Assistiva (UI)
 
 Tela premium da Triagem Digital Assistiva, consumindo a Server Action

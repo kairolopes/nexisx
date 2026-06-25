@@ -1,8 +1,7 @@
 // MockProvider — único provedor desta fase.
-// A triagem comportamental é composta DELEGANDO aos módulos do domínio
-// (behavioral/*): extração de landmarks → 7 sinais (6 features + atenção social
-// derivada) → agregação (risco) → explicabilidade. Assim há UMA implementação do
-// pipeline, exercitável ponta a ponta sem chave de API, custo ou provedor real.
+// A triagem comportamental é produzida pela PIPELINE de etapas independentes
+// (behavioral/pipeline), composta por implementações Mock determinísticas. O provider
+// apenas delega à pipeline — não conhece os frameworks de visão por trás de cada etapa.
 // As saídas respeitam os contratos e a linguagem de TRIAGEM (nunca diagnóstico).
 
 import type { AIProvider } from "../core/provider";
@@ -11,21 +10,10 @@ import {
   type AICapability,
   type BehavioralScreeningInput,
   type BehavioralScreeningOutput,
-  type BehavioralSignalResult,
   type GeneticSummaryInput,
   type GeneticSummaryOutput,
-  type ScreeningRecommendation,
 } from "../core/types";
-import { aggregateSignals, deriveSocialAttention } from "../behavioral/aggregate";
-import { assessCaptureQuality } from "../behavioral/capture-quality";
-import { explainSignals } from "../behavioral/explain";
-import { extractLandmarks } from "../behavioral/features/landmarks";
-import { extractHeadMovement } from "../behavioral/features/headpose";
-import { extractGaze } from "../behavioral/features/gaze";
-import { extractExpressions } from "../behavioral/features/expressions";
-import { extractResponseToName } from "../behavioral/features/response";
-import { extractBlinkRate } from "../behavioral/features/blink";
-import { extractMotorBehavior } from "../behavioral/features/motor";
+import { runBehavioralPipeline } from "../behavioral/pipeline";
 
 const SUPPORTED: readonly AICapability[] = [
   "behavioral.digitalScreening",
@@ -43,45 +31,9 @@ export class MockProvider implements AIProvider {
 
   async behavioralScreening(
     input: BehavioralScreeningInput,
-    _opts: AICallOptions,
+    opts: AICallOptions,
   ): Promise<BehavioralScreeningOutput> {
-    const captureQuality = assessCaptureQuality(input).score;
-    const landmarks = extractLandmarks(input);
-
-    // 6 sinais extraídos das features + 1 sinal composto (atenção social).
-    const base: BehavioralSignalResult[] = [
-      extractGaze(input, landmarks),
-      extractHeadMovement(input, landmarks),
-      extractExpressions(input, landmarks),
-      extractResponseToName(input, landmarks),
-      extractBlinkRate(input, landmarks),
-      extractMotorBehavior(input, landmarks),
-    ];
-    const signals: BehavioralSignalResult[] = [
-      deriveSocialAttention(base),
-      ...base,
-    ];
-
-    const { riskScore, riskLevel, predictionConfidence } = aggregateSignals(
-      signals,
-      captureQuality,
-    );
-
-    const recommendation: ScreeningRecommendation =
-      riskLevel === "baixo" ? "acompanhar" : "encaminhar";
-
-    return {
-      schemaVersion: 1,
-      captureQuality,
-      riskScore,
-      riskLevel,
-      predictionConfidence,
-      signals,
-      explanation: explainSignals(signals),
-      recommendation,
-      recaptureRequired: false,
-      disclaimerRequired: true,
-    };
+    return runBehavioralPipeline(input, { requestId: opts.requestId });
   }
 
   async geneticSummary(

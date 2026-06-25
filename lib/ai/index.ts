@@ -14,3 +14,14 @@ export type { AIProvider } from "./core/provider";
 export { analyzeBehavioralScreening } from "./behavioral/service";
 export { fuseScreening } from "./behavioral/fusion";
 export { summarizeGeneticReport } from "./genetics/service";
+
+// Pipeline de processamento comportamental (etapas independentes; mock determinístico).
+export {
+  runBehavioralPipeline,
+  runBehavioralPipelineDetailed,
+} from "./behavioral/pipeline";
+export type {
+  PipelineStage,
+  PipelineContext,
+  BehavioralPipelineResult,
+} from "./behavioral/pipeline";

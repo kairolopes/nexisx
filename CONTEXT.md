@@ -95,6 +95,19 @@ nível de risco, explicabilidade, fusão com M-CHAT (quando existe) e recomenda�
 encaminhamento — com avisos obrigatórios de triagem. Usa Cards, Badge, Progress, Framer
 Motion, Toasts e EmptyState do design system. Sem provedor real (só Mock).
 
+**Pipeline de processamento (Fase 3 — arquitetura):** a triagem comportamental é produzida
+por uma pipeline de **18 etapas independentes** em `lib/ai/behavioral/pipeline/`, alinhada
+ao fluxo de fenotipagem comportamental digital do artigo da Nature Medicine (2023):
+ingestão → extração de frames → pré-processamento → detecção da criança → rastreamento
+facial → rastreamento ocular → head pose → expressões → piscar → resposta a estímulos →
+movimento corporal → agregação temporal → vetor de features → qualidade da coleta →
+confiança → explicabilidade → fusão com M-CHAT → resultado estruturado. Cada etapa tem
+interface própria (`PipelineStage<I,O>`) e implementação **Mock determinística**, sem
+depender de provider; toda comunicação passa por contratos tipados. As etapas são
+trocáveis no futuro por MediaPipe/OpenFace/OpenCV/YOLO/PyTorch sem alterar o orquestrador
+(`runBehavioralPipeline`) nem o restante da aplicação. O `MockProvider` apenas delega à
+pipeline. **Sem provider real, sem alterar banco/Storage/UI/rotas.**
+
 ## Storage (Bloco D)
 Buckets privados (`facial-photos`, `genetic-reports`, `child-documents`) com policies que
 reusam `can_access_child()` (caminho `<child_id>/...`). Upload via `lib/storage/` +
