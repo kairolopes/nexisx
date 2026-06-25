@@ -82,7 +82,18 @@ bucket privado `screening-media` (`lib/storage#uploadScreeningMedia`), roda
 `analyzeBehavioralScreening` (MockProvider), persiste a sessão em
 `digital_screening_sessions`, os sinais em `behavioral_signals`, a fusão com o M-CHAT mais
 recente em `screening_fusions` (se houver) e a auditoria em `ai_requests`, devolvendo um
-resultado estruturado. **Ainda sem UI/rota** (passo futuro). `facial_analyses` intacta.
+resultado estruturado. `facial_analyses` intacta.
+
+**UI (Fase 3):** rota `app/app/triagem/comportamental` ("Triagem Digital Assistiva", no
+grupo Triagem da navegação) — Server Component com `requireRole` + `listChildren`,
+renderizando o client `components/app/behavioral-screening.tsx`. A tela permite selecionar
+a criança, aceitar o consentimento, enviar vídeo curto (até 60s) ou foto, informar a
+duração do vídeo e os timestamps de estímulos (chamada pelo nome / visual), e processar via
+`createDigitalScreening`. Exibe qualidade da coleta, recomendação de repetir coleta quando
+baixa, sinais (indicadores + confiança + nota), score de risco, confiança da predição,
+nível de risco, explicabilidade, fusão com M-CHAT (quando existe) e recomendação de
+encaminhamento — com avisos obrigatórios de triagem. Usa Cards, Badge, Progress, Framer
+Motion, Toasts e EmptyState do design system. Sem provedor real (só Mock).
 
 ## Storage (Bloco D)
 Buckets privados (`facial-photos`, `genetic-reports`, `child-documents`) com policies que

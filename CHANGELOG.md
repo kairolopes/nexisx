@@ -3,6 +3,32 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Fase 3 · Triagem Digital Assistiva (UI)
+
+Tela premium da Triagem Digital Assistiva, consumindo a Server Action
+`createDigitalScreening` (MockProvider). Sem provedor real; sem alterar banco/Storage;
+`facial_analyses` intacta.
+
+### Adicionado
+- **`app/app/triagem/comportamental/page.tsx`** — rota da Triagem Digital Assistiva
+  (Server Component com `requireRole` + `listChildren`).
+- **`components/app/behavioral-screening.tsx`** — client: seleção de criança,
+  consentimento, upload de vídeo curto (até 60s) ou foto, detecção/edição da duração do
+  vídeo e timestamps de estímulos (chamada pelo nome / visual). Exibe qualidade da coleta,
+  recomendação de repetir coleta, sinais (indicadores + confiança + nota), score de risco,
+  confiança da predição, nível de risco, explicabilidade, fusão com M-CHAT (quando existe)
+  e recomendação de encaminhamento. Usa Cards, Badge, Progress, Framer Motion, Toasts,
+  EmptyState e os **avisos obrigatórios** de triagem (não é diagnóstico, não substitui
+  avaliação profissional, interpretar por profissional habilitado, repetir coleta se a
+  qualidade for baixa).
+
+### Alterado
+- **`lib/navigation.ts`** — item "Triagem Digital Assistiva" no grupo Triagem.
+- **`components/app/icon.tsx`** — ícone `Video`.
+- **`lib/actions/screening.ts`** — `createDigitalScreening` passa a ler os timestamps de
+  estímulos (`nameCallMs`/`visualMs`) do `FormData` (fallback de chamada pelo nome em vídeo).
+- **`CONTEXT.md`** — documenta a tela.
+
 ## [Não lançado] — Fase 3 · Triagem Digital Assistiva (conexão banco/storage — backend)
 
 Liga o domínio comportamental (mock) ao banco e ao Storage. **Backend/actions/storage —

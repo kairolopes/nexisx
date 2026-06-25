@@ -18,6 +18,7 @@ import {
   type AIMediaRef,
   type MchatRef,
   type RiskLevel,
+  type StimulusEvent,
 } from "@/lib/ai";
 import { estimateCost } from "@/lib/ai/shared/cost";
 import { behavioralInterpretationV1 } from "@/lib/ai/behavioral/prompts/behavioral-interpretation-v1";
@@ -101,6 +102,27 @@ export async function createDigitalScreening(form: FormData) {
       durationMs = intInRange(durRaw, "Duração do vídeo", 1, MAX_VIDEO_MS);
     }
 
+    // Timestamps de estímulos aplicados durante a coleta (chamada pelo nome / visual).
+    const stimuli: StimulusEvent[] = [];
+    const nameCallRaw = form.get("nameCallMs");
+    if (nameCallRaw != null && nameCallRaw !== "") {
+      stimuli.push({
+        kind: "name_call",
+        atMs: intInRange(nameCallRaw, "Estímulo de chamar o nome", 0, MAX_VIDEO_MS),
+      });
+    }
+    const visualRaw = form.get("visualMs");
+    if (visualRaw != null && visualRaw !== "") {
+      stimuli.push({
+        kind: "visual",
+        atMs: intInRange(visualRaw, "Estímulo visual", 0, MAX_VIDEO_MS),
+      });
+    }
+    // Fallback: vídeo sem estímulos informados recebe uma chamada pelo nome padrão.
+    if (stimuli.length === 0 && mediaKind === "video") {
+      stimuli.push({ kind: "name_call", atMs: 2_000 });
+    }
+
     // Upload da mídia (policies de Storage aplicam o escopo por can_access_child).
     const path = await uploadScreeningMedia(childId, file);
 
@@ -121,11 +143,7 @@ export async function createDigitalScreening(form: FormData) {
 
     const startedAt = Date.now();
     const result = await analyzeBehavioralScreening(
-      {
-        mediaKind,
-        media,
-        stimuli: mediaKind === "video" ? [{ kind: "name_call", atMs: 2_000 }] : undefined,
-      },
+      { mediaKind, media, stimuli: stimuli.length > 0 ? stimuli : undefined },
       { requestId },
     );
     const latencyMs = Date.now() - startedAt;

@@ -16,6 +16,7 @@ export const NAV: NavItem[] = [
   // Triagem
   { href: "/app/triagem", label: "Triagem", icon: "ClipboardCheck", roles: ["admin", "responsavel", "profissional"], group: "Triagem" },
   { href: "/app/triagem/analise-facial", label: "Análise facial", icon: "ScanFace", roles: ["admin", "responsavel", "profissional"], group: "Triagem" },
+  { href: "/app/triagem/comportamental", label: "Triagem Digital Assistiva", icon: "Video", roles: ["admin", "responsavel", "profissional"], group: "Triagem" },
   { href: "/app/triagem/mchat", label: "M-CHAT", icon: "ListChecks", roles: ["admin", "responsavel", "profissional"], group: "Triagem" },
   { href: "/app/triagem/relatorios", label: "Relatórios de triagem", icon: "FileText", roles: ["admin", "responsavel", "profissional"], group: "Triagem" },
 
