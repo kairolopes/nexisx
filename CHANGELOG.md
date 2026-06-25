@@ -3,6 +3,43 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## v1.0 — Fundação concluída — 2026-06-25
+
+Esta versão marca a **consolidação da fundação completa do NexisX**: encerra o ciclo de
+construção da base (Fases 1, 2 e 2.5) e a camada de governança documental, deixando o
+projeto pronto para evoluir na Fase 3. Tag: `v1.0-foundation`. Ver `RELEASE.md` para o
+documento de release oficial.
+
+### Principais marcos
+- **Arquitetura consolidada** — Next.js 14 (App Router), route groups público/protegido,
+  camada de dados isolada (queries + Server Actions com `ActionResult`).
+- **Design System completo** — tokens HSL, escala de elevação, superfícies, tipografia
+  fluida, biblioteca de componentes acessíveis (Radix) e microinterações (Framer Motion)
+  com respeito a `prefers-reduced-motion`.
+- **Portal institucional** — site público premium (home, sobre, salas sensoriais, DNA,
+  famílias, profissionais, escolas/clínicas, contato) com mockups feitos em código.
+- **Plataforma de Triagem** — M-CHAT funcional (sessões + respostas + relatório) e análise
+  facial com upload real (resultado ainda simulado).
+- **Acompanhamento** — crianças/perfil, linha do tempo, tarefas/rotina, diário dos pais,
+  relatórios evolutivos.
+- **DNA / Exoma** — solicitação de exames e laudos (upload seguro).
+- **Salas Sensoriais** — página pública + gestão de solicitações comerciais (lead público).
+- **Administração** — dashboard com indicadores reais; gestão de responsáveis,
+  profissionais, escolas e usuários.
+- **Supabase configurado** — Auth, PostgreSQL e Storage integrados via `@supabase/ssr`.
+- **RLS** — habilitado em todas as tabelas; `can_access_child()` como centro da autorização.
+- **Storage** — buckets privados + acesso só por URL assinada temporária.
+- **Autenticação** — papéis em `profiles`, triggers de segurança, defesa em 3 camadas.
+- **Governança documental** — `HANDOFF.md`, `AI_CONTEXT.md`, `PROJECT_RULES.md` e
+  `VISION.md` consolidando contexto, regras permanentes e visão de produto.
+- **Deploy documentado** — `DEPLOY.md` com variáveis, ordem dos SQLs e checklists de RLS.
+
+### Adicionado
+- **`RELEASE.md`** — documento de release oficial do fechamento da Fundação.
+
+### Alterado
+- **`README.md`** — nova seção **Estado do Projeto** (Fundação v1.0 concluída → Fase 3).
+
 ## [Não lançado] — Documentação de visão de produto
 
 ### Adicionado

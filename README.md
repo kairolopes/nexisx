@@ -5,6 +5,17 @@ Reúne site público institucional + sistemas internos protegidos por login: tri
 (análise facial assistida + M-CHAT), acompanhamento contínuo do neurodivergente, área
 de genética/exoma, salas sensoriais e dashboard administrativo com controle por papéis.
 
+## Estado do Projeto
+
+A **Fundação (v1.0)** está **concluída** — tag `v1.0-foundation`. Estão consolidados a
+arquitetura, a segurança (auth/roles/RLS), o Storage, o design system, o portal público, a
+plataforma interna e a camada completa de governança documental. Ver [RELEASE.md](RELEASE.md)
+para o documento de release oficial.
+
+O desenvolvimento agora segue para a **Fase 3**: IA real de análise facial, geração de PDF,
+resumos de genética por IA, persistência de jogos, gestão de usuários e maturidade
+operacional (testes, CI/CD). Detalhes em [RELEASE.md](RELEASE.md) e [HANDOFF.md](HANDOFF.md).
+
 ## Stack
 
 - **Next.js 14** (App Router) + **TypeScript**
