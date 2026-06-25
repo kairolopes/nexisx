@@ -31,11 +31,12 @@ salas sensoriais — para famílias, profissionais, escolas/clínicas e a opera�
   (cookies → RLS), de modo que sessão e políticas são respeitadas em todas as operações.
   As actions retornam `ActionResult` (`{ ok, data | error }`) — nunca lançam para a UI.
 
-## Estado das telas (Bloco C)
+## Estado das telas (Blocos C–E)
 Conectadas a dados reais: dashboard, crianças (lista/perfil), linha do tempo, tarefas
 (criar/concluir), diário dos pais, solicitações comerciais/salas (admin), exames
-genéticos e triagem (M-CHAT → sessão+respostas+relatório; análise facial → registro
-mínimo). Telas conectadas têm empty states profissionais.
+genéticos, triagem (M-CHAT → sessão+respostas+relatório; análise facial → upload real +
+registro), laudos e documentos (Storage), responsáveis, profissionais, escolas, usuários,
+relatórios de triagem e relatórios evolutivos. Empty states padronizados via `EmptyState`.
 
 ## Storage (Bloco D)
 Buckets privados (`facial-photos`, `genetic-reports`, `child-documents`) com policies que
@@ -46,9 +47,9 @@ real), laudos genéticos e documentos da criança.
 ## Limites do MVP
 - **Análise facial** continua simulada (sem IA), mas já faz **upload real da foto** e
   salva o `storage_path` em `facial_analyses`.
-- **Ainda mockados:** relatórios evolutivos, visão geral/detalhe de relatório de triagem,
-  jogos (protótipo), tabelas admin (responsáveis, profissionais, escolas, usuários) e
-  configurações.
+- **Ainda protótipo** (ver `DEPLOY.md`): resultado de IA da análise facial, exportação
+  PDF, resumos de genética por IA, jogos (sem `game_sessions`), visão geral da triagem
+  (guia estático) e persistência de configurações.
 
 ## Próximos passos sugeridos
 1. Conectar formulários às tabelas via Server Actions.

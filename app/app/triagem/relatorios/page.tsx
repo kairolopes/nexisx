@@ -1,61 +1,62 @@
 import { PageHeader } from "@/components/app/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/app/empty-state";
 import { Notice } from "@/components/site/notice";
+import { requireSession } from "@/lib/guard";
+import { listScreeningReports, listChildren } from "@/lib/db/queries";
+import { formatDate } from "@/lib/utils";
 
-const sections = [
-  { title: "Dados da criança", rows: [["Nome", "Helena Martins"], ["Idade", "2 anos e 8 meses"], ["Escola", "Escola Aurora"]] },
-  { title: "Dados do responsável", rows: [["Nome", "Ana Martins"], ["Vínculo", "Mãe"], ["Contato", "(00) 90000-0000"]] },
-  { title: "Análise facial", rows: [["Status", "Concluída"], ["Sinais", "Atenção moderada"]] },
-  { title: "M-CHAT", rows: [["Pontuação", "5 / 20"], ["Classificação", "Risco moderado"]] },
-];
+const priorityVariant: Record<string, "success" | "warning" | "danger" | "default"> = {
+  baixo: "success",
+  moderado: "warning",
+  alto: "danger",
+};
 
-export default function RelatorioTriagemPage() {
+export default async function RelatorioTriagemPage() {
+  await requireSession();
+  const [reports, children] = await Promise.all([listScreeningReports(), listChildren()]);
+  const nameById = new Map(children.map((c) => [c.id, c.full_name]));
+
   return (
     <>
       <PageHeader
-        title="Relatório de triagem"
-        description="Documento preliminar consolidando análise facial e M-CHAT."
-        action={<Button variant="gradient">Exportar PDF</Button>}
+        title="Relatórios de triagem"
+        description="Documentos preliminares gerados a partir do M-CHAT e da análise facial."
       />
+      <Notice className="mb-6">
+        Estes relatórios são preliminares e não substituem avaliação de profissionais habilitados.
+      </Notice>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        {sections.map((s) => (
-          <Card key={s.title}>
-            <CardHeader>
-              <CardTitle>{s.title}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {s.rows.map(([k, v]) => (
-                <div key={k} className="flex justify-between border-b border-border py-2 text-sm last:border-0">
-                  <span className="text-muted-foreground">{k}</span>
-                  <span className="font-medium">{v}</span>
+      {reports.length === 0 ? (
+        <EmptyState
+          title="Nenhum relatório de triagem ainda"
+          description="Ao concluir um M-CHAT e salvá-lo, o relatório preliminar aparece aqui."
+        />
+      ) : (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {reports.map((r) => (
+            <Card key={r.id}>
+              <CardHeader className="flex-row items-center justify-between space-y-0">
+                <CardTitle>{r.child_id ? nameById.get(r.child_id) ?? "Criança" : "Triagem"}</CardTitle>
+                {r.priority && (
+                  <Badge variant={priorityVariant[r.priority] ?? "default"}>{r.priority}</Badge>
+                )}
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm">
+                <div className="flex justify-between border-b border-border py-2">
+                  <span className="text-muted-foreground">Gerado em</span>
+                  <span className="font-medium">{formatDate(r.created_at)}</span>
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <Card className="mt-4">
-        <CardHeader>
-          <CardTitle>Conclusão e próximos passos</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">Nível de prioridade:</span>
-            <Badge variant="warning">Moderado</Badge>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Recomenda-se avaliação com neuropediatra e psicólogo especializado. Considerar
-            investigação genética (exoma) caso haja achados clínicos adicionais.
-          </p>
-          <Notice>
-            Este relatório é preliminar e não substitui avaliação de profissionais habilitados.
-          </Notice>
-        </CardContent>
-      </Card>
+                {r.recommendation && (
+                  <p className="pt-2 text-muted-foreground">{r.recommendation}</p>
+                )}
+                {r.next_steps && <p className="text-muted-foreground">{r.next_steps}</p>}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </>
   );
 }

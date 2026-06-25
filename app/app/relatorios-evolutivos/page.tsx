@@ -2,54 +2,77 @@ import { PageHeader } from "@/components/app/page-header";
 import { BarChart } from "@/components/app/bar-chart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatCard } from "@/components/app/stat-card";
+import { EmptyState } from "@/components/app/empty-state";
+import { requireSession } from "@/lib/guard";
+import { listTasks, listDiaryEntries } from "@/lib/db/queries";
 
-const tasksByWeek = [
-  { label: "S1", value: 14 },
-  { label: "S2", value: 18 },
-  { label: "S3", value: 21 },
-  { label: "S4", value: 26 },
-];
+export default async function RelatoriosEvolutivosPage() {
+  await requireSession();
+  const [tasks, diary] = await Promise.all([listTasks(), listDiaryEntries()]);
 
-export default function RelatoriosEvolutivosPage() {
+  const concluidas = tasks.filter((t) => t.status === "concluida").length;
+  const emAndamento = tasks.filter((t) => t.status === "em_andamento").length;
+  const pendentes = tasks.filter((t) => t.status === "pendente").length;
+  const criancas = new Set(tasks.map((t) => t.child_id).filter(Boolean)).size;
+
+  const byStatus = [
+    { label: "Pendente", value: pendentes },
+    { label: "Em and.", value: emAndamento },
+    { label: "Concluída", value: concluidas },
+  ];
+
+  const hasData = tasks.length > 0 || diary.length > 0;
+
   return (
     <>
-      <PageHeader title="Relatórios evolutivos" description="Evolução por período e consolidação de atividades." />
+      <PageHeader title="Relatórios evolutivos" description="Evolução consolidada a partir de tarefas e registros." />
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="Tarefas concluídas" value={79} icon="ListTodo" trend="+18% no mês" />
-        <StatCard label="Frequência de atividades" value="92%" icon="LineChart" accent="secondary" />
-        <StatCard label="Registros dos pais" value={24} icon="BookHeart" accent="accent" />
-      </div>
+      {!hasData ? (
+        <EmptyState
+          title="Sem dados para consolidar ainda"
+          description="Conforme tarefas e registros do diário forem criados, a evolução aparece aqui."
+        />
+      ) : (
+        <>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <StatCard label="Tarefas concluídas" value={concluidas} icon="ListTodo" />
+            <StatCard label="Crianças acompanhadas" value={criancas} icon="LineChart" accent="secondary" />
+            <StatCard label="Registros dos pais" value={diary.length} icon="BookHeart" accent="accent" />
+          </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1.5fr_1fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>Tarefas concluídas por semana</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <BarChart data={tasksByWeek} />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Síntese do período</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            <div>
-              <p className="font-medium text-emerald-600">Pontos de melhora</p>
-              <p className="text-muted-foreground">Maior engajamento em atividades de comunicação.</p>
-            </div>
-            <div>
-              <p className="font-medium text-amber-600">Pontos de atenção</p>
-              <p className="text-muted-foreground">Sono ainda irregular em dias de mudança de rotina.</p>
-            </div>
-            <div>
-              <p className="font-medium text-primary">Próximos passos</p>
-              <p className="text-muted-foreground">Manter rotina visual e revisar com a equipe terapêutica.</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          <div className="mt-6 grid gap-6 lg:grid-cols-[1.5fr_1fr]">
+            <Card>
+              <CardHeader>
+                <CardTitle>Tarefas por status</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <BarChart data={byStatus} />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Resumo do período</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <Row label="Total de tarefas" value={tasks.length} />
+                <Row label="Concluídas" value={concluidas} />
+                <Row label="Em andamento" value={emAndamento} />
+                <Row label="Pendentes" value={pendentes} />
+                <Row label="Registros no diário" value={diary.length} />
+              </CardContent>
+            </Card>
+          </div>
+        </>
+      )}
     </>
+  );
+}
+
+function Row({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="flex items-center justify-between border-b border-border py-2 last:border-0">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-medium">{value}</span>
+    </div>
   );
 }

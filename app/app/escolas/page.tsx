@@ -1,19 +1,32 @@
 import { PageHeader } from "@/components/app/page-header";
 import { DataTable } from "@/components/app/data-table";
+import { EmptyState } from "@/components/app/empty-state";
 import { Button } from "@/components/ui/button";
 import { requireRole } from "@/lib/guard";
-
-const rows = [
-  ["Escola Aurora", "São Paulo", "12 crianças", "contato@aurora.edu"],
-  ["Colégio Horizonte", "Belo Horizonte", "8 crianças", "sec@horizonte.edu"],
-];
+import { listSchools } from "@/lib/db/queries";
 
 export default async function EscolasPage() {
   await requireRole(["admin"]);
+  const schools = await listSchools();
+
   return (
     <>
-      <PageHeader title="Escolas" description="Instituições parceiras." action={<Button variant="gradient">Adicionar</Button>} />
-      <DataTable columns={["Escola", "Cidade", "Vínculos", "Contato"]} rows={rows} />
+      <PageHeader
+        title="Escolas"
+        description="Instituições parceiras."
+        action={<Button variant="gradient">Adicionar</Button>}
+      />
+      {schools.length === 0 ? (
+        <EmptyState
+          title="Nenhuma escola cadastrada"
+          description="Instituições parceiras aparecerão aqui."
+        />
+      ) : (
+        <DataTable
+          columns={["Escola", "Cidade", "Contato"]}
+          rows={schools.map((s) => [s.name, s.city ?? "—", s.contact_email ?? "—"])}
+        />
+      )}
     </>
   );
 }

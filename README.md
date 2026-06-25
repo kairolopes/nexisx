@@ -63,6 +63,7 @@ supabase/
 
 ## Documentação
 
+- [DEPLOY.md](DEPLOY.md) — variáveis, ordem dos SQLs, checklists de Supabase/RLS e deploy
 - [CONTEXT.md](CONTEXT.md) — contexto e decisões de arquitetura
 - [PRODUCT.md](PRODUCT.md) — visão de produto e módulos
 - [DATABASE.md](DATABASE.md) — modelo de dados e RLS

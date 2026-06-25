@@ -4,6 +4,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import type {
+  ProfileRow,
   ChildRow,
   GuardianRow,
   ProfessionalRow,
@@ -82,6 +83,13 @@ export function listChildren() {
 }
 export function getChild(id: string) {
   return safeOne<ChildRow>((db) => db.from("children").select("*").eq("id", id).maybeSingle());
+}
+
+// ---------------- profiles ----------------
+export function listProfiles() {
+  return safeList<ProfileRow>((db) =>
+    db.from("profiles").select("*").order("created_at", { ascending: false }),
+  );
 }
 
 // ---------------- guardians ----------------

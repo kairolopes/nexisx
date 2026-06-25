@@ -3,6 +3,34 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Fase 2 · Bloco E (hardening e preparação para deploy)
+
+### Conectado (mocks removidos)
+- **Responsáveis, Profissionais, Escolas** — listas reais (`guardians`, `professionals`,
+  `schools`) com empty states.
+- **Usuários** — perfis reais (`profiles`) com papel e escopo; query `listProfiles()`.
+- **Relatórios de triagem** — lista real de `screening_reports` (nome da criança +
+  prioridade + recomendação), com aviso obrigatório e empty state.
+- **Relatórios evolutivos** — agregações reais (tarefas por status, registros do diário);
+  removidos números/tendências fabricados.
+
+### Hardening
+- Novo componente `EmptyState` — empty states padronizados.
+- `configuracoes` marcada como não-persistente (recurso futuro), sem dados fabricados.
+- Removido tipo morto `Child` em `lib/types.ts` (uso consolidado em `ChildRow`).
+- Confirmado: `demoProfile` só em dev; rotas restritas com `requireRole`; nenhum dado
+  sensível hardcoded (senha do seed é dev-only e documentada).
+
+### Documentação
+- Novo **`DEPLOY.md`**: variáveis obrigatórias, ordem dos SQLs, checklist de aplicação
+  no Supabase, checklist de teste de RLS com 2 contas, comandos de deploy e o que ainda
+  é protótipo (não levar a produção sem integração real).
+
+### Ainda protótipo (documentado no DEPLOY.md)
+- Resultado de IA da análise facial, exportação PDF, resumos de genética, jogos
+  (`game_sessions`), visão geral da triagem (guia estático), persistência de configurações
+  e fluxo de convite de usuários.
+
 ## [Não lançado] — Fase 2 · Bloco D (Supabase Storage)
 
 ### Adicionado

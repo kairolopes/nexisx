@@ -10,6 +10,9 @@ export default async function ConfiguracoesPage() {
   return (
     <div className="mx-auto max-w-2xl">
       <PageHeader title="Configurações" description="Preferências da organização e do portal." />
+      <p className="mb-4 rounded-xl border border-dashed border-border px-4 py-3 text-sm text-muted-foreground">
+        Estas preferências ainda não são persistidas (recurso planejado para uma próxima fase).
+      </p>
       <Card>
         <CardHeader>
           <CardTitle>Organização</CardTitle>
