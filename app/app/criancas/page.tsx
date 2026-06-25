@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/app/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { MotionList, MotionItem } from "@/components/app/motion";
 import { initials } from "@/lib/utils";
 import { listChildren } from "@/lib/db/queries";
 import { childAge } from "@/lib/age";
@@ -29,23 +30,25 @@ export default async function CriancasPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <MotionList className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {children.map((c) => (
-            <Link key={c.id} href={`/app/criancas/${c.id}`}>
-              <Card className="h-full transition-all hover:-translate-y-1 hover:shadow-lg">
-                <CardContent className="flex items-center gap-4 p-6">
-                  <Avatar className="h-14 w-14">
-                    <AvatarFallback className="text-lg">{initials(c.full_name)}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <p className="font-display font-semibold">{c.full_name}</p>
-                    <p className="text-sm text-muted-foreground">{childAge(c.birth_date)}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
+            <MotionItem key={c.id}>
+              <Link href={`/app/criancas/${c.id}`} className="block h-full">
+                <Card className="group h-full hover:-translate-y-1 hover:border-primary/30 hover:shadow-elevation-3">
+                  <CardContent className="flex items-center gap-4 p-6">
+                    <Avatar className="h-14 w-14 transition-transform duration-300 group-hover:scale-105">
+                      <AvatarFallback className="text-lg">{initials(c.full_name)}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <p className="font-display font-semibold">{c.full_name}</p>
+                      <p className="text-sm text-muted-foreground">{childAge(c.birth_date)}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            </MotionItem>
           ))}
-        </div>
+        </MotionList>
       )}
     </>
   );

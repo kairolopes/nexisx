@@ -3,7 +3,8 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Plus, Trophy, Loader2 } from "lucide-react";
+import { Plus, Trophy, Loader2, CheckCircle2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -154,30 +155,53 @@ export function TasksBoard({
                   <h3 className="font-semibold">{col.label}</h3>
                   <Badge variant="outline">{list.length}</Badge>
                 </div>
-                {list.map((t) => (
-                  <motion.div key={t.id} layout>
-                    <Card>
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between gap-2">
-                          <p className="text-sm font-medium">{t.title}</p>
-                          <span className="shrink-0 text-xs text-primary">+{t.points}</span>
-                        </div>
-                        {t.category && <Badge variant="secondary" className="mt-3">{t.category}</Badge>}
-                        {t.status !== "concluida" && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="mt-3 w-full"
-                            disabled={pending}
-                            onClick={() => onComplete(t.id)}
-                          >
-                            Concluir
-                          </Button>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
+                {list.map((t) => {
+                  const done = t.status === "concluida";
+                  return (
+                    <motion.div
+                      key={t.id}
+                      layout
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      <Card className="transition-colors hover:border-primary/30">
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between gap-2">
+                            <p className={cn("text-sm font-medium", done && "text-muted-foreground line-through")}>
+                              {t.title}
+                            </p>
+                            <span className="shrink-0 text-xs text-primary">+{t.points}</span>
+                          </div>
+                          <div className="mt-3 flex items-center gap-2">
+                            {t.category && <Badge variant="secondary">{t.category}</Badge>}
+                            {done && (
+                              <motion.span
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ type: "spring", stiffness: 500, damping: 18 }}
+                                className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600"
+                              >
+                                <CheckCircle2 className="h-4 w-4" /> Concluída
+                              </motion.span>
+                            )}
+                          </div>
+                          {!done && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="mt-3 w-full"
+                              disabled={pending}
+                              onClick={() => onComplete(t.id)}
+                            >
+                              Concluir
+                            </Button>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  );
+                })}
               </div>
             );
           })}

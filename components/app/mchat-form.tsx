@@ -122,9 +122,14 @@ export function MchatForm({
       <Card>
         <CardContent className="p-8">
           <div className="flex flex-col items-center text-center">
-            <div className="grid h-16 w-16 place-items-center rounded-full bg-emerald-500/15 text-emerald-500">
+            <motion.div
+              initial={{ scale: 0, rotate: -20 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 400, damping: 16 }}
+              className="grid h-16 w-16 place-items-center rounded-full bg-emerald-500/15 text-emerald-500"
+            >
               <Check className="h-8 w-8" />
-            </div>
+            </motion.div>
             <h3 className="mt-4 font-display text-2xl font-bold">Resultado do M-CHAT</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               Pontuação de risco: <strong>{score}</strong> / {total}

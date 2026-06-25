@@ -3,6 +3,25 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Fase 2.5 · Onda 4 (plataforma premium e microinterações)
+
+### Dashboard reorganizado
+- **Métrica principal em destaque** (`FeaturedStat` com gradiente, shimmer e counter
+  animado) + métricas secundárias com `StatCard` (counters animados, hover com escala
+  do ícone).
+- **Atividade recente** com ícone por tipo de evento, hover refinado e stagger de entrada;
+  empty state mais elegante.
+
+### Microinterações (Framer Motion, respeitando reduced-motion)
+- Novos primitivos `MotionList`/`MotionItem` (stagger no mount) e `AnimatedCounter`
+  (conta ao entrar em tela, via IntersectionObserver).
+- **Lista de crianças** com stagger + hover premium (lift, borda, escala do avatar).
+- **Tarefas:** entrada animada dos cards, hover de borda, e **check com spring** ao
+  concluir (texto riscado + selo "Concluída").
+- **M-CHAT:** ícone de conclusão com animação spring.
+
+> Sem funcionalidade nova, IA, PDF, banco, Storage, auth ou alteração do site público.
+
 ## [Não lançado] — Fase 2.5 · Onda 3 (biblioteca de componentes premium)
 
 ### Componentes acessíveis (Radix UI + tokens da Onda 1)
