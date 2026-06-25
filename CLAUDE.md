@@ -4,6 +4,20 @@
 NexisX é um portal SaaS (Next.js 14 App Router, TypeScript, Tailwind, Supabase) com
 site público + sistemas internos protegidos por login e RLS.
 
+## Leitura obrigatória (antes de qualquer alteração)
+**Antes de qualquer alteração no projeto, toda IA deve ler obrigatoriamente:**
+
+- `README.md`
+- `AI_CONTEXT.md`
+- `HANDOFF.md`
+- `CONTEXT.md`
+- `CHANGELOG.md`
+- `DATABASE.md`
+- `DEPLOY.md`
+
+**Nenhuma implementação deve começar antes dessa leitura.** As regras permanentes do
+projeto estão consolidadas em `PROJECT_RULES.md` (a "constituição" do NexisX).
+
 ## Comandos
 - `npm run dev` — desenvolvimento
 - `npm run lint` — ESLint (next/core-web-vitals)

@@ -3,6 +3,26 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Documentação de handoff e governança
+
+### Adicionado
+- **`HANDOFF.md`** — handoff técnico completo do projeto (visão geral, estado atual,
+  histórico via Git, banco/RLS/Storage, fluxos, arquitetura front/back, UX/UI, segurança,
+  deploy, pendências, dívida técnica, roadmap e regras para continuidade por outra IA).
+- **`AI_CONTEXT.md`** — contexto técnico essencial em formato de briefing (leitura < 5 min).
+- **`PROJECT_RULES.md`** — a "constituição" do NexisX: regras permanentes de arquitetura,
+  stack, convenções, Git, documentação, segurança, auth/permissões, Supabase/RLS/Storage,
+  UX/UI, design system, motion, IA e regras por módulo (triagem, DNA, análise facial,
+  M-CHAT, salas sensoriais, acompanhamento), além do que nunca deve ser alterado sem
+  justificativa.
+
+### Alterado
+- **`README.md`** — seção Documentação passa a listar `AI_CONTEXT.md`, `HANDOFF.md` e
+  `PROJECT_RULES.md`.
+- **`CLAUDE.md`** — nova regra de **leitura obrigatória** antes de qualquer alteração
+  (`README`, `AI_CONTEXT`, `HANDOFF`, `CONTEXT`, `CHANGELOG`, `DATABASE`, `DEPLOY`);
+  nenhuma implementação deve começar antes dessa leitura.
+
 ## [Não lançado] — Fase 2.5 · Onda 5 (site público premium)
 
 ### Mockups em código (sem imagens externas)

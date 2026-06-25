@@ -63,6 +63,9 @@ supabase/
 
 ## Documentação
 
+- [AI_CONTEXT.md](AI_CONTEXT.md) — contexto técnico essencial (briefing < 5 min para IA)
+- [HANDOFF.md](HANDOFF.md) — handoff completo do projeto (estado, arquitetura, banco, fluxos)
+- [PROJECT_RULES.md](PROJECT_RULES.md) — "constituição" do projeto (regras permanentes)
 - [DEPLOY.md](DEPLOY.md) — variáveis, ordem dos SQLs, checklists de Supabase/RLS e deploy
 - [CONTEXT.md](CONTEXT.md) — contexto e decisões de arquitetura
 - [PRODUCT.md](PRODUCT.md) — visão de produto e módulos
