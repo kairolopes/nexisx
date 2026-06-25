@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createTask, completeTask } from "@/lib/actions/tasks";
 import { useToast } from "@/components/ui/toast";
 import type { TaskRow } from "@/lib/db/types";
@@ -116,16 +117,16 @@ export function TasksBoard({
               </div>
               <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="t-child">Criança</Label>
-                <select
-                  id="t-child"
-                  value={childId}
-                  onChange={(e) => setChildId(e.target.value)}
-                  className="flex h-11 w-full rounded-xl border border-input bg-background/60 px-4 text-sm"
-                >
-                  {childOptions.map((c) => (
-                    <option key={c.id} value={c.id}>{c.full_name}</option>
-                  ))}
-                </select>
+                <Select value={childId} onValueChange={setChildId}>
+                  <SelectTrigger id="t-child">
+                    <SelectValue placeholder="Selecione a criança" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {childOptions.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{c.full_name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="sm:col-span-2">
                 <Button type="submit" variant="gradient" disabled={pending}>

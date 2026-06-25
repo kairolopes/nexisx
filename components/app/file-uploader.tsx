@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { uploadGeneticReportDoc, uploadChildDocumentDoc } from "@/lib/actions/uploads";
 import { useToast } from "@/components/ui/toast";
 
@@ -92,31 +93,31 @@ export function FileUploader({
         <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="u-child">Criança</Label>
-            <select
-              id="u-child"
-              value={childId}
-              onChange={(e) => setChildId(e.target.value)}
-              className="flex h-11 w-full rounded-xl border border-input bg-background/60 px-4 text-sm"
-            >
-              {childOptions.map((c) => (
-                <option key={c.id} value={c.id}>{c.full_name}</option>
-              ))}
-            </select>
+            <Select value={childId} onValueChange={setChildId}>
+              <SelectTrigger id="u-child">
+                <SelectValue placeholder="Selecione a criança" />
+              </SelectTrigger>
+              <SelectContent>
+                {childOptions.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>{c.full_name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {kind === "document" && (
             <div className="space-y-2">
               <Label htmlFor="u-type">Tipo de documento</Label>
-              <select
-                id="u-type"
-                value={docType}
-                onChange={(e) => setDocType(e.target.value)}
-                className="flex h-11 w-full rounded-xl border border-input bg-background/60 px-4 text-sm"
-              >
-                {DOC_TYPES.map((t) => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
-              </select>
+              <Select value={docType} onValueChange={setDocType}>
+                <SelectTrigger id="u-type">
+                  <SelectValue placeholder="Selecione o tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DOC_TYPES.map((t) => (
+                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           )}
 

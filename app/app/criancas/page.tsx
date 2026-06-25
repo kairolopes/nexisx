@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PageHeader } from "@/components/app/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { initials } from "@/lib/utils";
 import { listChildren } from "@/lib/db/queries";
 import { childAge } from "@/lib/age";
@@ -33,9 +34,9 @@ export default async function CriancasPage() {
             <Link key={c.id} href={`/app/criancas/${c.id}`}>
               <Card className="h-full transition-all hover:-translate-y-1 hover:shadow-lg">
                 <CardContent className="flex items-center gap-4 p-6">
-                  <span className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-primary to-accent text-lg font-semibold text-white">
-                    {initials(c.full_name)}
-                  </span>
+                  <Avatar className="h-14 w-14">
+                    <AvatarFallback className="text-lg">{initials(c.full_name)}</AvatarFallback>
+                  </Avatar>
                   <div className="flex-1">
                     <p className="font-display font-semibold">{c.full_name}</p>
                     <p className="text-sm text-muted-foreground">{childAge(c.birth_date)}</p>

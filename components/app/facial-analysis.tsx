@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Notice } from "@/components/site/notice";
 import { submitFacialAnalysis } from "@/lib/actions/uploads";
 import { useToast } from "@/components/ui/toast";
@@ -93,16 +94,16 @@ export function FacialAnalysis({ childOptions }: { childOptions: ChildOption[] }
           {childOptions.length > 1 && (
             <div className="space-y-2">
               <Label htmlFor="f-child">Criança</Label>
-              <select
-                id="f-child"
-                value={childId}
-                onChange={(e) => setChildId(e.target.value)}
-                className="flex h-11 w-full rounded-xl border border-input bg-background/60 px-4 text-sm"
-              >
-                {childOptions.map((c) => (
-                  <option key={c.id} value={c.id}>{c.full_name}</option>
-                ))}
-              </select>
+              <Select value={childId} onValueChange={setChildId}>
+                <SelectTrigger id="f-child">
+                  <SelectValue placeholder="Selecione a criança" />
+                </SelectTrigger>
+                <SelectContent>
+                  {childOptions.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>{c.full_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           )}
 

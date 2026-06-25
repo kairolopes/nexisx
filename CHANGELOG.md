@@ -3,6 +3,27 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Fase 2.5 · Onda 3 (biblioteca de componentes premium)
+
+### Componentes acessíveis (Radix UI + tokens da Onda 1)
+- Novos: **Select, Dialog, Sheet, Tooltip (+ `InfoTooltip`), Tabs, Avatar, Separator**.
+- Dependências adicionadas: `@radix-ui/react-{select,dialog,tooltip,tabs,avatar,separator}`.
+
+### Migrações
+- **Todos os `<select>` nativos** trocados pelo `Select` premium (tarefas, diário,
+  análise facial, exames genéticos, uploads de laudo/documento).
+- **Solicitação de exame genético** virou **Dialog** (apresentação mais limpa, foco preso,
+  ESC/overlay para fechar).
+- **Perfil da criança** reorganizado com **Tabs** (Visão geral · Linha do tempo ·
+  Documentos) + **Avatar** no cabeçalho; lista de crianças e topbar usam **Avatar**.
+- **Tooltip** no botão de sair (ícone) e **Separator** no topbar.
+
+### Acessibilidade
+- Navegação por teclado e foco preso nos overlays (Radix), `aria-label` em ícones,
+  foco visível consistente, `prefers-reduced-motion` respeitado. Sem warnings de build.
+
+> Sem funcionalidade nova, IA, PDF, banco, Storage ou mudança de identidade visual.
+
 ## [Não lançado] — Fase 2.5 · Onda 2 (estados, feedback e transições)
 
 ### Infraestrutura de feedback

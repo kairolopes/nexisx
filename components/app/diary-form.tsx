@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createDiaryEntry } from "@/lib/actions/diary";
 import { useToast } from "@/components/ui/toast";
 import type { ParentDiaryEntryRow } from "@/lib/db/types";
@@ -70,16 +71,16 @@ export function DiaryForm({
               {childOptions.length > 1 && (
                 <div className="space-y-2">
                   <Label htmlFor="d-child">Criança</Label>
-                  <select
-                    id="d-child"
-                    value={childId}
-                    onChange={(e) => setChildId(e.target.value)}
-                    className="flex h-11 w-full rounded-xl border border-input bg-background/60 px-4 text-sm"
-                  >
-                    {childOptions.map((c) => (
-                      <option key={c.id} value={c.id}>{c.full_name}</option>
-                    ))}
-                  </select>
+                  <Select value={childId} onValueChange={setChildId}>
+                    <SelectTrigger id="d-child">
+                      <SelectValue placeholder="Selecione a criança" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {childOptions.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>{c.full_name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               )}
               <div className="space-y-2">
