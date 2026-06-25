@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { createDiaryEntry } from "@/lib/actions/diary";
+import { useToast } from "@/components/ui/toast";
 import type { ParentDiaryEntryRow } from "@/lib/db/types";
 import { formatDate } from "@/lib/utils";
 
@@ -28,6 +29,7 @@ export function DiaryForm({
   childOptions: ChildOption[];
 }) {
   const router = useRouter();
+  const toast = useToast();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [mood, setMood] = useState(moods[1]);
@@ -41,9 +43,11 @@ export function DiaryForm({
       const res = await createDiaryEntry({ child_id: childId, mood, notes: note });
       if (!res.ok) {
         setError(res.error);
+        toast.error(res.error);
         return;
       }
       setNote("");
+      toast.success("Registro salvo no diário.");
       router.refresh();
     });
   }

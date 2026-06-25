@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createTask, completeTask } from "@/lib/actions/tasks";
+import { useToast } from "@/components/ui/toast";
 import type { TaskRow } from "@/lib/db/types";
 import type { TaskStatus } from "@/lib/types";
 
@@ -34,6 +35,7 @@ export function TasksBoard({
   canManage: boolean;
 }) {
   const router = useRouter();
+  const toast = useToast();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -50,8 +52,13 @@ export function TasksBoard({
     setError(null);
     startTransition(async () => {
       const res = await completeTask(id);
-      if (!res.ok) setError(res.error);
-      else router.refresh();
+      if (!res.ok) {
+        setError(res.error);
+        toast.error(res.error);
+      } else {
+        toast.success("Tarefa concluída! 🎉");
+        router.refresh();
+      }
     });
   }
 
@@ -62,12 +69,14 @@ export function TasksBoard({
       const res = await createTask({ child_id: childId, title, category, points });
       if (!res.ok) {
         setError(res.error);
+        toast.error(res.error);
         return;
       }
       setTitle("");
       setCategory("");
       setPoints(10);
       setShowForm(false);
+      toast.success("Tarefa criada.");
       router.refresh();
     });
   }

@@ -73,6 +73,9 @@ const config: Config = {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
         },
+        "skeleton-sweep": {
+          "100%": { transform: "translateX(100%)" },
+        },
         "pulse-glow": {
           "0%, 100%": { opacity: "0.6" },
           "50%": { opacity: "1" },

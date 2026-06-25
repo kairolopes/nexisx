@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createGeneticExamRequest } from "@/lib/actions/genetic";
+import { useToast } from "@/components/ui/toast";
 
 interface ChildOption {
   id: string;
@@ -16,6 +17,7 @@ interface ChildOption {
 
 export function GeneticRequestForm({ childOptions }: { childOptions: ChildOption[] }) {
   const router = useRouter();
+  const toast = useToast();
   const [pending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,11 +34,13 @@ export function GeneticRequestForm({ childOptions }: { childOptions: ChildOption
       });
       if (!res.ok) {
         setError(res.error);
+        toast.error(res.error);
         return;
       }
       setExamType("");
       setChildId("");
       setOpen(false);
+      toast.success("Solicitação de exame registrada.");
       router.refresh();
     });
   }

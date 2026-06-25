@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Notice } from "@/components/site/notice";
 import { submitFacialAnalysis } from "@/lib/actions/uploads";
+import { useToast } from "@/components/ui/toast";
 
 type Status = "idle" | "ready" | "analyzing" | "done";
 
@@ -20,6 +21,7 @@ interface ChildOption {
 
 export function FacialAnalysis({ childOptions }: { childOptions: ChildOption[] }) {
   const router = useRouter();
+  const toast = useToast();
   const [pending, startTransition] = useTransition();
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -56,9 +58,12 @@ export function FacialAnalysis({ childOptions }: { childOptions: ChildOption[] }
         form.set("file", file);
         const res = await submitFacialAnalysis(form);
         setStatus("done");
-        if (!res.ok) setError(res.error);
-        else {
+        if (!res.ok) {
+          setError(res.error);
+          toast.error(res.error);
+        } else {
           setSaved(true);
+          toast.success("Foto enviada e análise registrada.");
           router.refresh();
         }
       });

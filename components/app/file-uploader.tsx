@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { uploadGeneticReportDoc, uploadChildDocumentDoc } from "@/lib/actions/uploads";
+import { useToast } from "@/components/ui/toast";
 
 interface ChildOption {
   id: string;
@@ -33,6 +34,7 @@ export function FileUploader({
   kind: "genetic" | "document";
 }) {
   const router = useRouter();
+  const toast = useToast();
   const [pending, startTransition] = useTransition();
   const [childId, setChildId] = useState(childOptions[0]?.id ?? "");
   const [docType, setDocType] = useState(DOC_TYPES[0]);
@@ -74,8 +76,10 @@ export function FileUploader({
           : await uploadChildDocumentDoc(form);
       if (!res.ok) {
         setError(res.error);
+        toast.error(res.error);
         return;
       }
+      toast.success("Arquivo enviado com segurança.");
       setOkMsg("Arquivo enviado com segurança.");
       if (inputRef.current) inputRef.current.value = "";
       router.refresh();

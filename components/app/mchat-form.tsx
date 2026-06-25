@@ -14,6 +14,7 @@ import { Progress } from "@/components/ui/progress";
 import { Notice } from "@/components/site/notice";
 import { saveMchatSession } from "@/lib/actions/mchat";
 import { createScreeningReport } from "@/lib/actions/screening";
+import { useToast } from "@/components/ui/toast";
 
 type Answers = Record<number, "yes" | "no">;
 const STORAGE = "nexisx:mchat";
@@ -37,6 +38,7 @@ export function MchatForm({
   canCreateReport: boolean;
 }) {
   const router = useRouter();
+  const toast = useToast();
   const [pending, startTransition] = useTransition();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
@@ -96,6 +98,7 @@ export function MchatForm({
       const res = await saveMchatSession(payload);
       if (!res.ok) {
         setError(res.error);
+        toast.error(res.error);
         return;
       }
       if (canCreateReport) {
@@ -108,6 +111,7 @@ export function MchatForm({
         });
       }
       setSaved(true);
+      toast.success("Resultado salvo no acompanhamento.");
       router.refresh();
     });
   }

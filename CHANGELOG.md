@@ -3,6 +3,25 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Fase 2.5 · Onda 2 (estados, feedback e transições)
+
+### Infraestrutura de feedback
+- **`Skeleton`** (varredura sutil) + **`LoadingState`** com composições reutilizáveis
+  (`HeaderSkeleton`, `StatGridSkeleton`, `CardGridSkeleton`, `ListSkeleton`).
+- **`loading.tsx`** por segmento: `/app` (stats), `/app/criancas` (cards),
+  `/app/triagem` (list) e `(site)` (hero) — fim da sensação de tela travada.
+- **`ErrorState`** + **`error.tsx`** em `/app` e `(site)` e **`global-error.tsx`** —
+  erros elegantes, com "Tentar novamente" e "Voltar", sem expor stack trace.
+- **Toaster global** (`ToastProvider`/`useToast`, Framer Motion) com sucesso/erro/aviso/
+  info; montado no layout raiz; fallback seguro fora do provider.
+- **Transição de página** (`app/app/template.tsx`) discreta e rápida, respeitando
+  `prefers-reduced-motion`.
+
+### Feedback integrado às ações
+- Toasts de sucesso/erro em: criar/concluir tarefa, diário, solicitação de sala
+  (contato), solicitação de exame genético, upload de laudo, upload de documento,
+  análise facial e M-CHAT. Botões já bloqueiam duplo clique via `useTransition`.
+
 ## [Não lançado] — Fase 2.5 · Onda 1 (design tokens & fundação premium)
 
 ### Design tokens

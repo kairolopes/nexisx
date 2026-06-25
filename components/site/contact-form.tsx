@@ -9,8 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { createSensoryRoomRequest } from "@/lib/actions/sensory";
+import { useToast } from "@/components/ui/toast";
 
 export function ContactForm() {
+  const toast = useToast();
   const [pending, startTransition] = useTransition();
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,8 +33,10 @@ export function ContactForm() {
       });
       if (!res.ok) {
         setError(res.error);
+        toast.error(res.error);
         return;
       }
+      toast.success("Mensagem enviada! Em breve entraremos em contato.");
       setSent(true);
     });
   }
