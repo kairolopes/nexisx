@@ -3,6 +3,33 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Fase 3 · Triagem Digital Assistiva (base de banco e storage)
+
+Base de dados e Storage da **Análise Comportamental Digital** (fenotipagem por vídeo +
+M-CHAT; triagem assistiva, **nunca diagnóstico**). Apenas a fundação — **sem UI, rota,
+Server Action, processamento de vídeo ou chamada de IA**.
+
+### Adicionado
+- **`supabase/screening_digital.sql`** — SQL aditivo e idempotente (rodar após
+  `storage.sql`), que **não altera `facial_analyses`** (mantida como legado) e reaproveita
+  `can_access_child()`, `is_admin()` e `storage_child_id()`:
+  - Tabelas `digital_screening_sessions` (coleta vídeo/foto + metadados de IA),
+    `behavioral_signals` (sinais comportamentais — explicabilidade), `screening_fusions`
+    (fusão com M-CHAT) e `ai_requests` (auditoria operacional de IA, sem PII/texto bruto).
+  - **RLS:** `digital_screening_sessions`, `behavioral_signals` e `screening_fusions`
+    usam `can_access_child(child_id)`; `ai_requests` é exclusiva de **admin**
+    (`is_admin()`). Nada público.
+  - **Bucket privado `screening-media`** (vídeo/foto), caminho `<child_id>/<uuid>.<ext>`,
+    com 4 policies (select/insert/update/delete) reusando `can_access_child()`.
+  - Índices em `child_id`/`session_id`/`created_at`.
+- **`lib/db/types.ts`** — tipos das novas tabelas (`DigitalScreeningSessionRow`,
+  `BehavioralSignalRow`, `ScreeningFusionRow`, `AiRequestRow`) + uniões auxiliares
+  (`DigitalScreeningStatus`, `ScreeningRecommendation`).
+
+### Alterado
+- **`CONTEXT.md`** e **`DATABASE.md`** — documentam as novas tabelas, RLS, bucket e a
+  ordem de execução do SQL.
+
 ## v1.0 — Fundação concluída — 2026-06-25
 
 Esta versão marca a **consolidação da fundação completa do NexisX**: encerra o ciclo de

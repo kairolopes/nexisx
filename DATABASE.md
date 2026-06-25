@@ -4,6 +4,9 @@ Banco PostgreSQL no Supabase. Arquivos:
 - `supabase/schema.sql` — tipos, tabelas, índices, triggers e funções.
 - `supabase/schema_rls.sql` — habilita RLS e cria as políticas (rode **depois**).
 - `supabase/storage.sql` — buckets privados e policies de Storage (rode após o RLS).
+- `supabase/screening_digital.sql` — **aditivo** da Triagem Digital Assistiva: tabelas,
+  RLS e bucket `screening-media` (rode após `storage.sql`). Idempotente; não altera
+  `facial_analyses`.
 - `supabase/seed.sql` — dados de **desenvolvimento** (rode por último, só em dev).
 
 ## Storage
@@ -44,6 +47,13 @@ solicitações. **Não usar em produção** (insere direto em `auth.users`).
 **Comercial/genética/docs:** `sensory_room_requests`, `genetic_exam_requests`,
 `uploaded_documents`, `admin_notes`.
 
+**Triagem Digital Assistiva (aditivo — `screening_digital.sql`):**
+`digital_screening_sessions`, `behavioral_signals`, `screening_fusions` (ligadas à
+criança via `child_id`, RLS por `can_access_child()`) e `ai_requests` (auditoria
+operacional de IA — **somente admin**, sem PII/texto bruto). Bucket privado
+`screening-media` (`<child_id>/<uuid>.<ext>`), policies reusam `can_access_child()`.
+`facial_analyses` permanece **intacta** como estrutura legada.
+
 ## Funções auxiliares
 - `handle_new_user()` — cria `profiles` ao registrar usuário (trigger em `auth.users`).
   **O papel é sempre `responsavel`** — nunca lido de `raw_user_meta_data` (esse dado vem
@@ -76,3 +86,8 @@ Tabelas com `child_id` recebem automaticamente políticas de `select`/escrita ba
 
 > Ao criar uma nova tabela com `child_id`, adicione o nome dela ao array `child_tables`
 > para herdar as políticas padrão.
+
+As tabelas da Triagem Digital (`digital_screening_sessions`, `behavioral_signals`,
+`screening_fusions`) já estão no array `child_tables` do `screening_digital.sql`.
+`ai_requests` não tem `child_id` no escopo de acesso: sua policy é exclusiva de admin
+(`is_admin()`). Nada das novas tabelas nem do bucket `screening-media` é público.

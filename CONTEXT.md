@@ -60,6 +60,19 @@ genéticos, triagem (M-CHAT → sessão+respostas+relatório; análise facial �
 registro), laudos e documentos (Storage), responsáveis, profissionais, escolas, usuários,
 relatórios de triagem e relatórios evolutivos. Empty states padronizados via `EmptyState`.
 
+## Triagem Digital Assistiva (Fase 3 — base de dados)
+Base de banco/Storage para a **Análise Comportamental Digital** (fenotipagem por vídeo +
+M-CHAT; triagem, **nunca diagnóstico**). SQL aditivo e idempotente em
+`supabase/screening_digital.sql` (rodar após `storage.sql`), sem tocar em
+`facial_analyses` (mantida como legado). Novas tabelas: `digital_screening_sessions`
+(coleta vídeo/foto + metadados de IA), `behavioral_signals` (sinais medidos —
+explicabilidade), `screening_fusions` (fusão com M-CHAT) e `ai_requests` (auditoria
+operacional de IA, sem PII). RLS: as três primeiras usam `can_access_child(child_id)`;
+`ai_requests` é exclusiva de admin (`is_admin()`). Bucket privado `screening-media`
+(`<child_id>/<uuid>.<ext>`) com policies reusando `can_access_child()`. Tipos espelhados
+em `lib/db/types.ts`. **Sem UI, rota, Server Action, processamento de vídeo ou chamada de
+IA neste passo** — apenas a base.
+
 ## Storage (Bloco D)
 Buckets privados (`facial-photos`, `genetic-reports`, `child-documents`) com policies que
 reusam `can_access_child()` (caminho `<child_id>/...`). Upload via `lib/storage/` +

@@ -165,3 +165,81 @@ export interface UploadedDocumentRow {
   uploaded_by: string | null;
   created_at: string;
 }
+
+// ───────────────────────── Triagem Digital Assistiva ──────────────────────────
+// Análise Comportamental Digital (vídeo + M-CHAT). Espelham supabase/screening_digital.sql.
+
+export type DigitalScreeningStatus =
+  | "pendente"
+  | "processando"
+  | "concluido"
+  | "erro"
+  | "baixa_qualidade";
+
+export type ScreeningRecommendation =
+  | "encaminhar"
+  | "repetir_coleta"
+  | "acompanhar";
+
+export interface DigitalScreeningSessionRow {
+  id: string;
+  child_id: string | null;
+  media_kind: "video" | "photo";
+  media_path: string | null;
+  consent: boolean;
+  capture_quality: number | null;
+  risk_score: number | null;
+  risk_level: RiskLevel | null;
+  prediction_confidence: number | null;
+  recommendation: ScreeningRecommendation | null;
+  recapture_required: boolean;
+  status: DigitalScreeningStatus;
+  provider: string | null;
+  model: string | null;
+  prompt_version: string | null;
+  request_id: string | null;
+  latency_ms: number | null;
+  estimated_cost: number | null;
+  processed_at: string | null;
+  error_reason: string | null;
+  created_by: string | null;
+  created_at: string;
+}
+
+export interface BehavioralSignalRow {
+  id: string;
+  session_id: string | null;
+  child_id: string | null;
+  signal: string;
+  indicator: number | null;
+  confidence: number | null;
+  note: string | null;
+  created_at: string;
+}
+
+export interface ScreeningFusionRow {
+  id: string;
+  child_id: string | null;
+  session_id: string | null;
+  mchat_session_id: string | null;
+  combined_risk: RiskLevel | null;
+  combined_confidence: number | null;
+  recommendation: ScreeningRecommendation | null;
+  rationale: string | null;
+  created_at: string;
+}
+
+export interface AiRequestRow {
+  id: string;
+  provider: string;
+  model: string;
+  capability: string;
+  prompt_version: string | null;
+  request_id: string | null;
+  duration_ms: number | null;
+  estimated_cost: number | null;
+  success: boolean;
+  error: string | null;
+  child_id: string | null;
+  created_at: string;
+}
