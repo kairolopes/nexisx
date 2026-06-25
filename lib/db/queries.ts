@@ -19,6 +19,10 @@ import type {
   ScreeningReportRow,
   MchatSessionRow,
   FacialAnalysisRow,
+  DigitalScreeningSessionRow,
+  BehavioralSignalRow,
+  ScreeningFusionRow,
+  AiRequestRow,
 } from "./types";
 
 /**
@@ -216,4 +220,54 @@ export function listFacialAnalyses(childId?: string) {
     if (childId) q = q.eq("child_id", childId);
     return q;
   });
+}
+
+// ---------------- Triagem Digital Assistiva ----------------
+export function listDigitalScreeningSessions(childId?: string) {
+  return safeList<DigitalScreeningSessionRow>((db) => {
+    let q = db
+      .from("digital_screening_sessions")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (childId) q = q.eq("child_id", childId);
+    return q;
+  });
+}
+
+export function getDigitalScreeningSession(id: string) {
+  return safeOne<DigitalScreeningSessionRow>((db) =>
+    db.from("digital_screening_sessions").select("*").eq("id", id).maybeSingle(),
+  );
+}
+
+export function listBehavioralSignals(sessionId: string) {
+  return safeList<BehavioralSignalRow>((db) =>
+    db
+      .from("behavioral_signals")
+      .select("*")
+      .eq("session_id", sessionId)
+      .order("created_at", { ascending: true }),
+  );
+}
+
+export function listScreeningFusions(childId?: string) {
+  return safeList<ScreeningFusionRow>((db) => {
+    let q = db
+      .from("screening_fusions")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (childId) q = q.eq("child_id", childId);
+    return q;
+  });
+}
+
+/** Auditoria operacional de IA — RLS restringe a admin; em outros papéis devolve []. */
+export function listAiRequests(limit = 100) {
+  return safeList<AiRequestRow>((db) =>
+    db
+      .from("ai_requests")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(limit),
+  );
 }

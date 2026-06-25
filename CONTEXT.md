@@ -70,8 +70,19 @@ explicabilidade), `screening_fusions` (fusão com M-CHAT) e `ai_requests` (audit
 operacional de IA, sem PII). RLS: as três primeiras usam `can_access_child(child_id)`;
 `ai_requests` é exclusiva de admin (`is_admin()`). Bucket privado `screening-media`
 (`<child_id>/<uuid>.<ext>`) com policies reusando `can_access_child()`. Tipos espelhados
-em `lib/db/types.ts`. **Sem UI, rota, Server Action, processamento de vídeo ou chamada de
-IA neste passo** — apenas a base.
+em `lib/db/types.ts`.
+
+**Conexão (Fase 3 — backend):** o domínio comportamental (`lib/ai/behavioral`, mock) está
+ligado ao banco e ao Storage. Leitura: `lib/db/queries.ts` ganha
+`listDigitalScreeningSessions`, `getDigitalScreeningSession`, `listBehavioralSignals`,
+`listScreeningFusions` e `listAiRequests` (RLS restringe `ai_requests` a admin). Escrita:
+`createDigitalScreening` (em `lib/actions/screening.ts`) recebe `FormData` (criança +
+consentimento + mídia), valida (vídeo até 60s/50 MB; foto como fallback), faz upload no
+bucket privado `screening-media` (`lib/storage#uploadScreeningMedia`), roda
+`analyzeBehavioralScreening` (MockProvider), persiste a sessão em
+`digital_screening_sessions`, os sinais em `behavioral_signals`, a fusão com o M-CHAT mais
+recente em `screening_fusions` (se houver) e a auditoria em `ai_requests`, devolvendo um
+resultado estruturado. **Ainda sem UI/rota** (passo futuro). `facial_analyses` intacta.
 
 ## Storage (Bloco D)
 Buckets privados (`facial-photos`, `genetic-reports`, `child-documents`) com policies que

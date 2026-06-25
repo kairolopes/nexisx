@@ -3,6 +3,28 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Fase 3 · Triagem Digital Assistiva (conexão banco/storage — backend)
+
+Liga o domínio comportamental (mock) ao banco e ao Storage. **Backend/actions/storage —
+sem UI, rota ou provedor real.** `facial_analyses` permanece intacta.
+
+### Adicionado
+- **`lib/storage/index.ts`** — bucket `screening-media` na config de upload
+  (`uploadScreeningMedia`): vídeo (mp4/webm/mov) ou foto, até **50 MB**.
+- **`lib/db/queries.ts`** — leituras tipadas: `listDigitalScreeningSessions`,
+  `getDigitalScreeningSession`, `listBehavioralSignals(sessionId)`,
+  `listScreeningFusions` e `listAiRequests` (RLS restringe `ai_requests` a admin).
+- **`lib/actions/screening.ts`** — Server Action `createDigitalScreening(form)`:
+  valida criança/consentimento/mídia (vídeo até **60 s** quando a duração é informada;
+  foto como fallback) → upload em `screening-media` → `analyzeBehavioralScreening`
+  (MockProvider) → grava `digital_screening_sessions`, `behavioral_signals`, a fusão com o
+  M-CHAT mais recente em `screening_fusions` (se houver) e a auditoria em `ai_requests`
+  (metadados operacionais, sem PII) → retorna resultado estruturado. Falha de IA grava
+  sessão com `status='erro'` e auditoria `success=false`.
+
+### Alterado
+- **`CONTEXT.md`** — documenta a conexão backend da Triagem Digital Assistiva.
+
 ## [Não lançado] — Fase 3 · Triagem Digital Assistiva (domínio comportamental — mock)
 
 Implementação funcional do domínio comportamental em `lib/ai/behavioral/`, exercitando o

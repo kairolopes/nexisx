@@ -11,6 +11,7 @@ export const BUCKETS = {
   facial: "facial-photos",
   genetic: "genetic-reports",
   documents: "child-documents",
+  screening: "screening-media",
 } as const;
 
 export type BucketId = (typeof BUCKETS)[keyof typeof BUCKETS];
@@ -24,6 +25,8 @@ interface UploadConfig {
 
 const IMAGE_MIMES = ["image/jpeg", "image/png", "image/webp"];
 const IMAGE_EXTS = ["jpg", "jpeg", "png", "webp"];
+const VIDEO_MIMES = ["video/mp4", "video/webm", "video/quicktime"];
+const VIDEO_EXTS = ["mp4", "webm", "mov"];
 
 const CONFIG = {
   facial: {
@@ -48,6 +51,13 @@ const CONFIG = {
       ...IMAGE_MIMES,
     ],
     exts: ["pdf", "doc", "docx", ...IMAGE_EXTS],
+  },
+  // Triagem Digital Assistiva: vídeo curto (análise principal) ou foto (fallback).
+  screening: {
+    bucket: BUCKETS.screening,
+    maxBytes: 50 * 1024 * 1024, // 50 MB
+    mimes: [...VIDEO_MIMES, ...IMAGE_MIMES],
+    exts: [...VIDEO_EXTS, ...IMAGE_EXTS],
   },
 } satisfies Record<string, UploadConfig>;
 
@@ -104,6 +114,11 @@ export function uploadGeneticReport(childId: unknown, file: File) {
 
 export function uploadChildDocument(childId: unknown, file: File) {
   return upload(CONFIG.documents, childId, file);
+}
+
+/** Triagem Digital Assistiva — upload de vídeo curto/foto → bucket `screening-media`. */
+export function uploadScreeningMedia(childId: unknown, file: File) {
+  return upload(CONFIG.screening, childId, file);
 }
 
 /** Gera uma URL assinada temporária para visualização/download seguro. */
