@@ -1,15 +1,14 @@
 import { PageHeader } from "@/components/app/page-header";
-import { DataTable } from "@/components/app/data-table";
 import { StatCard } from "@/components/app/stat-card";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { requireRole } from "@/lib/guard";
 import { listSensoryRoomRequests } from "@/lib/db/queries";
-import { formatDate } from "@/lib/utils";
+import { SensoryRequestList } from "@/components/app/sensory-request-list";
 
 export default async function SalasSensoriaisAdminPage() {
-  await requireRole(["admin", "consultor"]);
+  const { profile } = await requireRole(["admin", "consultor"]);
   const requests = await listSensoryRoomRequests();
+  const canManage = profile.role === "admin" || profile.role === "consultor";
   const novos = requests.filter((r) => r.status === "novo").length;
   const aprovados = requests.filter((r) => r.status === "aprovado").length;
 
@@ -28,16 +27,7 @@ export default async function SalasSensoriaisAdminPage() {
           </CardContent>
         </Card>
       ) : (
-        <DataTable
-          columns={["Solicitante", "Ambiente", "Contato", "Recebido", "Status"]}
-          rows={requests.map((r) => [
-            r.requester_name,
-            r.environment ?? "—",
-            r.email ?? r.phone ?? "—",
-            formatDate(r.created_at),
-            <Badge key={r.id} variant={r.status === "aprovado" ? "success" : "warning"}>{r.status}</Badge>,
-          ])}
-        />
+        <SensoryRequestList requests={requests} canManage={canManage} />
       )}
     </>
   );
