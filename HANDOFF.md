@@ -103,11 +103,12 @@ Vercel + Supabase.
   com `notFound()` e empty states. Perfil organizado em Tabs (Visão geral · Linha do
   tempo · Documentos).
 - **Linha do tempo** — eventos reais (`neuro_timeline_events`).
-- **Tarefas** — leitura + criar + concluir (pontuação, `task_completions`).
-- **Diário dos pais** — leitura + criação.
-- **Solicitações comerciais / salas (admin/consultor)** — listas reais; **formulário
-  público de contato grava lead real** (anônimo permitido pela RLS).
-- **Exames genéticos** — criação + lista.
+- **Tarefas** — criar + concluir + **editar + excluir** (pontuação, `task_completions`). ✅ completo.
+- **Diário dos pais** — criar + listar + **editar + excluir** (confirmação inline). ✅ completo.
+- **Solicitações comerciais / salas (admin/consultor)** — listas reais + **atualização de
+  status operacional** inline; **formulário público de contato grava lead real** (anônimo).
+- **Exames genéticos** — criação + lista + **atualização de status + resumos manuais** (familiar
+  e técnico). ✅ completo.
 - **Triagem M-CHAT** — salva `mchat_sessions` + `mchat_answers`; gera `screening_reports`
   (quando profissional/admin).
 - **Análise facial** — **upload real da foto** (bucket `facial-photos`), `image_path`
@@ -128,13 +129,13 @@ Vercel + Supabase.
 | **Relatórios em PDF** | **triagem ✅** (`relatorios/[id]/pdf`, `pdf-lib`); evolutivo ainda não | PDF do relatório evolutivo (Sprint futuro) |
 | **Detalhe do relatório de triagem** | ✅ implementado (`/app/triagem/relatorios/[id]`) — Sprint 1 | — |
 | **Resumos de genética** | campos `family_summary`/`technical_summary` existem | geração automática (IA) |
-| **Jogos** | protótipo visual (jogo da memória) | persistir `game_sessions`; mais jogos |
+| **Jogos** | jogo da memória ✅; `game_sessions` persistido ✅; histórico por criança ✅ | mais jogos (v1.5) |
 | **Visão geral da triagem** | guia estático de etapas | torná-la orientada ao estado real |
 | **Configurações** | formulário **não persiste** | tabela de settings (fase futura) |
 | **Convite/cadastro de usuários** | ✅ implementado (`inviteUser`, `InviteUserDialog`, `/auth/callback`) | — |
 | **IA (toda)** | mock determinístico (sem SDK/provider real) | integrar provider real por etapa da pipeline / capacidade |
 | **Resumo de genética por IA** | código em `lib/ai/genetics` **dormente** | plugar a `genetic_exam_requests` quando houver provider |
-| **Testes automatizados** | 39 unit (Vitest) ✅ + **smoke E2E (Playwright)** ✅ — site público e proteção de rota validados **sem login**; testes autenticados (admin) **pendentes por credenciais** (rodam com `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD` via `npm run test:e2e`, senão são pulados). CI ainda **não** roda testes. | integração/RLS + E2E maiores (M-CHAT, Triagem Digital); adicionar testes ao CI — ver `TEST_PLAN.md` |
+| **Testes automatizados** | **43 unit (Vitest)** ✅ + **smoke E2E (Playwright)** ✅ — site público e proteção de rota validados **sem login**; testes autenticados (admin) **pendentes por credenciais** (rodam com `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD` via `npm run test:e2e`, senão são pulados). CI ainda **não** roda testes. | integração/RLS + E2E maiores (M-CHAT, Triagem Digital); adicionar testes ao CI — ver `TEST_PLAN.md` |
 
 ### Dependências externas
 - **Supabase** (Auth + Postgres + Storage + RLS) — núcleo. Sem `NEXT_PUBLIC_SUPABASE_*`

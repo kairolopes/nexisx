@@ -3,6 +3,61 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Sprint Jogos · Persistência de sessões e histórico (2026-06-26)
+
+Fecha o módulo de Jogos para o MVP: o Jogo da Memória passa a **persistir resultados** em
+`game_sessions` e exibe um **histórico de sessões por criança** ao lado do jogo.
+
+### Adicionado
+- **`GameSessionRow`** em `lib/db/types.ts` — espelha `game_sessions` (schema existente).
+- **`listGameSessions(childId?)`** em `lib/db/queries.ts` — leitura tolerante a falha, com
+  RLS via `can_access_child(child_id)`.
+- **`lib/actions/games.ts`** — `saveGameSession({ child_id, score, phase })`: persiste
+  resultado com `getActor()` + `createClient()` (RLS por criança). `game_id` salvo como
+  `null` — FK nullable, tabela `games` sem seed ainda.
+- **Seletor de criança** no `MemoryGame`: se houver mais de uma criança, exibe `<Select>`;
+  ao concluir (todas as peças encontradas), dispara `saveGameSession` automaticamente.
+- **Histórico de sessões** em `app/app/jogos/page.tsx`: tabela com criança, movimentos e
+  data; empty state enquanto não há sessões.
+
+### Corrigido
+- `app/app/jogos/page.tsx` não tinha guard de autenticação — adicionado `requireSession()`.
+
+> Sem novos jogos, gamificação ou IA. Sem mudança de banco ou RLS. Testes 43/43 ✓ build ✓.
+
+---
+
+## [Não lançado] — Sprint Diário · Edição e exclusão de entradas (2026-06-26)
+
+Fecha o módulo de Diário: além de criar e listar, responsáveis e admins podem agora
+**editar** e **excluir** entradas, com confirmação inline e atualização imediata.
+
+### Adicionado
+- **`updateDiaryEntry({ id, mood?, notes? })`** em `lib/actions/diary.ts` — autorizada a
+  `admin`/`responsavel`; valida UUID e campos opcionais; RLS garante escopo por criança.
+- **`deleteDiaryEntry({ id })`** — mesma autorização e validação; remove a linha.
+- **UI** (`components/app/diary-form.tsx`): botões Editar (✏) e Excluir (🗑) por entrada;
+  modo de edição inline com seletor de humor e textarea; confirmação inline antes de excluir.
+
+> Sem mudança de banco, RLS ou outros módulos. Testes/build verdes.
+
+---
+
+## [Não lançado] — Sprint Salas · Status operacional de solicitações (2026-06-26)
+
+Fecha o módulo de Salas Sensoriais / Solicitações comerciais para o MVP: admin e consultor
+podem agora **atualizar o status** de cada solicitação diretamente na UI.
+
+### Adicionado
+- **`updateSensoryRoomStatus({ id, status })`** em `lib/actions/sensory.ts` — autorizada a
+  `admin`/`consultor`; valida UUID e `oneOf` nos status permitidos; RLS mantido.
+- **UI de status inline** na lista de solicitações: badge de status clicável (ou select)
+  com atualização imediata via `router.refresh()`.
+
+> Sem mudança de banco, RLS ou outros módulos. Testes/build verdes.
+
+---
+
 ## [Não lançado] — Sprint 4 · Genética operacional (status + resumos manuais) (2026-06-26)
 
 Fecha o módulo de Genética **sem IA**: a solicitação de exame deixa de ser só uma lista e
