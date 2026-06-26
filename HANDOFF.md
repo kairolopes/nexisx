@@ -517,6 +517,26 @@ Server Actions principais: `createChild/updateChild`, `createDiaryEntry`,
 
 ---
 
+## 10a. Status da branch `feat/sprint-2-admin-management`
+
+> **Pronto para PR — homologação manual no Supabase ainda pendente.**
+> Não aprovado para merge em `main` nem para produção até os fluxos abaixo serem executados.
+
+| Item | Status |
+|---|---|
+| typecheck | ✅ zero erros |
+| lint | ✅ zero warnings |
+| test | ✅ 39/39 |
+| build | ✅ 35 páginas |
+| `.env.homolog.example` sem segredo real | ✅ |
+| `SUPABASE_SERVICE_ROLE_KEY` isolado no server | ✅ |
+| `/app/diagnostico` protegido por `requireRole(["admin"])` | ✅ |
+| Ambiente de homologação documentado (`DEPLOY.md`) | ✅ |
+| Fluxos manuais no Supabase real | ⏳ pendente |
+| Aprovado para produção | ❌ não |
+
+---
+
 ## 10b. Homologação — Sprint 2 (branch `feat/sprint-2-admin-management`)
 
 > Ambiente de homologação = Supabase real + `npm run dev` local (não há ambiente de
