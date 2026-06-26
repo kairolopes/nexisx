@@ -12,6 +12,7 @@ create table if not exists app_settings (
 alter table app_settings enable row level security;
 
 -- Apenas admin lê e escreve configurações
+drop policy if exists app_settings_admin on public.app_settings;
 create policy app_settings_admin on app_settings
   for all
   using (public.is_admin())
