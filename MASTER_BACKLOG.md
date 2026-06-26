@@ -25,11 +25,11 @@
 
 | ID | Descrição | Prio | Status | Risco | Esforço | Módulo | Versão | Dependências |
 |---|---|---|---|---|---|---|---|---|
-| B-001 | Commitar entrega P0.1: logger + testes + remotePatterns + package.json | MVP | ⚪ | 🟢 | XS | DevOps | MVP | — |
-| B-002 | Rodar `npm run test` e confirmar 39/39 passando | MVP | ⚪ | 🟢 | XS | QA | MVP | B-001 |
-| B-003 | Validar E2E Triagem Digital no Supabase real (criar criança → enviar coleta → confirmar 4 tabelas + Storage) | MVP | ⚪ | 🟡 | S | Triagem | MVP | B-001 |
-| B-004 | Push para `origin/main` e confirmar CI verde | MVP | ⚪ | 🟢 | XS | DevOps | MVP | B-002, B-003 |
-| B-005 | Adicionar `AI_PROVIDER` e `AI_PROVIDER_FALLBACK` ao `.env.example` | MVP | ⚪ | 🟢 | XS | DevOps | MVP | B-001 |
+| B-001 | Commitar entrega P0.1: logger + testes + remotePatterns + package.json | MVP | 🟢 | 🟢 | XS | DevOps | MVP | — |
+| B-002 | Rodar `npm run test` e confirmar 39/39 passando | MVP | 🟢 | 🟢 | XS | QA | MVP | B-001 |
+| B-003 | Validar E2E Triagem Digital no Supabase real (criar criança → enviar coleta → confirmar 4 tabelas + Storage) | MVP | 🔴 | 🟡 | S | Triagem | MVP | B-001 |
+| B-004 | Push para `origin/main` e confirmar CI verde | MVP | 🟢 | 🟢 | XS | DevOps | MVP | B-002, B-003 |
+| B-005 | Adicionar `AI_PROVIDER` e `AI_PROVIDER_FALLBACK` ao `.env.example` | MVP | 🟢 | 🟢 | XS | DevOps | MVP | B-001 |
 
 ---
 
@@ -40,11 +40,11 @@
 
 | ID | Descrição | Prio | Status | Risco | Esforço | Módulo | Versão | Dependências |
 |---|---|---|---|---|---|---|---|---|
-| B-010 | **Remover resultado mock da análise facial da UI de produção** | MVP | ⚪ | 🔴 | XS | Triagem | MVP | B-004 |
-| B-011 | Exibir mensagem "análise pendente de avaliação profissional" no lugar do resultado | MVP | ⚪ | 🟢 | XS | Triagem | MVP | B-010 |
-| B-012 | Adicionar badge "Preview Científico / Modelo Demonstrativo" na Triagem Digital Assistiva | MVP | ⚪ | 🟢 | XS | Triagem | MVP | B-004 |
-| B-013 | Remover grade de 7 categorias de jogos "fantasmas" (sem implementação) | MVP | ⚪ | 🟢 | XS | Jogos | MVP | B-004 |
-| B-014 | Desabilitar botão "Salvar alterações" das Configurações (ou conectá-lo — ver B-040) | MVP | ⚪ | 🟢 | XS | Config | MVP | B-004 |
+| B-010 | **Remover resultado mock da análise facial da UI de produção** | MVP | 🟢 | 🔴 | XS | Triagem | MVP | B-004 |
+| B-011 | Exibir mensagem "análise pendente de avaliação profissional" no lugar do resultado | MVP | 🟢 | 🟢 | XS | Triagem | MVP | B-010 |
+| B-012 | Adicionar badge "Preview Científico / Modelo Demonstrativo" na Triagem Digital Assistiva | MVP | 🟢 | 🟢 | XS | Triagem | MVP | B-004 |
+| B-013 | Remover grade de 7 categorias de jogos "fantasmas" (sem implementação) | MVP | 🟢 | 🟢 | XS | Jogos | MVP | B-004 |
+| B-014 | Desabilitar botão "Salvar alterações" das Configurações (ou conectá-lo — ver B-040) | MVP | 🟢 | 🟢 | XS | Config | MVP | B-004 |
 
 **Nota CTO sobre B-010/B-011:** Esta é a mudança mais urgente do projeto. Um profissional
 que vê "Atenção moderada" para qualquer foto sem entender que é mock pode tomar decisões

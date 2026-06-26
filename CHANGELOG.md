@@ -3,6 +3,30 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Sprint 1 · Integridade do produto (2026-06-26)
+
+### Corrigido
+- **Análise Facial (B-010/B-011):** Removido resultado mock fixo "Atenção moderada" que era
+  exibido para qualquer foto enviada. Substituído por aviso explícito "análise pendente de
+  avaliação profissional". O upload da foto continua funcional. Nenhum resultado inventado é
+  mais exibido na UI de produção.
+- **Triagem Digital Assistiva (B-012):** Adicionado badge "Preview Científico · Modelo
+  Demonstrativo" e banner de aviso na página. Deixa explícito que os sinais comportamentais
+  são simulados e que a IA real depende de validação clínica.
+- **Jogos (B-013):** Removidas 7 categorias de jogos sem implementação (Atenção, Associação,
+  Comunicação, Coordenação, Regulação emocional, Sensorial, Cognição). Mantido apenas o Jogo
+  da Memória que está funcional.
+- **Configurações (B-014):** Removido botão "Salvar alterações" que não fazia nada. Substituído
+  por estado honesto "em desenvolvimento" com previsão de entrega.
+- **Análise Facial — descrição:** Corrigida descrição da página que prometia "obtenha um
+  resultado preliminar" — texto substituído por informação precisa sobre o fluxo real.
+
+> Sprint 0 também concluída nesta data: logger estruturado (lib/logger.ts), 39 testes Vitest,
+> documentos de governança (PRODUCT_VISION, PRODUCT_ROADMAP, FEATURE_MATRIX, RELEASE_PLAN,
+> MASTER_BACKLOG), e AI_PROVIDER adicionado ao .env.example.
+
+---
+
 ## [Não lançado] — P0.1 · Base de testes e qualidade
 
 Primeira rede de testes automatizados e logging mínimo — **sem refatorar arquitetura, sem
