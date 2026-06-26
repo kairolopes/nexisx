@@ -3,11 +3,11 @@
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, RotateCcw, Save, Loader2 } from "lucide-react";
+import { Check, RotateCcw, Save, Loader2, FileDown } from "lucide-react";
 import { MCHAT_QUESTIONS, scoreMchat } from "@/lib/mchat";
 import { RISK_LABELS, type RiskLevel } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
@@ -46,6 +46,7 @@ export function MchatForm({
   const [childId, setChildId] = useState(childOptions[0]?.id ?? "");
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [reportId, setReportId] = useState<string | null>(null);
 
   useEffect(() => {
     const raw = typeof window !== "undefined" ? localStorage.getItem(STORAGE) : null;
@@ -102,13 +103,14 @@ export function MchatForm({
         return;
       }
       if (canCreateReport) {
-        await createScreeningReport({
+        const reportRes = await createScreeningReport({
           child_id: childId,
           mchat_session_id: res.data.id,
           priority: risk,
           recommendation:
             "Resultado de triagem M-CHAT. Recomenda-se avaliação de profissional habilitado.",
         });
+        if (reportRes.ok) setReportId(reportRes.data.id);
       }
       setSaved(true);
       toast.success("Resultado salvo no acompanhamento.");
@@ -142,9 +144,21 @@ export function MchatForm({
           <Notice className="mt-8">O M-CHAT é instrumento de triagem, não diagnóstico.</Notice>
 
           {saved ? (
-            <p className="mt-6 rounded-xl bg-emerald-500/10 px-4 py-3 text-center text-sm text-emerald-600">
-              Sessão salva no acompanhamento.
-            </p>
+            <div className="mt-6 space-y-3 text-center">
+              <p className="rounded-xl bg-emerald-500/10 px-4 py-3 text-sm text-emerald-600">
+                Sessão salva no acompanhamento.
+              </p>
+              {reportId && (
+                <a
+                  href={`/app/triagem/relatorios/${reportId}/pdf`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={buttonVariants({ variant: "outline" })}
+                >
+                  <FileDown className="h-4 w-4" /> Baixar PDF do relatório
+                </a>
+              )}
+            </div>
           ) : (
             <div className="mt-6 space-y-4">
               {childOptions.length === 0 ? (
