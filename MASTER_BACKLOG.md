@@ -58,14 +58,14 @@ clínicas erradas. Prioridade absoluta acima de qualquer feature nova.
 
 | ID | Descrição | Prio | Status | Risco | Esforço | Módulo | Versão | Dependências |
 |---|---|---|---|---|---|---|---|---|
-| B-020 | **Fluxo de convite: admin digita e-mail → Supabase envia convite → convidado cria conta** | MVP | ⚪ | 🔴 | M | Usuários | MVP | B-004 |
-| B-021 | Página de aceite do convite (token → criar senha → redirecionar para /app) | MVP | ⚪ | 🟡 | S | Usuários | MVP | B-020 |
-| B-022 | UI de promoção de papel: admin seleciona usuário → altera papel → salva via service_role | MVP | ⚪ | 🔴 | S | Usuários | MVP | B-020 |
-| B-023 | Formulário de cadastro de profissional (nome, especialidade, CRM) | MVP | ⚪ | 🟢 | S | Admin | MVP | B-004 |
-| B-024 | Formulário de cadastro de responsável (nome, relacionamento, contato) | MVP | ⚪ | 🟢 | S | Admin | MVP | B-004 |
-| B-025 | Formulário de cadastro de escola (nome, cidade, e-mail de contato) | MVP | ⚪ | 🟢 | S | Admin | MVP | B-004 |
-| B-026 | UI de vinculação profissional ↔ criança (select + confirmar) | MVP | ⚪ | 🟡 | M | Admin | MVP | B-023 |
-| B-027 | UI de vinculação escola ↔ criança (select + autorização toggle) | MVP | ⚪ | 🟡 | M | Admin | MVP | B-025 |
+| B-020 | **Fluxo de convite: admin digita e-mail → Supabase envia convite → convidado cria conta** | MVP | 🟢 | 🔴 | M | Usuários | MVP | B-004 |
+| B-021 | Página de aceite do convite (token → criar senha → redirecionar para /app) | MVP | 🟢 | 🟡 | S | Usuários | MVP | B-020 |
+| B-022 | UI de promoção de papel: admin seleciona usuário → altera papel → salva via service_role | MVP | 🟢 | 🔴 | S | Usuários | MVP | B-020 |
+| B-023 | Formulário de cadastro de profissional (nome, especialidade, CRM) | MVP | 🟢 | 🟢 | S | Admin | MVP | B-004 |
+| B-024 | Formulário de cadastro de responsável (nome, relacionamento, contato) | MVP | 🟢 | 🟢 | S | Admin | MVP | B-004 |
+| B-025 | Formulário de cadastro de escola (nome, cidade, e-mail de contato) | MVP | 🟢 | 🟢 | S | Admin | MVP | B-004 |
+| B-026 | UI de vinculação profissional ↔ criança (select + confirmar) | MVP | 🟢 | 🟡 | M | Admin | MVP | B-023 |
+| B-027 | UI de vinculação escola ↔ criança (select + autorização toggle) | MVP | 🟢 | 🟡 | M | Admin | MVP | B-025 |
 | B-028 | Confirmação de e-mail: testar e validar fluxo completo no Supabase (configuração) | MVP | ⚪ | 🟡 | S | Auth | MVP | B-004 |
 
 ---
@@ -81,9 +81,9 @@ clínicas erradas. Prioridade absoluta acima de qualquer feature nova.
 | B-032 | Route `/api/reports/mchat/[id].pdf` que gera e serve o PDF com autorização | MVP | ⚪ | 🟡 | M | Relatórios | MVP | B-031, B-020 |
 | B-033 | Botão "Baixar PDF" na tela de resultado do M-CHAT | MVP | ⚪ | 🟢 | XS | Relatórios | MVP | B-032 |
 | B-034 | Botão "Baixar PDF" na lista de relatórios de triagem | MVP | ⚪ | 🟢 | XS | Relatórios | MVP | B-032 |
-| B-035 | UI de criação de evento na Linha do Tempo (botão + modal com campos) | MVP | ⚪ | 🟢 | S | Acompanhamento | MVP | B-004 |
-| B-036 | Persistência de `game_sessions`: salvar score + fase ao concluir partida | MVP | ⚪ | 🟢 | S | Jogos | MVP | B-004 |
-| B-037 | Exibir histórico de sessões no perfil da criança (tab Jogos) | MVP | ⚪ | 🟢 | S | Jogos | MVP | B-036 |
+| B-035 | UI de criação de evento na Linha do Tempo (botão + modal com campos) | MVP | 🟢 | 🟢 | S | Acompanhamento | MVP | B-004 |
+| B-036 | Persistência de `game_sessions`: salvar score + fase ao concluir partida | MVP | 🟢 | 🟢 | S | Jogos | MVP | B-004 |
+| B-037 | Exibir histórico de sessões no perfil da criança (tab Jogos) | MVP | 🟢 | 🟢 | S | Jogos | MVP | B-036 |
 
 ---
 
@@ -93,13 +93,13 @@ clínicas erradas. Prioridade absoluta acima de qualquer feature nova.
 
 | ID | Descrição | Prio | Status | Risco | Esforço | Módulo | Versão | Dependências |
 |---|---|---|---|---|---|---|---|---|
-| B-040 | **Tabela `settings` no banco (org_id, key, value, updated_at)** | MVP | ⚪ | 🟡 | S | Banco | MVP | B-004 |
-| B-041 | Server Action `upsertSetting` + `getSetting` | MVP | ⚪ | 🟢 | S | Actions | MVP | B-040 |
-| B-042 | Conectar formulário de Configurações à tabela `settings` (nome da org, e-mail) | MVP | ⚪ | 🟢 | S | Config | MVP | B-041 |
+| B-040 | **Tabela `settings` no banco (org_id, key, value, updated_at)** | MVP | 🟢 | 🟡 | S | Banco | MVP | B-004 |
+| B-041 | Server Action `upsertSetting` + `getSetting` | MVP | 🟢 | 🟢 | S | Actions | MVP | B-040 |
+| B-042 | Conectar formulário de Configurações à tabela `settings` (nome da org, e-mail) | MVP | 🟢 | 🟢 | S | Config | MVP | B-041 |
 | B-043 | Análise facial: histórico de análises por criança (lista com data + status) | MVP | ⚪ | 🟢 | S | Triagem | MVP | B-004 |
-| B-044 | Tarefas: botão Editar tarefa (título, categoria, status) | MVP | ⚪ | 🟢 | S | Tarefas | MVP | B-004 |
-| B-045 | Tarefas: botão Excluir tarefa (com confirmação) | MVP | ⚪ | 🟢 | XS | Tarefas | MVP | B-004 |
-| B-046 | Verificar e corrigir criação de evento de timeline pelo perfil da criança | MVP | ⚪ | 🟢 | S | Acompanhamento | MVP | B-035 |
+| B-044 | Tarefas: botão Editar tarefa (título, categoria, status) | MVP | 🟢 | 🟢 | S | Tarefas | MVP | B-004 |
+| B-045 | Tarefas: botão Excluir tarefa (com confirmação) | MVP | 🟢 | 🟢 | XS | Tarefas | MVP | B-004 |
+| B-046 | Verificar e corrigir criação de evento de timeline pelo perfil da criança | MVP | 🟢 | 🟢 | S | Acompanhamento | MVP | B-035 |
 
 ---
 

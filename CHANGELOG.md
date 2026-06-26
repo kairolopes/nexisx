@@ -3,6 +3,24 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Sprint Linha do tempo · Criação e exclusão manual de eventos (2026-06-26)
+
+Fecha B-035/B-046 do `MASTER_BACKLOG.md`: a linha do tempo era somente leitura. Agora
+admin, responsável e profissional podem registrar eventos manuais (consulta, marco, etc.)
+e admin/responsável podem excluí-los.
+
+### Adicionado
+- **`createTimelineEvent`/`deleteTimelineEvent`** em `lib/actions/timeline.ts` — validação
+  de UUID/texto/data, RLS via `can_access_child(child_id)`.
+- **`TimelineBoard`** (`components/app/timeline-board.tsx`): dialog de criação (tipo, data,
+  descrição) + lista com exclusão; `Timeline` ganhou prop opcional `onDelete`.
+- `app/app/linha-do-tempo/page.tsx` agora chama `requireSession()` (faltava o guard).
+
+> Visão da linha do tempo no perfil da criança permanece somente leitura (sem `onDelete`).
+> Sem mudança de schema/RLS (tabela e políticas já existiam). Lint/typecheck/build ✓.
+
+---
+
 ## [Não lançado] — Sprint Jogos · Persistência de sessões e histórico (2026-06-26)
 
 Fecha o módulo de Jogos para o MVP: o Jogo da Memória passa a **persistir resultados** em
