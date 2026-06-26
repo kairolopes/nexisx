@@ -133,7 +133,7 @@ Vercel + Supabase.
 | **Convite/cadastro de usuários** | ✅ implementado (`inviteUser`, `InviteUserDialog`, `/auth/callback`) | — |
 | **IA (toda)** | mock determinístico (sem SDK/provider real) | integrar provider real por etapa da pipeline / capacidade |
 | **Resumo de genética por IA** | código em `lib/ai/genetics` **dormente** | plugar a `genetic_exam_requests` quando houver provider |
-| **Testes automatizados** | inexistentes; só lint/typecheck/build + CI quality-gate | implementar `TEST_PLAN.md` |
+| **Testes automatizados** | 39 unit (Vitest) ✅ + **smoke E2E (Playwright)** ✅ — site público e proteção de rota validados **sem login**; testes autenticados (admin) **pendentes por credenciais** (rodam com `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD` via `npm run test:e2e`, senão são pulados). CI ainda **não** roda testes. | integração/RLS + E2E maiores (M-CHAT, Triagem Digital); adicionar testes ao CI — ver `TEST_PLAN.md` |
 
 ### Dependências externas
 - **Supabase** (Auth + Postgres + Storage + RLS) — núcleo. Sem `NEXT_PUBLIC_SUPABASE_*`
