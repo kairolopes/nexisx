@@ -1,22 +1,36 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/app/page-header";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { MotionList, MotionItem } from "@/components/app/motion";
+import { CreateChildDialog } from "@/components/app/create-child-dialog";
 import { initials } from "@/lib/utils";
-import { listChildren } from "@/lib/db/queries";
+import { requireSession } from "@/lib/guard";
+import { listChildren, listGuardians, listSchools } from "@/lib/db/queries";
 import { childAge } from "@/lib/age";
 
 export default async function CriancasPage() {
-  const children = await listChildren();
+  const { profile } = await requireSession();
+  const isAdmin = profile.role === "admin";
+  const [children, guardians, schools] = await Promise.all([
+    listChildren(),
+    isAdmin ? listGuardians() : Promise.resolve([]),
+    isAdmin ? listSchools() : Promise.resolve([]),
+  ]);
 
   return (
     <>
       <PageHeader
         title="Crianças / Neurodivergentes"
         description="Perfis em triagem e acompanhamento."
-        action={<Button variant="gradient">Cadastrar criança</Button>}
+        action={
+          isAdmin ? (
+            <CreateChildDialog
+              guardianOptions={guardians.map((g) => ({ id: g.id, label: g.full_name }))}
+              schoolOptions={schools.map((s) => ({ id: s.id, label: s.name }))}
+            />
+          ) : undefined
+        }
       />
 
       {children.length === 0 ? (
