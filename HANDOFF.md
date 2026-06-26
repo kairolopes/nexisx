@@ -116,6 +116,10 @@ Vercel + Supabase.
   download por **URL assinada temporária** (5 min).
 - **Responsáveis, Profissionais, Escolas, Usuários, Relatórios de triagem, Relatórios
   evolutivos** — listas/agregações reais.
+- **Gestão de admin (Sprint 2):** cadastro de responsável, profissional e escola;
+  vinculação profissional/escola ↔ criança; convite de usuário por e-mail (service_role);
+  promoção de papel por admin. Todos os botões das páginas admin agora têm ação real.
+  Auth callback (`/auth/callback`) para convite, magic link e OAuth.
 
 ### Ainda mock / protótipo (NÃO levar a produção sem integração real)
 | Item | Estado | Pendência |
@@ -126,7 +130,7 @@ Vercel + Supabase.
 | **Jogos** | protótipo visual (jogo da memória) | persistir `game_sessions`; mais jogos |
 | **Visão geral da triagem** | guia estático de etapas | torná-la orientada ao estado real |
 | **Configurações** | formulário **não persiste** | tabela de settings (fase futura) |
-| **Convite/cadastro de usuários** | botões sem fluxo | fluxo de convite + atribuição de papel por admin |
+| **Convite/cadastro de usuários** | ✅ implementado (`inviteUser`, `InviteUserDialog`, `/auth/callback`) | — |
 | **IA (toda)** | mock determinístico (sem SDK/provider real) | integrar provider real por etapa da pipeline / capacidade |
 | **Resumo de genética por IA** | código em `lib/ai/genetics` **dormente** | plugar a `genetic_exam_requests` quando houver provider |
 | **Testes automatizados** | inexistentes; só lint/typecheck/build + CI quality-gate | implementar `TEST_PLAN.md` |
@@ -415,7 +419,7 @@ Server Actions principais: `createChild/updateChild`, `createDiaryEntry`,
 - Geração de PDF dos relatórios.
 - Resumos automáticos de genética.
 - Persistência de `game_sessions` e de configurações.
-- Fluxo de convite/atribuição de papéis por admin.
+- ~~Fluxo de convite/atribuição de papéis por admin.~~ ✅ **Concluído (Sprint 2).**
 
 ### Como deverá evoluir
 1. Integrar serviço de inferência facial → substituir resultado simulado.
@@ -522,7 +526,7 @@ Server Actions principais: `createChild/updateChild`, `createDiaryEntry`,
 
 **P2 — funcional**
 - Persistir **`game_sessions`** + mais jogos. _Dep.:_ action + UI.
-- **Fluxo de convite/atribuição de papéis** por admin. _Dep.:_ service_role.
+- ~~**Fluxo de convite/atribuição de papéis** por admin.~~ ✅ **Concluído (Sprint 2).**
 - **Configurações** persistentes. _Dep.:_ nova tabela `settings`.
 
 **P3 — melhorias**

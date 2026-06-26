@@ -2,10 +2,11 @@ import { PageHeader } from "@/components/app/page-header";
 import { DataTable } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { ROLE_LABELS, type Role } from "@/lib/types";
 import { requireRole } from "@/lib/guard";
 import { listProfiles } from "@/lib/db/queries";
+import { InviteUserDialog } from "@/components/app/invite-user-dialog";
+import { PromoteRoleDialog } from "@/components/app/promote-role-dialog";
 
 const SCOPE: Record<Role, string> = {
   admin: "Tudo",
@@ -32,7 +33,12 @@ export default async function UsuariosPage() {
       <PageHeader
         title="Usuários e permissões"
         description="Papéis (roles) e escopo de acesso aplicados via RLS."
-        action={<Button variant="gradient">Convidar usuário</Button>}
+        action={
+          <div className="flex gap-2">
+            <PromoteRoleDialog profiles={profiles} />
+            <InviteUserDialog />
+          </div>
+        }
       />
       {profiles.length === 0 ? (
         <EmptyState

@@ -1,9 +1,9 @@
 import { PageHeader } from "@/components/app/page-header";
 import { DataTable } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
-import { Button } from "@/components/ui/button";
 import { requireRole } from "@/lib/guard";
 import { listGuardians } from "@/lib/db/queries";
+import { CreateGuardianDialog } from "@/components/app/create-guardian-dialog";
 
 export default async function ResponsaveisPage() {
   await requireRole(["admin"]);
@@ -14,12 +14,12 @@ export default async function ResponsaveisPage() {
       <PageHeader
         title="Responsáveis"
         description="Famílias cadastradas."
-        action={<Button variant="gradient">Adicionar</Button>}
+        action={<CreateGuardianDialog />}
       />
       {guardians.length === 0 ? (
         <EmptyState
           title="Nenhum responsável cadastrado"
-          description="Responsáveis cadastrados (ou do seed de desenvolvimento) aparecerão aqui."
+          description="Cadastre responsáveis para vinculá-los às crianças."
         />
       ) : (
         <DataTable

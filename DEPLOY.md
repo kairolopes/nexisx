@@ -43,6 +43,8 @@ Execute **nesta ordem**:
 - [ ] `screening_digital.sql` executado; confirmar tabelas da Triagem Digital com **RLS
       habilitado** e bucket `screening-media` criado como **privado** (public = false).
 - [ ] Auth: provedor de e-mail/senha habilitado; (recomendado) confirmação de e-mail ON.
+- [ ] Auth → **URL Configuration**: `Site URL` = `NEXT_PUBLIC_SITE_URL`; adicionar
+      `{SITE_URL}/auth/callback` em **Redirect URLs** (obrigatório para convites funcionarem).
 - [ ] Em produção: `seed.sql` **NÃO** aplicado.
 - [ ] Primeiro admin promovido manualmente (não há auto-admin):
       `update profiles set role = 'admin' where id = '<uuid-do-usuario>';`
@@ -83,7 +85,7 @@ npm run start   # produção local
 | **Jogos** | protótipos visuais (jogo da memória) | persistir `game_sessions`, mais jogos |
 | **Visão geral da triagem** | guia estático de etapas | tornar orientado a estado real |
 | **Configurações** | formulário não persiste | tabela de settings (fase futura) |
-| **Convite/cadastro de usuários** | botões sem fluxo | fluxo de convite + atribuição de papel por admin |
+| **Convite/cadastro de usuários** | ✅ implementado (`inviteUser`, `/auth/callback`) | configurar `Redirect URLs` no Supabase Dashboard |
 
 ## 7. Notas de segurança
 

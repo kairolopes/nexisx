@@ -3,6 +3,74 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Sprint 2 · Gestão de admin e convite de usuários (2026-06-26)
+
+Implementa o fluxo completo de gestão administrativa: cadastro de entidades (responsável,
+profissional, escola), vinculação profissional/escola ↔ criança, convite de usuários por
+e-mail e promoção de papel por admin. **Nenhum mock — tudo via service_role com `getActor`
+validado.** Auth callback para convite/magic-link também adicionado.
+
+### Adicionado
+- **`lib/supabase/service.ts`** — `createServiceClient()`: cliente Supabase com
+  `service_role` (bypassa RLS). Só para uso em Server Actions com `getActor(["admin"])`
+  confirmado antes. Nunca exposto no client bundle.
+- **`app/auth/callback/route.ts`** — rota GET de callback de autenticação (convite,
+  magic link, OAuth). Lida com `token_hash`+`type` (PKCE) e `code` (OAuth). Redireciona
+  para `/login?error=link_invalido_ou_expirado` em falha. Configura `Redirect URLs` no
+  Supabase Dashboard para `{SITE_URL}/auth/callback`.
+- **`lib/actions/admin.ts`** — Server Actions exclusivas de admin (todas usam
+  `createServiceClient()` + `getActor(["admin"])`):
+  - `inviteUser(form)` — envia convite por e-mail via `supabase.auth.admin.inviteUserByEmail`;
+    usuário entra como `responsavel` (trigger `handle_new_user`); redireciona para
+    `/auth/callback?next=/app`.
+  - `promoteRole(form)` — promove/rebaixa papel (`profileId`, `role`) diretamente em
+    `profiles`; contorna `enforce_role_change` via service_role.
+  - `createGuardian(form)` — insere em `guardians` (`full_name`, `relationship`, `phone`,
+    `email`).
+  - `createProfessional(form)` — insere em `professionals` (`full_name`, `specialty`,
+    `registration`).
+  - `createSchool(form)` — insere em `schools` (`name`, `city`, `contact_email`).
+  - `linkProfessionalToChild(form)` — upsert em `child_professionals` (`child_id`,
+    `professional_id`); revalida `/app/profissionais` e `/app/criancas`.
+  - `linkSchoolToChild(form)` — upsert em `child_schools` (`child_id`, `school_id`,
+    `authorized`); revalida `/app/escolas` e `/app/criancas`.
+- **`components/app/create-guardian-dialog.tsx`** — Dialog de cadastro de responsável
+  (nome, vínculo, telefone, e-mail). Toast + reset de formulário ao concluir.
+- **`components/app/create-professional-dialog.tsx`** — Dialog de cadastro de profissional
+  (nome, especialidade, CRN/registro).
+- **`components/app/create-school-dialog.tsx`** — Dialog de cadastro de escola (nome,
+  cidade, e-mail de contato).
+- **`components/app/invite-user-dialog.tsx`** — Dialog de convite de usuário (e-mail).
+  Avisa que o usuário entra como Responsável e pode ser promovido depois.
+- **`components/app/link-professional-dialog.tsx`** — Dialog de vinculação profissional ↔
+  criança (selects de profissional e criança).
+- **`components/app/link-school-dialog.tsx`** — Dialog de vinculação escola ↔ criança
+  (selects de escola e criança; checkbox `authorized`).
+- **`components/app/promote-role-dialog.tsx`** — Dialog de promoção de papel: select de
+  usuário (perfil) + select de papel (`role_type`).
+
+### Alterado
+- **`app/app/responsaveis/page.tsx`** — botão "Adicionar" substituído por
+  `<CreateGuardianDialog />` real.
+- **`app/app/profissionais/page.tsx`** — botões reais: `<CreateProfessionalDialog />` +
+  `<LinkProfessionalDialog />` (condicional: só exibe se houver profissionais e crianças).
+- **`app/app/escolas/page.tsx`** — botões reais: `<CreateSchoolDialog />` +
+  `<LinkSchoolDialog />` (condicional). Carrega `listChildren` em paralelo com `listSchools`.
+- **`app/app/usuarios/page.tsx`** — botões reais: `<InviteUserDialog />` +
+  `<PromoteRoleDialog />`.
+
+### Corrigido (auditoria Fase 1)
+- **`link-professional-dialog.tsx`** / **`link-school-dialog.tsx`** — Props declarava
+  `childList` mas o componente desestruturava `children` (prop reservada do React →
+  conflito de tipo + comportamento silencioso). Renomeado consistentemente para `childList`
+  no interface, na desestruturação e no uso do template.
+- **`profissionais/page.tsx`** / **`escolas/page.tsx`** — passavam `children={...}`
+  violando `react/no-children-prop` (ESLint). Corrigido para `childList={...}`.
+- **`app/auth/callback/route.ts`** — parâmetro `toSet` e seus bindings (`name`, `value`,
+  `options`) tinham tipo implícito `any` em strict mode. Tipagem explícita adicionada.
+
+---
+
 ## [Não lançado] — Sprint 1 · Integridade do produto (2026-06-26)
 
 ### Corrigido
