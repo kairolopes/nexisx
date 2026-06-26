@@ -42,3 +42,40 @@ export async function createDiaryEntry(input: DiaryInput) {
     return { id: data.id as string };
   });
 }
+
+export interface DiaryUpdateInput {
+  id: unknown;
+  mood?: unknown;
+  notes?: unknown;
+}
+
+/** Edita humor e/ou observações de uma entrada do diário. Permitido a admin e responsável. */
+export async function updateDiaryEntry(input: DiaryUpdateInput) {
+  return runAction(async () => {
+    await getActor(["admin", "responsavel"]);
+    const id = requiredUuid(input.id, "Registro");
+
+    const payload: Record<string, unknown> = {};
+    if ("mood" in input) payload.mood = optionalText(input.mood, 80);
+    if ("notes" in input) payload.notes = optionalText(input.notes, 2000);
+    if (Object.keys(payload).length === 0) throw new ValidationError("Nada para atualizar.");
+
+    const db = createClient();
+    const { error } = await db.from("parent_diary_entries").update(payload).eq("id", id);
+    if (error) throw new ValidationError("Não foi possível atualizar o registro.");
+    return { id };
+  });
+}
+
+/** Exclui uma entrada do diário. Permitido a admin e responsável. */
+export async function deleteDiaryEntry(input: { id: unknown }) {
+  return runAction(async () => {
+    await getActor(["admin", "responsavel"]);
+    const id = requiredUuid(input.id, "Registro");
+
+    const db = createClient();
+    const { error } = await db.from("parent_diary_entries").delete().eq("id", id);
+    if (error) throw new ValidationError("Não foi possível excluir o registro.");
+    return { id };
+  });
+}
