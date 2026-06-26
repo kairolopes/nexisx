@@ -30,6 +30,7 @@ import type {
   ScreeningFusionRow,
   AiRequestRow,
   GameSessionRow,
+  AppSettingRow,
 } from "./types";
 
 /**
@@ -296,6 +297,13 @@ export function listGameSessions(childId?: string) {
     if (childId) q = q.eq("child_id", childId);
     return q;
   });
+}
+
+/** Configurações da organização — RLS restringe a admin; em outros papéis devolve []. */
+export function getAppSettings() {
+  return safeList<AppSettingRow>("app_settings.list", (db) =>
+    db.from("app_settings").select("*"),
+  );
 }
 
 /** Auditoria operacional de IA — RLS restringe a admin; em outros papéis devolve []. */

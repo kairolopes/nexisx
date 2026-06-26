@@ -229,6 +229,12 @@ export interface ScreeningFusionRow {
   created_at: string;
 }
 
+export interface AppSettingRow {
+  key: string;
+  value: string;
+  updated_at: string;
+}
+
 export interface GameSessionRow {
   id: string;
   game_id: string | null;
