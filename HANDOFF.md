@@ -524,13 +524,14 @@ Server Actions principais: `createChild/updateChild`, `createDiaryEntry`,
 
 ### Pré-requisitos obrigatórios
 
-- [ ] `.env.local` preenchido com URL, ANON_KEY, SERVICE_ROLE_KEY e SITE_URL do projeto Supabase real.
+- [ ] `.env.local` (dev) ou `.env.homolog` (homolog) preenchido — ver `.env.homolog.example`.
 - [ ] **Supabase Dashboard → Authentication → URL Configuration:**
-  - `Site URL` = valor de `NEXT_PUBLIC_SITE_URL` (ex.: `http://localhost:3000`)
-  - `Redirect URLs` contém `{SITE_URL}/auth/callback` (ex.: `http://localhost:3000/auth/callback`)
+  - `Site URL` = valor de `NEXT_PUBLIC_SITE_URL`
+  - `Redirect URLs` contém `{SITE_URL}/auth/callback`
   - **Sem essa configuração o fluxo de convite falha silenciosamente.**
 - [ ] SQLs aplicados na ordem: `schema → schema_rls → storage → screening_digital` (seed só dev).
 - [ ] `npm run dev` sobe sem erro.
+- [ ] Acesso a `/app/diagnostico` como admin confirma todos os checks verdes.
 
 ### Checklist de fluxos — Admin
 
