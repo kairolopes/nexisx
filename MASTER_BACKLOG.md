@@ -76,11 +76,11 @@ clínicas erradas. Prioridade absoluta acima de qualquer feature nova.
 
 | ID | Descrição | Prio | Status | Risco | Esforço | Módulo | Versão | Dependências |
 |---|---|---|---|---|---|---|---|---|
-| B-030 | **Instalar e configurar biblioteca de PDF** (`@react-pdf/renderer` ou `puppeteer`) | MVP | ⚪ | 🟡 | S | Infra | MVP | B-004 |
-| B-031 | **Template de PDF do relatório M-CHAT** (criança, score, risco, recomendações, aviso legal, data) | MVP | ⚪ | 🟡 | M | Relatórios | MVP | B-030 |
-| B-032 | Route `/api/reports/mchat/[id].pdf` que gera e serve o PDF com autorização | MVP | ⚪ | 🟡 | M | Relatórios | MVP | B-031, B-020 |
-| B-033 | Botão "Baixar PDF" na tela de resultado do M-CHAT | MVP | ⚪ | 🟢 | XS | Relatórios | MVP | B-032 |
-| B-034 | Botão "Baixar PDF" na lista de relatórios de triagem | MVP | ⚪ | 🟢 | XS | Relatórios | MVP | B-032 |
+| B-030 | **Instalar e configurar biblioteca de PDF** (`@react-pdf/renderer` ou `puppeteer`) | MVP | 🟢 | 🟡 | S | Infra | MVP | B-004 |
+| B-031 | **Template de PDF do relatório M-CHAT** (criança, score, risco, recomendações, aviso legal, data) | MVP | 🟢 | 🟡 | M | Relatórios | MVP | B-030 |
+| B-032 | Route `/api/reports/mchat/[id].pdf` que gera e serve o PDF com autorização | MVP | 🟢 | 🟡 | M | Relatórios | MVP | B-031, B-020 |
+| B-033 | Botão "Baixar PDF" na tela de resultado do M-CHAT | MVP | 🟢 | 🟢 | XS | Relatórios | MVP | B-032 |
+| B-034 | Botão "Baixar PDF" na lista de relatórios de triagem | MVP | 🟢 | 🟢 | XS | Relatórios | MVP | B-032 |
 | B-035 | UI de criação de evento na Linha do Tempo (botão + modal com campos) | MVP | 🟢 | 🟢 | S | Acompanhamento | MVP | B-004 |
 | B-036 | Persistência de `game_sessions`: salvar score + fase ao concluir partida | MVP | 🟢 | 🟢 | S | Jogos | MVP | B-004 |
 | B-037 | Exibir histórico de sessões no perfil da criança (tab Jogos) | MVP | 🟢 | 🟢 | S | Jogos | MVP | B-036 |

@@ -3,6 +3,21 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Sprint M-CHAT · Link de PDF no resultado (2026-06-26)
+
+Fecha B-030 a B-034 do `MASTER_BACKLOG.md` (geração de PDF do M-CHAT). A infraestrutura
+(`pdf-lib`, rota `/app/triagem/relatorios/[id]/pdf`) já existia para relatórios de triagem
+em geral; faltava só o atalho na própria tela de resultado do M-CHAT.
+
+### Adicionado
+- `components/app/mchat-form.tsx`: ao salvar a sessão como profissional/admin (gera
+  `screening_reports`), guarda o `id` do relatório e exibe link "Baixar PDF do relatório"
+  apontando para a rota de PDF existente.
+
+> Sem nova rota/lib — reaproveita `lib/reports/screening-pdf.ts`. Lint/typecheck/build ✓.
+
+---
+
 ## [Não lançado] — Sprint Triagem · Histórico de análises faciais (2026-06-26)
 
 Fecha B-043 do `MASTER_BACKLOG.md`: a página de análise facial só exibia o envio atual,
