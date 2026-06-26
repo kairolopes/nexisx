@@ -1,8 +1,14 @@
 // Camada de leitura tipada. Toda leitura do banco passa por aqui — as páginas não
 // chamam o Supabase diretamente. Usa o client server-side (cookies → RLS), portanto
 // cada consulta já respeita a sessão e as políticas de acesso do usuário atual.
+//
+// Resiliência: leituras toleram falha (devolvem fallback []/null) para não quebrar a
+// UI. Para NÃO mascarar falhas reais (RLS/conexão/config), erros são REGISTRADOS de
+// forma estruturada e sem PII (ver lib/logger.ts) — distinguindo erro de query, de
+// RLS e de conexão de uma lista legitimamente vazia.
 
 import { createClient } from "@/lib/supabase/server";
+import { logDbError, logDbException } from "@/lib/logger";
 import type {
   ProfileRow,
   ChildRow,
@@ -27,27 +33,32 @@ import type {
 
 /**
  * Executa uma leitura tolerante a falha: em erro (inclusive RLS negando acesso ou
- * Supabase não configurado) devolve o fallback, mantendo as telas estáveis.
+ * Supabase não configurado) devolve o fallback, mantendo as telas estáveis — mas
+ * registra o erro (sem PII) para diagnóstico.
  */
 type Db = ReturnType<typeof createClient>;
 type QueryResult = PromiseLike<{ data: unknown; error: unknown }>;
 
-async function safeList<T>(run: (db: Db) => QueryResult): Promise<T[]> {
+async function safeList<T>(op: string, run: (db: Db) => QueryResult): Promise<T[]> {
   try {
     const db = createClient();
-    const { data } = await run(db);
+    const { data, error } = await run(db);
+    if (error) logDbError(op, error);
     return (data as T[] | null) ?? [];
-  } catch {
+  } catch (e) {
+    logDbException(op, e);
     return [];
   }
 }
 
-async function safeOne<T>(run: (db: Db) => QueryResult): Promise<T | null> {
+async function safeOne<T>(op: string, run: (db: Db) => QueryResult): Promise<T | null> {
   try {
     const db = createClient();
-    const { data } = await run(db);
+    const { data, error } = await run(db);
+    if (error) logDbError(op, error);
     return (data as T | null) ?? null;
-  } catch {
+  } catch (e) {
+    logDbException(op, e);
     return null;
   }
 }
@@ -72,73 +83,79 @@ type CountTable =
 export async function countRows(table: CountTable): Promise<number> {
   try {
     const db = createClient();
-    const { count } = await db.from(table).select("*", { count: "exact", head: true });
+    const { count, error } = await db.from(table).select("*", { count: "exact", head: true });
+    if (error) logDbError(`count:${table}`, error);
     return count ?? 0;
-  } catch {
+  } catch (e) {
+    logDbException(`count:${table}`, e);
     return 0;
   }
 }
 
 // ---------------- children ----------------
 export function listChildren() {
-  return safeList<ChildRow>((db) =>
+  return safeList<ChildRow>("children.list", (db) =>
     db.from("children").select("*").order("full_name", { ascending: true }),
   );
 }
 export function getChild(id: string) {
-  return safeOne<ChildRow>((db) => db.from("children").select("*").eq("id", id).maybeSingle());
+  return safeOne<ChildRow>("children.get", (db) =>
+    db.from("children").select("*").eq("id", id).maybeSingle(),
+  );
 }
 
 // ---------------- profiles ----------------
 export function listProfiles() {
-  return safeList<ProfileRow>((db) =>
+  return safeList<ProfileRow>("profiles.list", (db) =>
     db.from("profiles").select("*").order("created_at", { ascending: false }),
   );
 }
 
 // ---------------- guardians ----------------
 export function listGuardians() {
-  return safeList<GuardianRow>((db) =>
+  return safeList<GuardianRow>("guardians.list", (db) =>
     db.from("guardians").select("*").order("full_name", { ascending: true }),
   );
 }
 
 // ---------------- professionals ----------------
 export function listProfessionals() {
-  return safeList<ProfessionalRow>((db) =>
+  return safeList<ProfessionalRow>("professionals.list", (db) =>
     db.from("professionals").select("*").order("full_name", { ascending: true }),
   );
 }
 
 // ---------------- schools ----------------
 export function listSchools() {
-  return safeList<SchoolRow>((db) =>
+  return safeList<SchoolRow>("schools.list", (db) =>
     db.from("schools").select("*").order("name", { ascending: true }),
   );
 }
 
 // ---------------- tasks ----------------
 export function listTasks(childId?: string) {
-  return safeList<TaskRow>((db) => {
+  return safeList<TaskRow>("tasks.list", (db) => {
     let q = db.from("tasks").select("*").order("created_at", { ascending: false });
     if (childId) q = q.eq("child_id", childId);
     return q;
   });
 }
 export function getTask(id: string) {
-  return safeOne<TaskRow>((db) => db.from("tasks").select("*").eq("id", id).maybeSingle());
+  return safeOne<TaskRow>("tasks.get", (db) =>
+    db.from("tasks").select("*").eq("id", id).maybeSingle(),
+  );
 }
 
 // ---------------- task_completions ----------------
 export function listTaskCompletions(taskId: string) {
-  return safeList<TaskCompletionRow>((db) =>
+  return safeList<TaskCompletionRow>("task_completions.list", (db) =>
     db.from("task_completions").select("*").eq("task_id", taskId).order("completed_at", { ascending: false }),
   );
 }
 
 // ---------------- parent_diary_entries ----------------
 export function listDiaryEntries(childId?: string) {
-  return safeList<ParentDiaryEntryRow>((db) => {
+  return safeList<ParentDiaryEntryRow>("parent_diary_entries.list", (db) => {
     let q = db.from("parent_diary_entries").select("*").order("created_at", { ascending: false });
     if (childId) q = q.eq("child_id", childId);
     return q;
@@ -147,7 +164,7 @@ export function listDiaryEntries(childId?: string) {
 
 // ---------------- neuro_timeline_events ----------------
 export function listTimelineEvents(childId?: string) {
-  return safeList<NeuroTimelineEventRow>((db) => {
+  return safeList<NeuroTimelineEventRow>("neuro_timeline_events.list", (db) => {
     let q = db.from("neuro_timeline_events").select("*").order("event_date", { ascending: false });
     if (childId) q = q.eq("child_id", childId);
     return q;
@@ -156,14 +173,14 @@ export function listTimelineEvents(childId?: string) {
 
 // ---------------- sensory_room_requests ----------------
 export function listSensoryRoomRequests() {
-  return safeList<SensoryRoomRequestRow>((db) =>
+  return safeList<SensoryRoomRequestRow>("sensory_room_requests.list", (db) =>
     db.from("sensory_room_requests").select("*").order("created_at", { ascending: false }),
   );
 }
 
 // ---------------- genetic_exam_requests ----------------
 export function listGeneticExamRequests(childId?: string) {
-  return safeList<GeneticExamRequestRow>((db) => {
+  return safeList<GeneticExamRequestRow>("genetic_exam_requests.list", (db) => {
     let q = db.from("genetic_exam_requests").select("*").order("created_at", { ascending: false });
     if (childId) q = q.eq("child_id", childId);
     return q;
@@ -172,7 +189,7 @@ export function listGeneticExamRequests(childId?: string) {
 
 // ---------------- uploaded_documents ----------------
 export function listDocuments(childId?: string) {
-  return safeList<UploadedDocumentRow>((db) => {
+  return safeList<UploadedDocumentRow>("uploaded_documents.list", (db) => {
     let q = db.from("uploaded_documents").select("*").order("created_at", { ascending: false });
     if (childId) q = q.eq("child_id", childId);
     return q;
@@ -181,7 +198,7 @@ export function listDocuments(childId?: string) {
 
 /** Laudos genéticos (uploaded_documents com doc_type = 'laudo_genetico'). */
 export function listGeneticReports() {
-  return safeList<UploadedDocumentRow>((db) =>
+  return safeList<UploadedDocumentRow>("uploaded_documents.genetic", (db) =>
     db
       .from("uploaded_documents")
       .select("*")
@@ -192,7 +209,7 @@ export function listGeneticReports() {
 
 // ---------------- screening_reports ----------------
 export function listScreeningReports(childId?: string) {
-  return safeList<ScreeningReportRow>((db) => {
+  return safeList<ScreeningReportRow>("screening_reports.list", (db) => {
     let q = db.from("screening_reports").select("*").order("created_at", { ascending: false });
     if (childId) q = q.eq("child_id", childId);
     return q;
@@ -201,21 +218,21 @@ export function listScreeningReports(childId?: string) {
 
 // ---------------- mchat_sessions ----------------
 export function listMchatSessions(childId?: string) {
-  return safeList<MchatSessionRow>((db) => {
+  return safeList<MchatSessionRow>("mchat_sessions.list", (db) => {
     let q = db.from("mchat_sessions").select("*").order("created_at", { ascending: false });
     if (childId) q = q.eq("child_id", childId);
     return q;
   });
 }
 export function getMchatSession(id: string) {
-  return safeOne<MchatSessionRow>((db) =>
+  return safeOne<MchatSessionRow>("mchat_sessions.get", (db) =>
     db.from("mchat_sessions").select("*").eq("id", id).maybeSingle(),
   );
 }
 
 // ---------------- facial_analyses ----------------
 export function listFacialAnalyses(childId?: string) {
-  return safeList<FacialAnalysisRow>((db) => {
+  return safeList<FacialAnalysisRow>("facial_analyses.list", (db) => {
     let q = db.from("facial_analyses").select("*").order("created_at", { ascending: false });
     if (childId) q = q.eq("child_id", childId);
     return q;
@@ -224,7 +241,7 @@ export function listFacialAnalyses(childId?: string) {
 
 // ---------------- Triagem Digital Assistiva ----------------
 export function listDigitalScreeningSessions(childId?: string) {
-  return safeList<DigitalScreeningSessionRow>((db) => {
+  return safeList<DigitalScreeningSessionRow>("digital_screening_sessions.list", (db) => {
     let q = db
       .from("digital_screening_sessions")
       .select("*")
@@ -235,13 +252,13 @@ export function listDigitalScreeningSessions(childId?: string) {
 }
 
 export function getDigitalScreeningSession(id: string) {
-  return safeOne<DigitalScreeningSessionRow>((db) =>
+  return safeOne<DigitalScreeningSessionRow>("digital_screening_sessions.get", (db) =>
     db.from("digital_screening_sessions").select("*").eq("id", id).maybeSingle(),
   );
 }
 
 export function listBehavioralSignals(sessionId: string) {
-  return safeList<BehavioralSignalRow>((db) =>
+  return safeList<BehavioralSignalRow>("behavioral_signals.list", (db) =>
     db
       .from("behavioral_signals")
       .select("*")
@@ -251,7 +268,7 @@ export function listBehavioralSignals(sessionId: string) {
 }
 
 export function listScreeningFusions(childId?: string) {
-  return safeList<ScreeningFusionRow>((db) => {
+  return safeList<ScreeningFusionRow>("screening_fusions.list", (db) => {
     let q = db
       .from("screening_fusions")
       .select("*")
@@ -263,7 +280,7 @@ export function listScreeningFusions(childId?: string) {
 
 /** Auditoria operacional de IA — RLS restringe a admin; em outros papéis devolve []. */
 export function listAiRequests(limit = 100) {
-  return safeList<AiRequestRow>((db) =>
+  return safeList<AiRequestRow>("ai_requests.list", (db) =>
     db
       .from("ai_requests")
       .select("*")
