@@ -3,6 +3,15 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Governança · Permissões read-only compartilhadas (2026-06-26)
+
+### Adicionado
+- **`.claude/settings.json`** versionado (config compartilhada do time): allowlist apenas de
+  comandos/MCP **read-only** (`npm run lint/typecheck/test`, `preview_screenshot/console_logs/
+  snapshot/list/logs/network`, `search_session_transcripts`). **Sem** segredos, sem permissões
+  de escrita/mutação e sem wildcard perigoso (fora: `ssh`, `scp`, `curl`, `rm`, `npm`/`node`,
+  `preview_eval`). `settings.local.json` (pessoal) permanece **fora** do versionamento.
+
 ## [Não lançado] — Sprint 1 · Detalhe do relatório de triagem + PDF (2026-06-26)
 
 Conclui o primeiro sprint do MVP: o relatório de triagem deixa de ser só uma lista e
