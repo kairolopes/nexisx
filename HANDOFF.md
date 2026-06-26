@@ -6,8 +6,14 @@
 > Objetivo: permitir que outro engenheiro ou outra IA continue o projeto **sem** acesso à
 > conversa anterior. Para um resumo de 5 minutos, ver `AI_CONTEXT.md`.
 >
-> Estado capturado: branch `main`, HEAD `c2e3c50`, tag `v0.2.5-fase-2-5`. Versão do
-> `package.json`: `0.1.0`.
+> Estado capturado: branch `main`, HEAD `7228e9b` (= `origin/main`), tags `v1.0-foundation`
+> e `v0.2.5-fase-2-5`. Versão do `package.json`: `0.1.0`.
+>
+> **Atualização (Fase 3):** este documento foi originalmente escrito em `c2e3c50`. Desde
+> então foram adicionados a **camada de IA provider-agnóstica** (`lib/ai/`) e a **Triagem
+> Digital Assistiva** (4 tabelas novas → 28 no total; bucket `screening-media`). Para a
+> arquitetura completa ver `ARCHITECTURE.md`; para decisões ver `docs/adr/`; para dívidas e
+> riscos ver `TECH_DEBT.md`; roadmap em `ROADMAP.md`.
 
 ---
 
@@ -76,8 +82,20 @@ Vercel + Supabase.
 
 ## 2. Estado atual
 
+> **Camada de IA (`lib/ai/`) — adicionada na Fase 3, não descrita nas seções originais
+> abaixo.** A app importa IA só de `lib/ai/index.ts`. `resolveProvider(capability)` lê
+> `AI_PROVIDER`/`AI_PROVIDER_FALLBACK` (default `mock`); **só o `MockProvider` existe** (sem
+> SDK de IA nas dependências). A **Triagem Digital Assistiva** (`/app/triagem/comportamental`,
+> `components/app/behavioral-screening.tsx`, `lib/actions/screening.ts`) roda uma **pipeline
+> de 18 etapas independentes** (`lib/ai/behavioral/pipeline/`), mock determinístico, trocável
+> por MediaPipe/OpenFace/OpenCV/YOLO/PyTorch. Grava `digital_screening_sessions`,
+> `behavioral_signals`, `screening_fusions` (se houver M-CHAT) e auditoria em `ai_requests`.
+> O domínio `lib/ai/genetics` existe mas está **dormente** (não plugado). Ver `ARCHITECTURE.md`.
+
 ### Pronto e funcionando (conectado a dados reais via Supabase)
 - **Auth + roles + RLS** completos (3 camadas). Signup entra sempre como `responsavel`.
+- **Triagem Digital Assistiva** — fluxo ponta a ponta com **IA mock**; banco/Storage aplicados
+  no Supabase real (teste E2E ainda **não concluído** — ver `ROADMAP.md` P0).
 - **Camada de dados** (`lib/db/queries.ts`) e **Server Actions** (`lib/actions/*`)
   validadas e autorizadas.
 - **Dashboard** — contadores reais + atividade recente da timeline.
@@ -109,6 +127,9 @@ Vercel + Supabase.
 | **Visão geral da triagem** | guia estático de etapas | torná-la orientada ao estado real |
 | **Configurações** | formulário **não persiste** | tabela de settings (fase futura) |
 | **Convite/cadastro de usuários** | botões sem fluxo | fluxo de convite + atribuição de papel por admin |
+| **IA (toda)** | mock determinístico (sem SDK/provider real) | integrar provider real por etapa da pipeline / capacidade |
+| **Resumo de genética por IA** | código em `lib/ai/genetics` **dormente** | plugar a `genetic_exam_requests` quando houver provider |
+| **Testes automatizados** | inexistentes; só lint/typecheck/build + CI quality-gate | implementar `TEST_PLAN.md` |
 
 ### Dependências externas
 - **Supabase** (Auth + Postgres + Storage + RLS) — núcleo. Sem `NEXT_PUBLIC_SUPABASE_*`

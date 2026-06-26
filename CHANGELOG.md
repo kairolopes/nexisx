@@ -3,6 +3,74 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — P0.1 · Base de testes e qualidade
+
+Primeira rede de testes automatizados e logging mínimo — **sem refatorar arquitetura, sem
+tocar regra de negócio, UI, schema, RLS ou IA real**.
+
+### Adicionado
+- **Vitest** (dev): `vitest` + `@vitest/coverage-v8`; `vitest.config.ts` (ambiente Node,
+  alias `@/*`, cobertura v8 sobre `lib/**`).
+- Scripts no `package.json`: `test`, `test:watch`, `test:coverage`.
+- **39 testes** em `tests/`: `mchat` (scoring/limiares de risco), `validation` (todos os
+  validadores), `action-result` (`ok`/`fail`/`runAction`, incluindo mascaramento de erro
+  inesperado e conversão de `ValidationError`/`AuthzError`), `age` (formatação/idade futura),
+  `ai-behavioral` (contrato do `MockProvider`, pipeline mock determinística, envelope `Result`
+  de `analyzeBehavioralScreening` sem lançar, `assessCaptureQuality` e `fuseScreening`).
+- **`lib/logger.ts`** — logger estruturado mínimo (JSON, sem PII) com `logDbError` (classifica
+  RLS `42501` / auth / query) e `logDbException` (conexão/config).
+
+### Alterado
+- **`lib/db/queries.ts`** — `safeList`/`safeOne`/`countRows` passam a **registrar** erros
+  (classificados, sem PII) em vez de engoli-los silenciosamente; **mesmos retornos/fallbacks**
+  (comportamento preservado). Cada leitura recebe um rótulo `op`. _(corrige TECH_DEBT D2)._
+- **`next.config.mjs`** — `images.remotePatterns` restrito de `"**"` para `*.supabase.co`
+  (o projeto não usa `next/image` com hosts externos; mudança segura). _(corrige TECH_DEBT D8)._
+- **`TEST_PLAN.md`**, **`CONTEXT.md`**, **`ENGINEERING_REVIEW.md`** — atualizados.
+
+> Nota: durante `next build` (sem Supabase), as leituras de geração estática agora **logam**
+> `connection_or_config` — esperado e sem PII (antes era silencioso).
+
+## [Não lançado] — Revisão arquitetural (Engineering Review)
+
+### Adicionado
+- **`ENGINEERING_REVIEW.md`** — auditoria arquitetural completa baseada em leitura do código:
+  pontos fortes/fracos, riscos, gargalos, recomendações P0–P3 (impacto × esforço), ordem de
+  implementação e parecer final (maturidade atual **6/10**, alvo **9/10**). Diagnóstico apenas
+  — **nenhuma mudança arquitetural implementada** (sem tocar negócio/UI/banco/RLS).
+
+## [Não lançado] — Maturidade de engenharia (documentação, governança e CI)
+
+Eleva a maturidade do projeto **sem alterar regra de negócio, schema, RLS, UI ou integrar IA
+real**. Apenas documentação, governança de decisões, plano de testes, CI de qualidade,
+observabilidade e processo de engenharia.
+
+### Adicionado
+- **`ARCHITECTURE.md`** — arquitetura completa (auth, roles, RLS, Server Actions, Supabase,
+  Storage, camada de IA, fluxos de triagem e upload, deploy).
+- **`ROADMAP.md`** — roadmap por prioridade (P0–P3).
+- **`TECH_DEBT.md`** — dívidas técnicas, riscos e plano de correção (com severidade).
+- **`TEST_PLAN.md`** — plano de testes obrigatórios (auth/RLS, M-CHAT, Triagem Digital,
+  Storage, Server Actions, pipeline mock); ferramentas sugeridas (Vitest/Playwright). Testes
+  **ainda não implementados**.
+- **`OBSERVABILITY.md`** — o que monitorar (erros críticos, RLS silenciado, métricas de IA/
+  upload/Server Actions) e evolução futura (Sentry/OpenTelemetry). **Nada instalado ainda.**
+- **`CONTRIBUTING.md`** — processo: rodar local, comandos obrigatórios antes de commit,
+  padrão de branch/commit, checklist de PR e regra de atualizar `CHANGELOG`/`CONTEXT`.
+- **`docs/adr/`** — Architecture Decision Records (índice + 6): 0001 Supabase · 0002 RLS como
+  fonte de segurança · 0003 IA provider-agnóstica · 0004 Storage privado/URL assinada ·
+  0005 Server Actions para escrita · 0006 ausência temporária de provider real de IA.
+- **`.github/workflows/quality-gate.yml`** — CI: `npm ci` → `lint` → `typecheck` → `build`
+  em push/PR para `main`. **Sem deploy automático.**
+
+### Alterado
+- **`HANDOFF.md`** e **`AI_CONTEXT.md`** — atualizados para o estado real (HEAD `7228e9b`,
+  camada `lib/ai/`, Triagem Digital Assistiva, **28 tabelas**, 4 buckets, IA 100% mock).
+- **`DEPLOY.md`** — inclui `screening_digital.sql` na ordem dos SQLs, o bucket
+  `screening-media` no checklist e as variáveis `AI_PROVIDER`/`AI_PROVIDER_FALLBACK`.
+- **`PRODUCT.md`** — passa a citar a **Triagem Digital Assistiva**.
+- **`CONTEXT.md`** — nova seção de governança de engenharia.
+
 ## [Não lançado] — Fase 3 · Pipeline de processamento comportamental (arquitetura)
 
 Refatora a Triagem Digital Assistiva numa **pipeline de 18 etapas independentes**, alinhada

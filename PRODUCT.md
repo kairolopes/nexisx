@@ -19,6 +19,11 @@ Fluxo de 10 etapas: login → cadastro da criança → dados do responsável →
 preliminar → encaminhamento.
 - **Análise facial:** upload, preview, consentimento, status, resultado, observações,
   recomendação. *Aviso: não fecha diagnóstico.*
+- **Triagem Digital Assistiva:** análise comportamental por vídeo curto (ou foto),
+  combinada ao M-CHAT — fenotipagem comportamental digital (pipeline de 18 etapas; hoje
+  mock). Mostra qualidade da coleta, sinais (olhar, cabeça, expressões, piscar, resposta ao
+  nome, motor), risco, confiança, explicabilidade e fusão com M-CHAT. *Aviso: é triagem
+  assistiva, não diagnóstico; resultados interpretados por profissional habilitado.*
 - **M-CHAT:** questionário em cards, progresso, Sim/Não, salvamento automático,
   classificação (baixo / moderado / alto). *Aviso: é triagem, não diagnóstico.*
 - **Relatório:** consolida dados, resultados, prioridade e próximos passos.

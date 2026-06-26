@@ -114,6 +114,28 @@ reusam `can_access_child()` (caminho `<child_id>/...`). Upload via `lib/storage/
 Server Actions; acesso só por URL assinada temporária. Conectados: análise facial (foto
 real), laudos genéticos e documentos da criança.
 
+## Governança de engenharia (maturidade do projeto)
+Camada de governança adicionada para manutenção profissional por equipe:
+- **`ARCHITECTURE.md`** — arquitetura completa (auth, roles, RLS, Server Actions, Supabase,
+  Storage, IA, fluxos de triagem/upload, deploy).
+- **`docs/adr/`** — Architecture Decision Records: 0001 Supabase · 0002 RLS como fonte de
+  segurança · 0003 IA provider-agnóstica · 0004 Storage privado/URL assinada · 0005 Server
+  Actions para escrita · 0006 ausência temporária de provider real de IA.
+- **`ROADMAP.md`** (P0–P3), **`TECH_DEBT.md`** (dívidas/riscos/plano), **`TEST_PLAN.md`**
+  (testes obrigatórios, ainda não implementados), **`OBSERVABILITY.md`** (monitoramento, sem
+  Sentry/OTel instalados) e **`CONTRIBUTING.md`** (processo, branch/commit, checklist de PR).
+- **CI quality-gate** (`.github/workflows/quality-gate.yml`): `npm ci` → `lint` →
+  `typecheck` → `build` em push/PR para `main`. **Sem deploy automático.**
+- **Testes (P0.1):** Vitest configurado (`vitest.config.ts`, ambiente Node, alias `@/*`).
+  Primeiras suítes em `tests/` (39 testes): scoring do M-CHAT, validações, `runAction`/
+  `ActionResult`, idade e a camada de IA mock (contrato do provider, pipeline determinística,
+  envelope `Result`, fusão, qualidade da coleta). Scripts `test`/`test:watch`/`test:coverage`.
+- **Logging (P0.2):** `lib/logger.ts` (JSON, sem PII); `lib/db/queries.ts` passa a registrar
+  erros de leitura classificados (RLS/auth/query/conexão) em vez de engoli-los — **mesmos
+  retornos** (resiliência preservada).
+- **Segurança:** `images.remotePatterns` restrito a `*.supabase.co` (sem curinga `**`).
+> Esta camada **não altera** regra de negócio, schema, RLS, UI nem integra IA real.
+
 ## Limites do MVP
 - **Análise facial** continua simulada (sem IA), mas já faz **upload real da foto** e
   salva o `storage_path` em `facial_analyses`.

@@ -1,0 +1,48 @@
+name: quality-gate
+
+# Quality gate do NexisX: garante que lint, typecheck e build estejam verdes.
+# NÃO faz deploy. Deploy permanece manual (ver DEPLOY.md).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancela execuções antigas do mesmo ref quando um novo push chega.
+concurrency:
+  group: quality-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gate:
+    name: Lint · Typecheck · Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+        env:
+          # Valores placeholder: o build não deve depender de segredos reais.
+          # Substitua por GitHub Secrets se o build passar a exigir conexão real.
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000

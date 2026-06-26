@@ -12,6 +12,8 @@ Copie `.env.example` para `.env.local` (dev) ou configure no provedor de deploy:
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✅ | client + server | chave pública (RLS é o controle) |
 | `SUPABASE_SERVICE_ROLE_KEY` | ⚠️ | **somente backend** | nunca expor no client; usar só em rotinas administrativas |
 | `NEXT_PUBLIC_SITE_URL` | ✅ | auth/redirects | ex.: `https://app.nexisx.com.br` |
+| `AI_PROVIDER` | ⬜ | server (camada de IA) | opcional; default `mock`. Hoje só `mock` existe |
+| `AI_PROVIDER_FALLBACK` | ⬜ | server (camada de IA) | opcional; default `mock`. Lido em `lib/ai/core/registry.ts` |
 
 > Sem as duas primeiras, a área `/app` só abre em **dev** (perfil demo admin). Em
 > produção, sem sessão real → redireciona para `/login`.
@@ -23,7 +25,10 @@ Execute **nesta ordem**:
 1. `supabase/schema.sql` — tipos, tabelas, índices, triggers e funções.
 2. `supabase/schema_rls.sql` — habilita RLS e cria as políticas.
 3. `supabase/storage.sql` — buckets privados e policies de Storage.
-4. `supabase/seed.sql` — **APENAS em desenvolvimento** (cria usuários demo, senha `nexisx123`).
+4. `supabase/screening_digital.sql` — **aditivo** da Triagem Digital Assistiva: tabelas
+   (`digital_screening_sessions`, `behavioral_signals`, `screening_fusions`, `ai_requests`),
+   RLS e bucket privado `screening-media`. Idempotente; **não altera `facial_analyses`**.
+5. `supabase/seed.sql` — **APENAS em desenvolvimento** (cria usuários demo, senha `nexisx123`).
 
 > ⚠️ **Nunca** rode `seed.sql` em produção (insere direto em `auth.users`).
 
@@ -35,6 +40,8 @@ Execute **nesta ordem**:
       (Table Editor → cada tabela → "RLS enabled").
 - [ ] `storage.sql` executado; confirmar buckets `facial-photos`, `genetic-reports`,
       `child-documents` criados como **privados** (public = false).
+- [ ] `screening_digital.sql` executado; confirmar tabelas da Triagem Digital com **RLS
+      habilitado** e bucket `screening-media` criado como **privado** (public = false).
 - [ ] Auth: provedor de e-mail/senha habilitado; (recomendado) confirmação de e-mail ON.
 - [ ] Em produção: `seed.sql` **NÃO** aplicado.
 - [ ] Primeiro admin promovido manualmente (não há auto-admin):
@@ -68,6 +75,8 @@ npm run start   # produção local
 
 | Item | Estado | Pendência |
 |---|---|---|
+| **IA (toda)** | mock determinístico; **sem provider/SDK real** | integrar provider real (`AI_PROVIDER`) por etapa/capacidade |
+| **Triagem Digital Assistiva** | fluxo + banco/Storage reais; **resultado mock** | provider real; concluir validação E2E |
 | **Análise facial** | upload real da foto ✅; resultado **simulado** | integrar serviço de inferência (IA) |
 | **Relatórios (PDF)** | não há exportação | gerar PDF |
 | **Resumos de genética** | campos existem; sem geração automática | IA/serviço de resumo |

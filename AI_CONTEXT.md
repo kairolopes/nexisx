@@ -11,7 +11,8 @@ consultores, admin.
 ## Stack
 Next.js 14 (App Router) + TS strict · Tailwind + shadcn/Radix · Framer Motion · Canvas 2D ·
 Supabase (Auth + Postgres + Storage + RLS). Alias `@/*` → raiz. Estado: branch `main`, HEAD
-`c2e3c50`, tag `v0.2.5-fase-2-5`, version `0.1.0`.
+`7228e9b` (= `origin/main`), tags `v1.0-foundation` e `v0.2.5-fase-2-5`, version `0.1.0`.
+**Sem SDK de IA nas dependências** (nenhum provider real).
 
 ## Estrutura
 ```
@@ -19,8 +20,19 @@ app/(site)   site público     app/app   área protegida     app/login
 components/ui (Radix) · components/app · components/site · components/effects
 lib/supabase (server|client|middleware) · lib/db (queries.ts, types.ts)
 lib/actions/* (Server Actions) · lib/storage · lib/{auth,guard,navigation,mchat,validation,age,types}.ts
-supabase/ schema.sql · schema_rls.sql · storage.sql · seed.sql
+lib/ai/ (camada de IA provider-agnóstica): core (registry/resolveProvider) · providers/mock
+        · behavioral (pipeline de 18 etapas + features/aggregate/fusion) · genetics (dormente)
+supabase/ schema.sql · schema_rls.sql · storage.sql · screening_digital.sql · seed.sql
 ```
+
+## Camada de IA (`lib/ai/`) — provider-agnóstica
+A app importa IA SÓ de `lib/ai/index.ts`. `resolveProvider(capability)` lê `AI_PROVIDER`/
+`AI_PROVIDER_FALLBACK` (default `mock`); **só o `MockProvider` existe** (determinístico, sem
+custo/IA real). A **Triagem Digital Assistiva** roda uma **pipeline de 18 etapas
+independentes** (`behavioral/pipeline/`), cada uma com `PipelineStage<I,O>` e mock trocável por
+MediaPipe/OpenFace/OpenCV/YOLO/PyTorch sem alterar o resto. Auditoria de IA (sem PII) em
+`ai_requests`. Domínio `genetics` existe mas **dormente** (não plugado em tela/action). Ver
+`ARCHITECTURE.md` e `docs/adr/0003`, `0006`.
 
 ## Regras inegociáveis (NÃO violar)
 1. **Idioma pt-BR** em toda UI/texto.
@@ -50,7 +62,7 @@ supabase/ schema.sql · schema_rls.sql · storage.sql · seed.sql
   `prefers-reduced-motion`. Ação de escrita → toast (`useToast`) + `useTransition`.
 - Clients: `lib/supabase/server.ts` (server), `client.ts` (browser), `middleware.ts` (sessão).
 
-## Banco (24 tabelas)
+## Banco (28 tabelas)
 Enums: `role_type(admin|responsavel|profissional|escola|consultor)`,
 `risk_level(baixo|moderado|alto)`, `task_status(pendente|em_andamento|concluida)`.
 Núcleo: `profiles`(1:1 auth.users), `guardians/professionals/schools`, `children`,
@@ -59,22 +71,29 @@ vínculos `child_professionals`/`child_schools(authorized)`. Triagem: `facial_an
 `neuro_timeline_events`, `tasks`/`task_completions`, `games`/`game_sessions`,
 `parent_diary_entries`, `professional_notes`, `school_notes`, `evolution_reports`.
 Comercial/genética/docs: `sensory_room_requests`(lead público), `genetic_exam_requests`,
-`uploaded_documents`, `admin_notes`. Buckets privados: `facial-photos`, `genetic-reports`,
-`child-documents`.
+`uploaded_documents`, `admin_notes`.
+Triagem Digital Assistiva (aditivo, `screening_digital.sql`): `digital_screening_sessions`,
+`behavioral_signals`, `screening_fusions` (RLS por `can_access_child`) e `ai_requests`
+(auditoria de IA — **só admin**). `facial_analyses` permanece intacta (legado).
+Buckets privados (4): `facial-photos`, `genetic-reports`, `child-documents`, `screening-media`.
 
 ## Pronto vs mock
 **Pronto (dados reais):** auth/roles/RLS, dashboard, crianças/perfil, timeline, tarefas,
 diário, exames genéticos, M-CHAT, **upload real** de foto facial/laudos/documentos, leads,
-listas admin, relatórios.
-**Mock/protótipo:** resultado de IA da análise facial (só upload é real), PDF, resumos de
-genética por IA, jogos (sem `game_sessions`), visão geral da triagem (guia estático),
-configurações (não persiste), convite/atribuição de papéis.
+listas admin, relatórios. **Triagem Digital Assistiva** ponta a ponta com **IA mock** (banco/
+Storage aplicados no Supabase real; teste E2E ainda **não concluído** — ver ROADMAP P0).
+**Mock/protótipo:** **toda IA é mock** (análise facial com resultado fixo; pipeline
+comportamental determinística; resumos de genética **dormentes**), PDF inexistente, jogos
+(sem `game_sessions`), visão geral da triagem (guia estático), configurações (não persiste),
+convite/atribuição de papéis. **Sem testes automatizados** (só lint/typecheck/build + CI
+quality-gate).
 
-## Próximos passos (prioridade)
-1. IA de análise facial (substituir mock em `lib/actions/uploads.ts#submitFacialAnalysis`).
-2. Geração de PDF dos relatórios.
-3. Persistir `game_sessions` + jogos; settings persistentes; fluxo de convite de usuários.
-4. Resumos de genética por IA; testes + CI/CD.
+## Próximos passos (prioridade) — detalhe em `ROADMAP.md`
+1. **P0:** validar E2E a Triagem Digital no Supabase real; restringir `images.remotePatterns`.
+2. **P1:** suite de testes (`TEST_PLAN.md`) + CI de testes; geração de PDF; logging/observabilidade.
+3. **P2:** 1º provider de IA real numa etapa da pipeline; persistir `game_sessions`/settings;
+   convite de usuários.
+4. **P3:** codegen de tipos; migrations versionadas; Sentry/OTel.
 
 ## Deploy
 Vars: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
