@@ -215,6 +215,11 @@ export function listScreeningReports(childId?: string) {
     return q;
   });
 }
+export function getScreeningReport(id: string) {
+  return safeOne<ScreeningReportRow>("screening_reports.get", (db) =>
+    db.from("screening_reports").select("*").eq("id", id).maybeSingle(),
+  );
+}
 
 // ---------------- mchat_sessions ----------------
 export function listMchatSessions(childId?: string) {
@@ -237,6 +242,11 @@ export function listFacialAnalyses(childId?: string) {
     if (childId) q = q.eq("child_id", childId);
     return q;
   });
+}
+export function getFacialAnalysis(id: string) {
+  return safeOne<FacialAnalysisRow>("facial_analyses.get", (db) =>
+    db.from("facial_analyses").select("*").eq("id", id).maybeSingle(),
+  );
 }
 
 // ---------------- Triagem Digital Assistiva ----------------

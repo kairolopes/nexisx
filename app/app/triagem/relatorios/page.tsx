@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { PageHeader } from "@/components/app/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -38,6 +39,7 @@ export default async function RelatorioTriagemPage() {
         <MotionList className="grid gap-4 lg:grid-cols-2">
           {reports.map((r) => (
             <MotionItem key={r.id}>
+            <Link href={`/app/triagem/relatorios/${r.id}`} className="block h-full rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <Card className="h-full transition-colors hover:border-primary/30">
               <CardHeader className="flex-row items-center justify-between space-y-0">
                 <CardTitle>{r.child_id ? nameById.get(r.child_id) ?? "Criança" : "Triagem"}</CardTitle>
@@ -56,6 +58,7 @@ export default async function RelatorioTriagemPage() {
                 {r.next_steps && <p className="text-muted-foreground">{r.next_steps}</p>}
               </CardContent>
             </Card>
+            </Link>
             </MotionItem>
           ))}
         </MotionList>

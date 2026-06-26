@@ -125,7 +125,8 @@ Vercel + Supabase.
 | Item | Estado | Pendência |
 |---|---|---|
 | **Análise facial (resultado de IA)** | upload real ✅; resultado **simulado** | integrar serviço de inferência (IA) |
-| **Relatórios em PDF** | inexistente | gerar/exportar PDF |
+| **Relatórios em PDF** | **triagem ✅** (`relatorios/[id]/pdf`, `pdf-lib`); evolutivo ainda não | PDF do relatório evolutivo (Sprint futuro) |
+| **Detalhe do relatório de triagem** | ✅ implementado (`/app/triagem/relatorios/[id]`) — Sprint 1 | — |
 | **Resumos de genética** | campos `family_summary`/`technical_summary` existem | geração automática (IA) |
 | **Jogos** | protótipo visual (jogo da memória) | persistir `game_sessions`; mais jogos |
 | **Visão geral da triagem** | guia estático de etapas | torná-la orientada ao estado real |
@@ -140,7 +141,7 @@ Vercel + Supabase.
   configurado, `/app` só abre em **dev** com perfil **demo admin**; em produção redireciona
   para `/login`.
 - **IA de análise facial** — ainda não integrada (resultado é mock).
-- **Geração de PDF** — ausente.
+- **Geração de PDF** — relatório de triagem ✅ (`pdf-lib`, via `lib/reports/`); evolutivo pendente.
 - **Storage** — buckets `facial-photos`, `genetic-reports`, `child-documents` (privados).
 
 ---

@@ -3,6 +3,25 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Sprint 1 · Detalhe do relatório de triagem + PDF (2026-06-26)
+
+Conclui o primeiro sprint do MVP: o relatório de triagem deixa de ser só uma lista e
+passa a ter **página de detalhe** e **exportação em PDF** (download real). Sem IA real.
+
+### Adicionado
+- **Detalhe do relatório de triagem** (`/app/triagem/relatorios/[id]`): identificação,
+  M-CHAT (pontuação/risco), análise facial e conclusão preliminar; cartões da lista agora
+  abrem o detalhe.
+- **Exportação em PDF** (`/app/triagem/relatorios/[id]/pdf`): route handler `nodejs` que
+  gera o PDF com `pdf-lib` (JS puro), protegido pelo middleware + RLS; download com nome
+  baseado na criança. Aviso legal obrigatório embutido no PDF.
+- Camada de relatório em `lib/reports/`: `screening.ts` (montagem pura da view + rótulos +
+  aviso legal), `screening-pdf.ts` (geração do PDF), `screening-data.ts` (carregamento sob RLS).
+- Queries `getScreeningReport` e `getFacialAnalysis` em `lib/db/queries.ts`.
+- Testes: `tests/screening-report.test.ts` (montagem da view + geração de PDF válido) — 43 no total.
+
+> Dependência adicionada: `pdf-lib`. Sem mudança de banco, auth, RLS ou funcionalidades existentes.
+
 ## [Não lançado] — Sprint 2 · Gestão de admin e convite de usuários (2026-06-26)
 
 Implementa o fluxo completo de gestão administrativa: cadastro de entidades (responsável,
