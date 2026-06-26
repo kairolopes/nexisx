@@ -3,6 +3,25 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Sprint 4 · Genética operacional (status + resumos manuais) (2026-06-26)
+
+Fecha o módulo de Genética **sem IA**: a solicitação de exame deixa de ser só uma lista e
+passa a permitir gestão operacional — atualizar status e preencher/editar os resumos
+familiar e técnico (manuais), exibidos na tela. Upload/listagem e demais módulos intactos.
+
+### Adicionado
+- **Server Action** `updateGeneticExamRequest` em `lib/actions/genetic.ts` — atualiza
+  `status` (`solicitado`/`em_andamento`/`concluido`/`cancelado`) e/ou os resumos
+  `family_summary`/`technical_summary`; autorizada a `admin`/`profissional` (`getActor`),
+  validada (`oneOf`/`optionalText`) e envolvida por `runAction`; escopo por criança via RLS.
+- **UI** `components/app/genetic-exam-list.tsx` — cards por solicitação com status, **resumo
+  para a família** e **resumo técnico** exibidos; edição inline (status + dois textos) para
+  quem gerencia, com `router.refresh()` imediato. `app/app/genetica/page.tsx` passa a usar a
+  lista editável (mantendo header, aviso legal, formulário de criação e empty state).
+
+> Sem IA, parser ou análise automática. Sem mudança de banco/RLS e sem tocar em tarefas,
+> salas/leads ou triagem. Testes/build verdes.
+
 ## [Não lançado] — Sprint 3 · Módulo de Tarefas completo (editar + excluir) (2026-06-26)
 
 Fecha o módulo de Tarefas: além de criar e concluir, agora é possível **editar** e
