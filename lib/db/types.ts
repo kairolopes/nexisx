@@ -229,6 +229,15 @@ export interface ScreeningFusionRow {
   created_at: string;
 }
 
+export interface GameSessionRow {
+  id: string;
+  game_id: string | null;
+  child_id: string | null;
+  score: number;
+  phase: number;
+  played_at: string;
+}
+
 export interface AiRequestRow {
   id: string;
   provider: string;

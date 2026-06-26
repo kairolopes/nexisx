@@ -29,6 +29,7 @@ import type {
   BehavioralSignalRow,
   ScreeningFusionRow,
   AiRequestRow,
+  GameSessionRow,
 } from "./types";
 
 /**
@@ -283,6 +284,15 @@ export function listScreeningFusions(childId?: string) {
       .from("screening_fusions")
       .select("*")
       .order("created_at", { ascending: false });
+    if (childId) q = q.eq("child_id", childId);
+    return q;
+  });
+}
+
+// ---------------- game_sessions ----------------
+export function listGameSessions(childId?: string) {
+  return safeList<GameSessionRow>("game_sessions.list", (db) => {
+    let q = db.from("game_sessions").select("*").order("played_at", { ascending: false }).limit(50);
     if (childId) q = q.eq("child_id", childId);
     return q;
   });
