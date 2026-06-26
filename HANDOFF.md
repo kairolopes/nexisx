@@ -607,6 +607,79 @@ Server Actions principais: `createChild/updateChild`, `createDiaryEntry`,
 
 ---
 
+## 10c. Pronto para Homologação Final
+
+> Auditoria consolidada em 2026-06-26, branch `feat/sprint-3-timeline-events` (19 commits
+> acima de `main`, working tree limpo). Esta seção substitui a necessidade de novos
+> checklists soltos — atualizar **aqui** a cada rodada de consolidação.
+
+### Auditoria da branch
+
+| Item | Resultado |
+|---|---|
+| Branch | `feat/sprint-3-timeline-events` |
+| Commits acima de `main` | 19 (`d70ec41`..`e904736`) — Sprint 2 (admin/homolog) + Sprint 3 (tarefas, diário, salas, genética, jogos, config, linha do tempo, análise facial, M-CHAT PDF) |
+| `git status` | limpo (sem alterações não commitadas no momento da auditoria) |
+| Arquivos alterados vs. `main` | 63 arquivos — 3686 inserções / 228 remoções (ver `git diff main...HEAD --stat`) |
+| Migrations pendentes | nenhuma migration versionada (projeto usa SQLs aditivos manuais, não Supabase CLI migrations — ver `TECH_DEBT.md`) |
+| SQLs pendentes de aplicação | `supabase/settings.sql` (tabela `app_settings`) **não estava documentado** na ordem de aplicação do `DEPLOY.md` — corrigido nesta auditoria (agora passo 5/6, antes do `seed.sql`). Confirmar que foi rodado em **todo** ambiente onde a Triagem Digital (`screening_digital.sql`) e o restante do schema já foram aplicados. |
+
+### O que ainda depende de ação manual
+
+**Supabase**
+- [ ] Rodar `supabase/settings.sql` em todo ambiente que ainda não o tem (dev local incluído, se aplicável) — sem ele `/app/configuracoes` falha.
+- [ ] Confirmar RLS habilitado em `app_settings` (Table Editor).
+- [ ] Auth → URL Configuration: `Site URL` + `Redirect URLs` (`{SITE_URL}/auth/callback`) — obrigatório para o fluxo de convite funcionar.
+- [ ] Auth → confirmação de e-mail ligada (B-028, ainda não validado em ambiente real).
+- [ ] Promover manualmente o primeiro usuário admin (`update profiles set role='admin' where id=...`) em qualquer ambiente novo.
+
+**Deploy**
+- [ ] Projeto Vercel (ou equivalente) configurado para o ambiente de homologação, se ainda não existir um separado do dev local.
+- [ ] Variáveis de ambiente (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_SITE_URL`, `AI_PROVIDER`/`AI_PROVIDER_FALLBACK`) carregadas no painel — nunca em arquivo versionado.
+- [ ] Build de produção (`npm run build`) validado no ambiente de destino, não só localmente.
+
+**Credenciais**
+- [ ] `.env.homolog` preenchido a partir de `.env.homolog.example` com projeto Supabase de homologação (não reaproveitar projeto de dev).
+- [ ] `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` definidos para destravar os 6 testes Playwright hoje pulados (login real, acesso a `/usuarios`, `/responsaveis`, `/profissionais`, `/escolas`, `/diagnostico`).
+- [ ] Conta admin real de homologação criada e promovida (não usar a senha de seed `nexisx123` fora de dev).
+
+**Homologação** (checklist detalhado de fluxos em `10b`, reexecutar com o estado atual)
+- [ ] Fluxos de admin (convite, promoção, cadastro/vínculo de responsável/profissional/escola) — checklist `10b` ainda com todas as linhas `—` (não preenchido).
+- [ ] Fluxo da Triagem Digital Assistiva ponta a ponta + confirmação das 3 tabelas no Supabase real.
+- [ ] Validar manualmente os 3 itens novos desta rodada: criação/exclusão de evento na linha do tempo, histórico de análises faciais, link de PDF no resultado do M-CHAT.
+- [ ] Validar `/app/configuracoes` salvando e persistindo após reload (depende do `settings.sql` aplicado).
+
+**Produção** (Sprint 5 do `MASTER_BACKLOG.md` — B-050 a B-055, nenhum iniciado)
+- [ ] B-050 Ambiente de produção (Vercel + Supabase prod) criado.
+- [ ] B-051 Todos os SQLs aplicados em produção, na ordem do item 2 desta seção.
+- [ ] B-052 Checklist de RLS com 2 contas reais em produção.
+- [ ] B-053 Domínio + HTTPS + `NEXT_PUBLIC_SITE_URL` de produção configurados.
+- [ ] B-054 Teste de fumaça completo em produção.
+- [ ] B-055 Onboarding acompanhado do primeiro cliente piloto.
+
+### Varredura de qualidade (auditoria de código, 2026-06-26)
+
+| Verificação | Resultado |
+|---|---|
+| `TODO`/`FIXME`/`@ts-ignore` no código (`app/`, `components/`, `lib/`) | **nenhum** encontrado |
+| Botões sem ação (placeholder) | **nenhum** — convite, promoção, vínculos, configurações, linha do tempo, todos conectados a Server Actions reais |
+| Telas placeholder | **nenhuma** restante; Configurações persiste via `app_settings` |
+| Mock apresentado como resultado real | **nenhum sem aviso** — Triagem Digital exibe disclaimer de "Preview Científico/Modelo Demonstrativo"; Análise facial exibe "Análise pendente de avaliação profissional" (resultado de IA explicitamente não fechado) |
+| Rotas quebradas | nenhuma — todos os `href` de `lib/navigation.ts` e os usados em componentes têm página correspondente; build gera as 35 rotas sem erro |
+| `app_settings` ausente do `/app/diagnostico` | tabela nova não aparece no painel de diagnóstico (`app/app/diagnostico/page.tsx` só verifica tabelas da Triagem Digital) — não bloqueia o MVP, mas reduz a visibilidade operacional; considerar incluir em rodada futura |
+
+### Checks automatizados (rodados nesta auditoria)
+
+| Comando | Resultado |
+|---|---|
+| `npm run typecheck` | ✅ zero erros |
+| `npm run lint` | ✅ zero warnings |
+| `npm run test` (Vitest) | ✅ 43/43 |
+| `npm run test:e2e` (Playwright) | ✅ 16 passed / 6 skipped (autenticados, por falta de `E2E_ADMIN_EMAIL`/`PASSWORD`) |
+| `npm run build` | ✅ 35 páginas geradas sem erro |
+
+---
+
 ## 11. Pendências (por prioridade + dependências)
 
 **P1 — bloqueia produção plena**

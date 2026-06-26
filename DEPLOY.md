@@ -45,12 +45,17 @@ Execute **nesta ordem** em cada ambiente (dev, homolog, produção):
 2. supabase/schema_rls.sql       — habilita RLS e cria políticas
 3. supabase/storage.sql          — buckets privados + policies de Storage
 4. supabase/screening_digital.sql — Triagem Digital (aditivo, idempotente)
-5. supabase/seed.sql             — APENAS em dev (usuários demo, senha nexisx123)
+5. supabase/settings.sql         — tabela app_settings (aditivo, idempotente)
+6. supabase/seed.sql             — APENAS em dev (usuários demo, senha nexisx123)
 ```
 
 > **`screening_digital.sql` é idempotente** — pode ser re-executado sem risco.
 > Adiciona: `digital_screening_sessions`, `behavioral_signals`, `screening_fusions`,
 > `ai_requests`, bucket `screening-media`. **Não altera `facial_analyses`.**
+
+> **`settings.sql` é idempotente** (`create table if not exists` + `on conflict do nothing`).
+> Adiciona `app_settings` (RLS só admin) com seed de 3 chaves padrão. Sem ela, a tela
+> `/app/configuracoes` falha ao ler/gravar.
 
 Como aplicar manualmente:
 1. Supabase Dashboard → SQL Editor → New query
@@ -71,6 +76,7 @@ Como aplicar manualmente:
       criados como **privados** (public = false).
 - [ ] `screening_digital.sql` executado; tabelas da Triagem Digital com RLS habilitado;
       bucket `screening-media` criado como **privado**.
+- [ ] `settings.sql` executado; tabela `app_settings` criada com RLS (só admin) e 3 linhas seed.
 - [ ] Auth → e-mail/senha habilitado; confirmação de e-mail ON (recomendado).
 - [ ] Auth → URL Configuration: `Site URL` = `NEXT_PUBLIC_SITE_URL`.
 - [ ] Auth → Redirect URLs: contém `{NEXT_PUBLIC_SITE_URL}/auth/callback`.
