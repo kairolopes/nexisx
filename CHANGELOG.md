@@ -3,6 +3,20 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Sprint Triagem · Histórico de análises faciais (2026-06-26)
+
+Fecha B-043 do `MASTER_BACKLOG.md`: a página de análise facial só exibia o envio atual,
+sem histórico. Adiciona lista de análises anteriores por criança (status + data), no
+mesmo padrão de tabela usado no histórico de sessões de Jogos.
+
+### Adicionado
+- `app/app/triagem/analise-facial/page.tsx` agora lê `listFacialAnalyses()` (já existia em
+  `lib/db/queries.ts`) e renderiza tabela com criança, status (`pendente`/`concluido`) e data.
+
+> Sem mudança de schema/RLS/actions. Lint/typecheck/build ✓.
+
+---
+
 ## [Não lançado] — Sprint Linha do tempo · Criação e exclusão manual de eventos (2026-06-26)
 
 Fecha B-035/B-046 do `MASTER_BACKLOG.md`: a linha do tempo era somente leitura. Agora

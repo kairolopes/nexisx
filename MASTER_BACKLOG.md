@@ -96,7 +96,7 @@ clínicas erradas. Prioridade absoluta acima de qualquer feature nova.
 | B-040 | **Tabela `settings` no banco (org_id, key, value, updated_at)** | MVP | 🟢 | 🟡 | S | Banco | MVP | B-004 |
 | B-041 | Server Action `upsertSetting` + `getSetting` | MVP | 🟢 | 🟢 | S | Actions | MVP | B-040 |
 | B-042 | Conectar formulário de Configurações à tabela `settings` (nome da org, e-mail) | MVP | 🟢 | 🟢 | S | Config | MVP | B-041 |
-| B-043 | Análise facial: histórico de análises por criança (lista com data + status) | MVP | ⚪ | 🟢 | S | Triagem | MVP | B-004 |
+| B-043 | Análise facial: histórico de análises por criança (lista com data + status) | MVP | 🟢 | 🟢 | S | Triagem | MVP | B-004 |
 | B-044 | Tarefas: botão Editar tarefa (título, categoria, status) | MVP | 🟢 | 🟢 | S | Tarefas | MVP | B-004 |
 | B-045 | Tarefas: botão Excluir tarefa (com confirmação) | MVP | 🟢 | 🟢 | XS | Tarefas | MVP | B-004 |
 | B-046 | Verificar e corrigir criação de evento de timeline pelo perfil da criança | MVP | 🟢 | 🟢 | S | Acompanhamento | MVP | B-035 |
