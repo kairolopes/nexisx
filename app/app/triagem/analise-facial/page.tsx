@@ -11,7 +11,7 @@ export default async function AnaliseFacialPage() {
     <>
       <PageHeader
         title="Análise facial assistida"
-        description="Envie a foto, registre o consentimento e obtenha um resultado preliminar."
+        description="Envie a foto com consentimento registrado. A análise será avaliada por um profissional habilitado."
       />
       <FacialAnalysis childOptions={children.map((c) => ({ id: c.id, full_name: c.full_name }))} />
     </>

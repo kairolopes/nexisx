@@ -152,21 +152,18 @@ export function FacialAnalysis({ childOptions }: { childOptions: ChildOption[] }
               <motion.div key="result" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Status</span>
-                  <Badge variant="success">Análise concluída</Badge>
+                  <Badge variant="outline">Foto recebida</Badge>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Sinais observados</span>
-                  <Badge variant="warning">Atenção moderada</Badge>
-                </div>
-                <div className="rounded-xl border border-border p-4 text-sm text-muted-foreground">
-                  <p className="font-medium text-foreground">Observações</p>
-                  <p className="mt-1">
-                    Resultado ilustrativo. Recomenda-se complementar com o M-CHAT e
-                    encaminhar para avaliação de profissional habilitado.
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm dark:border-amber-900/40 dark:bg-amber-950/20">
+                  <p className="font-medium text-amber-800 dark:text-amber-300">Análise pendente de avaliação profissional</p>
+                  <p className="mt-1 text-amber-700 dark:text-amber-400">
+                    A foto foi registrada com sucesso. A análise automatizada ainda não está
+                    disponível — um profissional habilitado deverá avaliar as imagens e inserir
+                    as observações clínicas manualmente.
                   </p>
                 </div>
                 {pending && <p className="text-xs text-muted-foreground">Registrando análise...</p>}
-                {saved && <p className="text-xs text-emerald-600">Análise registrada no acompanhamento.</p>}
+                {saved && <p className="text-xs text-emerald-600">Foto registrada no acompanhamento.</p>}
                 {error && <p className="text-xs text-destructive">{error}</p>}
               </motion.div>
             ) : (
