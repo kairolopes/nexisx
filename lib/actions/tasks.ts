@@ -39,6 +39,51 @@ export async function createTask(input: TaskInput) {
   });
 }
 
+export interface TaskUpdateInput {
+  id: unknown;
+  title: unknown;
+  category?: unknown;
+  points?: unknown;
+}
+
+/**
+ * Edita os campos de uma tarefa (título, categoria, pontos). Permitido a admin e
+ * profissional. O acesso à criança da tarefa é garantido pelo RLS (`can_access_child`).
+ * Não altera `child_id`, `cadence` nem `status` (conclusão tem fluxo próprio).
+ */
+export async function updateTask(input: TaskUpdateInput) {
+  return runAction(async () => {
+    await getActor(["admin", "profissional"]);
+    const id = requiredUuid(input.id, "Tarefa");
+    const payload = {
+      title: requiredText(input.title, "Título", 200),
+      category: optionalText(input.category, 80),
+      points: input.points == null ? 0 : intInRange(input.points, "Pontos", 0, 1000),
+    };
+
+    const db = createClient();
+    const { error } = await db.from("tasks").update(payload).eq("id", id);
+    if (error) throw new ValidationError("Não foi possível atualizar a tarefa.");
+    return { id };
+  });
+}
+
+/**
+ * Exclui uma tarefa. Permitido a admin e profissional. O RLS garante que só tarefas de
+ * crianças acessíveis sejam removidas; `task_completions` é removida em cascata (FK).
+ */
+export async function deleteTask(taskId: unknown) {
+  return runAction(async () => {
+    await getActor(["admin", "profissional"]);
+    const id = requiredUuid(taskId, "Tarefa");
+
+    const db = createClient();
+    const { error } = await db.from("tasks").delete().eq("id", id);
+    if (error) throw new ValidationError("Não foi possível excluir a tarefa.");
+    return { id };
+  });
+}
+
 /**
  * Conclui uma tarefa: registra a conclusão e marca o status como `concluida`.
  * O acesso à criança é garantido pelo RLS; qualquer papel com vínculo pode concluir.

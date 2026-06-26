@@ -3,6 +3,23 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Sprint 3 · Módulo de Tarefas completo (editar + excluir) (2026-06-26)
+
+Fecha o módulo de Tarefas: além de criar e concluir, agora é possível **editar** e
+**excluir** tarefas, com atualização imediata na UI (`router.refresh()`). Sem mudança de
+banco, RLS ou outros módulos.
+
+### Adicionado
+- **Server Actions** `updateTask` (título/categoria/pontos) e `deleteTask` em
+  `lib/actions/tasks.ts` — autorizadas a `admin`/`profissional` (`getActor`), validadas e
+  envolvidas por `runAction`; o RLS (`can_access_child`) garante o escopo por criança.
+  `deleteTask` remove a tarefa (e `task_completions` em cascata por FK).
+- **UI** (`components/app/tasks-board.tsx`): botões **Editar** e **Excluir** por tarefa
+  (apenas para quem gerencia), formulário reutilizado para criar/editar e **confirmação
+  inline** antes de excluir. Criação e conclusão mantidas inalteradas.
+
+> Sem alterar genética, salas sensoriais, leads, IA, banco ou RLS. Testes/build verdes.
+
 ## [Não lançado] — Governança · Permissões read-only compartilhadas (2026-06-26)
 
 ### Adicionado
