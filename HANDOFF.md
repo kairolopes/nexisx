@@ -517,6 +517,73 @@ Server Actions principais: `createChild/updateChild`, `createDiaryEntry`,
 
 ---
 
+## 10b. Homologação — Sprint 2 (branch `feat/sprint-2-admin-management`)
+
+> Ambiente de homologação = Supabase real + `npm run dev` local (não há ambiente de
+> staging separado neste estágio). Executar **antes** de fazer merge na `main`.
+
+### Pré-requisitos obrigatórios
+
+- [ ] `.env.local` preenchido com URL, ANON_KEY, SERVICE_ROLE_KEY e SITE_URL do projeto Supabase real.
+- [ ] **Supabase Dashboard → Authentication → URL Configuration:**
+  - `Site URL` = valor de `NEXT_PUBLIC_SITE_URL` (ex.: `http://localhost:3000`)
+  - `Redirect URLs` contém `{SITE_URL}/auth/callback` (ex.: `http://localhost:3000/auth/callback`)
+  - **Sem essa configuração o fluxo de convite falha silenciosamente.**
+- [ ] SQLs aplicados na ordem: `schema → schema_rls → storage → screening_digital` (seed só dev).
+- [ ] `npm run dev` sobe sem erro.
+
+### Checklist de fluxos — Admin
+
+- [ ] **Login admin:** entrar com conta admin real; sidebar exibe todos os itens.
+- [ ] **Convidar usuário:** Usuários → "Convidar usuário" → inserir e-mail → toast de sucesso →
+      e-mail recebido com link → clicar no link → `/auth/callback` processa → redireciona para `/app` →
+      perfil criado como `responsavel`.
+- [ ] **Promover papel:** Usuários → "Alterar papel" → selecionar o usuário convidado → papel
+      `profissional` → salvar → papel atualizado na lista.
+- [ ] **Criar responsável:** Responsáveis → "Adicionar" → preencher nome+e-mail → toast de sucesso →
+      aparece na lista.
+- [ ] **Criar profissional:** Profissionais → "Adicionar" → preencher nome+especialidade →
+      toast de sucesso → aparece na lista.
+- [ ] **Criar escola:** Escolas → "Adicionar" → preencher nome+cidade → toast de sucesso →
+      aparece na lista.
+- [ ] **Vincular profissional a criança:** Profissionais → "Vincular a criança" → selecionar criança
+      e profissional → toast de sucesso → confirmar em Crianças que o profissional está vinculado.
+- [ ] **Vincular escola a criança:** Escolas → "Vincular a criança" → selecionar criança e escola →
+      authorized = true → toast de sucesso.
+- [ ] **RLS — isolamento:** logar com conta `responsavel` (não admin) → tentar acessar
+      `/app/usuarios` → redireciona para `/app` (requireRole bloqueou).
+
+### Checklist de fluxos — Triagem Digital Assistiva
+
+- [ ] Criar criança (ou usar existente do seed).
+- [ ] Triagem → Triagem Digital Assistiva → selecionar criança → aceitar consentimento.
+- [ ] Enviar foto (ou vídeo curto) → processar → resultado exibido (score, sinais, recomendação).
+- [ ] Confirmar no Supabase Dashboard (Table Editor) que foram criados registros em:
+  - `digital_screening_sessions` (status `concluido`)
+  - `behavioral_signals` (sinais da sessão)
+  - `ai_requests` (auditoria, visível só para admin)
+
+### Resultado (preencher após execução)
+
+| Fluxo | Status | Observação |
+|---|---|---|
+| Login admin | — | |
+| Convidar usuário | — | |
+| Callback /auth/callback | — | |
+| Criar responsável | — | |
+| Criar profissional | — | |
+| Criar escola | — | |
+| Vincular profissional → criança | — | |
+| Vincular escola → criança | — | |
+| Promover papel | — | |
+| Triagem Digital — fluxo | — | |
+| Triagem Digital — persistência no banco | — | |
+
+> Atualizar esta tabela com ✅ / ❌ / ⚠️ após execução. Bugs encontrados → corrigir na
+> branch antes do merge. Todos ✅ → abrir PR para `main`.
+
+---
+
 ## 11. Pendências (por prioridade + dependências)
 
 **P1 — bloqueia produção plena**
