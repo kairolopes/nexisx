@@ -1,4 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
+import * as fs from "fs";
+import * as path from "path";
 
 /**
  * Configuração do smoke test E2E (Playwright).
@@ -7,11 +9,14 @@ import { defineConfig, devices } from "@playwright/test";
  * - `baseURL` aponta para o dev server local (porta fixa 3100).
  * - `webServer` sobe `next dev -p 3100` automaticamente, mas REUSA um servidor já
  *   em execução (`reuseExistingServer`), então rodar `npm run dev` antes é opcional.
- * - Os testes que exigem sessão real (login/área interna) leem credenciais de
- *   `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` e são PULADOS se ausentes (ver auth.spec.ts).
+ * - Testes autenticados funcionam de duas formas (em ordem de preferência):
+ *   1. `tests-e2e/.auth/session.json` — capturado via `scripts/capture-session.ts`
+ *   2. Env vars `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` — para CI ou fallback manual
  */
 const PORT = Number(process.env.E2E_PORT ?? 3100);
 const BASE_URL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`;
+const SESSION_PATH = path.join(__dirname, "tests-e2e", ".auth", "session.json");
+const hasSession = fs.existsSync(SESSION_PATH);
 
 export default defineConfig({
   testDir: "./tests-e2e",
@@ -29,6 +34,8 @@ export default defineConfig({
     actionTimeout: 15_000,
     navigationTimeout: 30_000,
     trace: "on-first-retry",
+    // Injeta storageState quando session.json existir — sem isso o contexto começa anônimo.
+    ...(hasSession ? { storageState: SESSION_PATH } : {}),
   },
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
