@@ -1,22 +1,21 @@
 import { PageHeader } from "@/components/app/page-header";
-import { DataTable } from "@/components/app/data-table";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Notice } from "@/components/site/notice";
 import { requireRole } from "@/lib/guard";
 import { listGeneticExamRequests, listChildren } from "@/lib/db/queries";
 import { GeneticRequestForm } from "@/components/app/genetic-request-form";
-import { formatDate } from "@/lib/utils";
+import { GeneticExamList } from "@/components/app/genetic-exam-list";
 
 export default async function GeneticaPage() {
-  await requireRole(["admin", "responsavel", "profissional", "consultor"]);
+  const { profile } = await requireRole(["admin", "responsavel", "profissional", "consultor"]);
   const [requests, children] = await Promise.all([listGeneticExamRequests(), listChildren()]);
+  const canManage = profile.role === "admin" || profile.role === "profissional";
 
   return (
     <>
       <PageHeader
         title="Exames genéticos"
-        description="Solicitações de exames e acompanhamento do status."
+        description="Solicitações de exames, status e resumos (família e técnico)."
         action={<GeneticRequestForm childOptions={children.map((c) => ({ id: c.id, full_name: c.full_name }))} />}
       />
       <Notice className="mb-6">
@@ -30,14 +29,7 @@ export default async function GeneticaPage() {
           </CardContent>
         </Card>
       ) : (
-        <DataTable
-          columns={["Exame", "Solicitado em", "Status"]}
-          rows={requests.map((r) => [
-            r.exam_type ?? "—",
-            formatDate(r.created_at),
-            <Badge key={r.id} variant={r.status === "solicitado" ? "warning" : "success"}>{r.status}</Badge>,
-          ])}
-        />
+        <GeneticExamList requests={requests} canManage={canManage} />
       )}
     </>
   );

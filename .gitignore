@@ -10,3 +10,10 @@ npm-debug.log*
 .vercel
 *.tsbuildinfo
 next-env.d.ts
+
+# Playwright (artefatos de teste E2E)
+test-results/
+playwright-report/
+
+# Configuração local de preview (porta de dev por máquina)
+.claude/launch.json

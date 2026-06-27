@@ -29,6 +29,8 @@ import type {
   BehavioralSignalRow,
   ScreeningFusionRow,
   AiRequestRow,
+  GameSessionRow,
+  AppSettingRow,
 } from "./types";
 
 /**
@@ -215,6 +217,11 @@ export function listScreeningReports(childId?: string) {
     return q;
   });
 }
+export function getScreeningReport(id: string) {
+  return safeOne<ScreeningReportRow>("screening_reports.get", (db) =>
+    db.from("screening_reports").select("*").eq("id", id).maybeSingle(),
+  );
+}
 
 // ---------------- mchat_sessions ----------------
 export function listMchatSessions(childId?: string) {
@@ -237,6 +244,11 @@ export function listFacialAnalyses(childId?: string) {
     if (childId) q = q.eq("child_id", childId);
     return q;
   });
+}
+export function getFacialAnalysis(id: string) {
+  return safeOne<FacialAnalysisRow>("facial_analyses.get", (db) =>
+    db.from("facial_analyses").select("*").eq("id", id).maybeSingle(),
+  );
 }
 
 // ---------------- Triagem Digital Assistiva ----------------
@@ -276,6 +288,22 @@ export function listScreeningFusions(childId?: string) {
     if (childId) q = q.eq("child_id", childId);
     return q;
   });
+}
+
+// ---------------- game_sessions ----------------
+export function listGameSessions(childId?: string) {
+  return safeList<GameSessionRow>("game_sessions.list", (db) => {
+    let q = db.from("game_sessions").select("*").order("played_at", { ascending: false }).limit(50);
+    if (childId) q = q.eq("child_id", childId);
+    return q;
+  });
+}
+
+/** Configurações da organização — RLS restringe a admin; em outros papéis devolve []. */
+export function getAppSettings() {
+  return safeList<AppSettingRow>("app_settings.list", (db) =>
+    db.from("app_settings").select("*"),
+  );
 }
 
 /** Auditoria operacional de IA — RLS restringe a admin; em outros papéis devolve []. */

@@ -4,8 +4,10 @@
 >
 > **Estado (P0.1 entregue):** Vitest configurado e **39 testes** já existem cobrindo M-CHAT,
 > validações, `runAction`/`ActionResult`, idade e a camada de IA mock (unit, ambiente Node).
-> Falta ainda a **camada de integração/RLS** (precisa de projeto Supabase de teste) e os
-> **E2E** (Playwright). Scripts: `npm run test` · `test:watch` · `test:coverage`.
+> **E2E (Playwright):** smoke test mínimo implementado (`tests-e2e/`) — site público + proteção
+> de rota (sem sessão) + fluxo admin autenticado (gated por credenciais). Falta ainda a
+> **camada de integração/RLS** (precisa de projeto Supabase de teste).
+> Scripts: `npm run test` · `test:watch` · `test:coverage` · `test:e2e`.
 
 ## Ferramentas recomendadas (a adotar)
 
@@ -59,9 +61,27 @@
   ou capacidade não suportada (`lib/ai/core/registry.ts`).
 - **Unit:** cada `PipelineStage` mock honra seu contrato de entrada/saída.
 
-## E2E (Playwright) — fluxos mínimos
-- Login → dashboard.
-- Acesso a rota restrita por URL com papel errado → redireciona para `/app`.
+## E2E (Playwright) — smoke test (implementado)
+
+Config: `playwright.config.ts` (baseURL `http://localhost:3100`, sobe/reaproveita `next dev`).
+Rodar: `npm run test:e2e`.
+
+**`tests-e2e/smoke.spec.ts` (sem autenticação — roda sempre):**
+- 9 rotas públicas carregam (`/`, `/login`, `/sobre`, `/salas-sensoriais`, `/dna`,
+  `/familias`, `/profissionais`, `/escolas-clinicas`, `/contato`).
+- Tela de login tem campos de e-mail/senha + botão Entrar.
+- 6 rotas protegidas redirecionam para `/login` sem sessão (`/app`, `/app/usuarios`,
+  `/app/responsaveis`, `/app/profissionais`, `/app/escolas`, `/app/diagnostico`).
+
+**`tests-e2e/auth.spec.ts` (admin autenticado — gated):**
+- Lê `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD`; **pulado (skip)** se ausentes.
+- Login → dashboard; admin abre usuários, responsáveis, profissionais, escolas, diagnóstico.
+- Rodar com: `E2E_ADMIN_EMAIL=... E2E_ADMIN_PASSWORD=... npm run test:e2e`.
+- **Não automatizável sem ação do dono:** a senha de um usuário real não pode ser fabricada
+  pela IA/CI e não criamos usuários fictícios — por isso as credenciais vêm por variável de
+  ambiente fornecida manualmente.
+
+### E2E ainda pendentes (fluxos maiores — fora do smoke)
 - M-CHAT completo → relatório.
 - Triagem Digital: criar criança → upload → consentimento → processar → resultado na tela.
 

@@ -82,17 +82,20 @@ Buckets privados (4): `facial-photos`, `genetic-reports`, `child-documents`, `sc
 diário, exames genéticos, M-CHAT, **upload real** de foto facial/laudos/documentos, leads,
 listas admin, relatórios. **Triagem Digital Assistiva** ponta a ponta com **IA mock** (banco/
 Storage aplicados no Supabase real; teste E2E ainda **não concluído** — ver ROADMAP P0).
+**Gestão de admin (Sprint 2):** cadastro de responsável/profissional/escola, vinculação
+profissional/escola ↔ criança, convite de usuário por e-mail (`service_role`), promoção de
+papel; auth callback (`/auth/callback`) para convite/magic-link/OAuth.
 **Mock/protótipo:** **toda IA é mock** (análise facial com resultado fixo; pipeline
 comportamental determinística; resumos de genética **dormentes**), PDF inexistente, jogos
-(sem `game_sessions`), visão geral da triagem (guia estático), configurações (não persiste),
-convite/atribuição de papéis. **Sem testes automatizados** (só lint/typecheck/build + CI
-quality-gate).
+(sem `game_sessions`), visão geral da triagem (guia estático), configurações (não persiste).
+**Testes automatizados:** 39 testes Vitest em `tests/` (M-CHAT, validação, actions, idade, IA
+mock). Sem suite E2E; CI quality-gate (lint → typecheck → build).
 
 ## Próximos passos (prioridade) — detalhe em `ROADMAP.md`
-1. **P0:** validar E2E a Triagem Digital no Supabase real; restringir `images.remotePatterns`.
+1. **P0:** validar E2E a Triagem Digital no Supabase real; configurar `Redirect URLs` no
+   Supabase Dashboard para `{SITE_URL}/auth/callback` (necessário para convites funcionarem).
 2. **P1:** suite de testes (`TEST_PLAN.md`) + CI de testes; geração de PDF; logging/observabilidade.
-3. **P2:** 1º provider de IA real numa etapa da pipeline; persistir `game_sessions`/settings;
-   convite de usuários.
+3. **P2:** 1º provider de IA real numa etapa da pipeline; persistir `game_sessions`/settings.
 4. **P3:** codegen de tipos; migrations versionadas; Sentry/OTel.
 
 ## Deploy

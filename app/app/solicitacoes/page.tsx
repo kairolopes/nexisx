@@ -1,14 +1,13 @@
 import { PageHeader } from "@/components/app/page-header";
-import { DataTable } from "@/components/app/data-table";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { requireRole } from "@/lib/guard";
 import { listSensoryRoomRequests } from "@/lib/db/queries";
-import { formatDate } from "@/lib/utils";
+import { SensoryRequestList } from "@/components/app/sensory-request-list";
 
 export default async function SolicitacoesPage() {
-  await requireRole(["admin", "consultor"]);
+  const { profile } = await requireRole(["admin", "consultor"]);
   const requests = await listSensoryRoomRequests();
+  const canManage = profile.role === "admin" || profile.role === "consultor";
 
   return (
     <>
@@ -20,16 +19,7 @@ export default async function SolicitacoesPage() {
           </CardContent>
         </Card>
       ) : (
-        <DataTable
-          columns={["Contato", "E-mail", "Interesse", "Recebido", "Status"]}
-          rows={requests.map((r) => [
-            r.requester_name,
-            r.email ?? "—",
-            r.environment ?? "—",
-            formatDate(r.created_at),
-            <Badge key={r.id} variant={r.status === "novo" ? "warning" : "default"}>{r.status}</Badge>,
-          ])}
-        />
+        <SensoryRequestList requests={requests} canManage={canManage} />
       )}
     </>
   );

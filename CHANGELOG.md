@@ -3,6 +3,240 @@
 Todos os marcos relevantes do projeto.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/).
 
+## [Não lançado] — Sprint M-CHAT · Link de PDF no resultado (2026-06-26)
+
+Fecha B-030 a B-034 do `MASTER_BACKLOG.md` (geração de PDF do M-CHAT). A infraestrutura
+(`pdf-lib`, rota `/app/triagem/relatorios/[id]/pdf`) já existia para relatórios de triagem
+em geral; faltava só o atalho na própria tela de resultado do M-CHAT.
+
+### Adicionado
+- `components/app/mchat-form.tsx`: ao salvar a sessão como profissional/admin (gera
+  `screening_reports`), guarda o `id` do relatório e exibe link "Baixar PDF do relatório"
+  apontando para a rota de PDF existente.
+
+> Sem nova rota/lib — reaproveita `lib/reports/screening-pdf.ts`. Lint/typecheck/build ✓.
+
+---
+
+## [Não lançado] — Sprint Triagem · Histórico de análises faciais (2026-06-26)
+
+Fecha B-043 do `MASTER_BACKLOG.md`: a página de análise facial só exibia o envio atual,
+sem histórico. Adiciona lista de análises anteriores por criança (status + data), no
+mesmo padrão de tabela usado no histórico de sessões de Jogos.
+
+### Adicionado
+- `app/app/triagem/analise-facial/page.tsx` agora lê `listFacialAnalyses()` (já existia em
+  `lib/db/queries.ts`) e renderiza tabela com criança, status (`pendente`/`concluido`) e data.
+
+> Sem mudança de schema/RLS/actions. Lint/typecheck/build ✓.
+
+---
+
+## [Não lançado] — Sprint Linha do tempo · Criação e exclusão manual de eventos (2026-06-26)
+
+Fecha B-035/B-046 do `MASTER_BACKLOG.md`: a linha do tempo era somente leitura. Agora
+admin, responsável e profissional podem registrar eventos manuais (consulta, marco, etc.)
+e admin/responsável podem excluí-los.
+
+### Adicionado
+- **`createTimelineEvent`/`deleteTimelineEvent`** em `lib/actions/timeline.ts` — validação
+  de UUID/texto/data, RLS via `can_access_child(child_id)`.
+- **`TimelineBoard`** (`components/app/timeline-board.tsx`): dialog de criação (tipo, data,
+  descrição) + lista com exclusão; `Timeline` ganhou prop opcional `onDelete`.
+- `app/app/linha-do-tempo/page.tsx` agora chama `requireSession()` (faltava o guard).
+
+> Visão da linha do tempo no perfil da criança permanece somente leitura (sem `onDelete`).
+> Sem mudança de schema/RLS (tabela e políticas já existiam). Lint/typecheck/build ✓.
+
+---
+
+## [Não lançado] — Sprint Jogos · Persistência de sessões e histórico (2026-06-26)
+
+Fecha o módulo de Jogos para o MVP: o Jogo da Memória passa a **persistir resultados** em
+`game_sessions` e exibe um **histórico de sessões por criança** ao lado do jogo.
+
+### Adicionado
+- **`GameSessionRow`** em `lib/db/types.ts` — espelha `game_sessions` (schema existente).
+- **`listGameSessions(childId?)`** em `lib/db/queries.ts` — leitura tolerante a falha, com
+  RLS via `can_access_child(child_id)`.
+- **`lib/actions/games.ts`** — `saveGameSession({ child_id, score, phase })`: persiste
+  resultado com `getActor()` + `createClient()` (RLS por criança). `game_id` salvo como
+  `null` — FK nullable, tabela `games` sem seed ainda.
+- **Seletor de criança** no `MemoryGame`: se houver mais de uma criança, exibe `<Select>`;
+  ao concluir (todas as peças encontradas), dispara `saveGameSession` automaticamente.
+- **Histórico de sessões** em `app/app/jogos/page.tsx`: tabela com criança, movimentos e
+  data; empty state enquanto não há sessões.
+
+### Corrigido
+- `app/app/jogos/page.tsx` não tinha guard de autenticação — adicionado `requireSession()`.
+
+> Sem novos jogos, gamificação ou IA. Sem mudança de banco ou RLS. Testes 43/43 ✓ build ✓.
+
+---
+
+## [Não lançado] — Sprint Diário · Edição e exclusão de entradas (2026-06-26)
+
+Fecha o módulo de Diário: além de criar e listar, responsáveis e admins podem agora
+**editar** e **excluir** entradas, com confirmação inline e atualização imediata.
+
+### Adicionado
+- **`updateDiaryEntry({ id, mood?, notes? })`** em `lib/actions/diary.ts` — autorizada a
+  `admin`/`responsavel`; valida UUID e campos opcionais; RLS garante escopo por criança.
+- **`deleteDiaryEntry({ id })`** — mesma autorização e validação; remove a linha.
+- **UI** (`components/app/diary-form.tsx`): botões Editar (✏) e Excluir (🗑) por entrada;
+  modo de edição inline com seletor de humor e textarea; confirmação inline antes de excluir.
+
+> Sem mudança de banco, RLS ou outros módulos. Testes/build verdes.
+
+---
+
+## [Não lançado] — Sprint Salas · Status operacional de solicitações (2026-06-26)
+
+Fecha o módulo de Salas Sensoriais / Solicitações comerciais para o MVP: admin e consultor
+podem agora **atualizar o status** de cada solicitação diretamente na UI.
+
+### Adicionado
+- **`updateSensoryRoomStatus({ id, status })`** em `lib/actions/sensory.ts` — autorizada a
+  `admin`/`consultor`; valida UUID e `oneOf` nos status permitidos; RLS mantido.
+- **UI de status inline** na lista de solicitações: badge de status clicável (ou select)
+  com atualização imediata via `router.refresh()`.
+
+> Sem mudança de banco, RLS ou outros módulos. Testes/build verdes.
+
+---
+
+## [Não lançado] — Sprint 4 · Genética operacional (status + resumos manuais) (2026-06-26)
+
+Fecha o módulo de Genética **sem IA**: a solicitação de exame deixa de ser só uma lista e
+passa a permitir gestão operacional — atualizar status e preencher/editar os resumos
+familiar e técnico (manuais), exibidos na tela. Upload/listagem e demais módulos intactos.
+
+### Adicionado
+- **Server Action** `updateGeneticExamRequest` em `lib/actions/genetic.ts` — atualiza
+  `status` (`solicitado`/`em_andamento`/`concluido`/`cancelado`) e/ou os resumos
+  `family_summary`/`technical_summary`; autorizada a `admin`/`profissional` (`getActor`),
+  validada (`oneOf`/`optionalText`) e envolvida por `runAction`; escopo por criança via RLS.
+- **UI** `components/app/genetic-exam-list.tsx` — cards por solicitação com status, **resumo
+  para a família** e **resumo técnico** exibidos; edição inline (status + dois textos) para
+  quem gerencia, com `router.refresh()` imediato. `app/app/genetica/page.tsx` passa a usar a
+  lista editável (mantendo header, aviso legal, formulário de criação e empty state).
+
+> Sem IA, parser ou análise automática. Sem mudança de banco/RLS e sem tocar em tarefas,
+> salas/leads ou triagem. Testes/build verdes.
+
+## [Não lançado] — Sprint 3 · Módulo de Tarefas completo (editar + excluir) (2026-06-26)
+
+Fecha o módulo de Tarefas: além de criar e concluir, agora é possível **editar** e
+**excluir** tarefas, com atualização imediata na UI (`router.refresh()`). Sem mudança de
+banco, RLS ou outros módulos.
+
+### Adicionado
+- **Server Actions** `updateTask` (título/categoria/pontos) e `deleteTask` em
+  `lib/actions/tasks.ts` — autorizadas a `admin`/`profissional` (`getActor`), validadas e
+  envolvidas por `runAction`; o RLS (`can_access_child`) garante o escopo por criança.
+  `deleteTask` remove a tarefa (e `task_completions` em cascata por FK).
+- **UI** (`components/app/tasks-board.tsx`): botões **Editar** e **Excluir** por tarefa
+  (apenas para quem gerencia), formulário reutilizado para criar/editar e **confirmação
+  inline** antes de excluir. Criação e conclusão mantidas inalteradas.
+
+> Sem alterar genética, salas sensoriais, leads, IA, banco ou RLS. Testes/build verdes.
+
+## [Não lançado] — Governança · Permissões read-only compartilhadas (2026-06-26)
+
+### Adicionado
+- **`.claude/settings.json`** versionado (config compartilhada do time): allowlist apenas de
+  comandos/MCP **read-only** (`npm run lint/typecheck/test`, `preview_screenshot/console_logs/
+  snapshot/list/logs/network`, `search_session_transcripts`). **Sem** segredos, sem permissões
+  de escrita/mutação e sem wildcard perigoso (fora: `ssh`, `scp`, `curl`, `rm`, `npm`/`node`,
+  `preview_eval`). `settings.local.json` (pessoal) permanece **fora** do versionamento.
+
+## [Não lançado] — Sprint 1 · Detalhe do relatório de triagem + PDF (2026-06-26)
+
+Conclui o primeiro sprint do MVP: o relatório de triagem deixa de ser só uma lista e
+passa a ter **página de detalhe** e **exportação em PDF** (download real). Sem IA real.
+
+### Adicionado
+- **Detalhe do relatório de triagem** (`/app/triagem/relatorios/[id]`): identificação,
+  M-CHAT (pontuação/risco), análise facial e conclusão preliminar; cartões da lista agora
+  abrem o detalhe.
+- **Exportação em PDF** (`/app/triagem/relatorios/[id]/pdf`): route handler `nodejs` que
+  gera o PDF com `pdf-lib` (JS puro), protegido pelo middleware + RLS; download com nome
+  baseado na criança. Aviso legal obrigatório embutido no PDF.
+- Camada de relatório em `lib/reports/`: `screening.ts` (montagem pura da view + rótulos +
+  aviso legal), `screening-pdf.ts` (geração do PDF), `screening-data.ts` (carregamento sob RLS).
+- Queries `getScreeningReport` e `getFacialAnalysis` em `lib/db/queries.ts`.
+- Testes: `tests/screening-report.test.ts` (montagem da view + geração de PDF válido) — 43 no total.
+
+> Dependência adicionada: `pdf-lib`. Sem mudança de banco, auth, RLS ou funcionalidades existentes.
+
+## [Não lançado] — Sprint 2 · Gestão de admin e convite de usuários (2026-06-26)
+
+Implementa o fluxo completo de gestão administrativa: cadastro de entidades (responsável,
+profissional, escola), vinculação profissional/escola ↔ criança, convite de usuários por
+e-mail e promoção de papel por admin. **Nenhum mock — tudo via service_role com `getActor`
+validado.** Auth callback para convite/magic-link também adicionado.
+
+### Adicionado
+- **`lib/supabase/service.ts`** — `createServiceClient()`: cliente Supabase com
+  `service_role` (bypassa RLS). Só para uso em Server Actions com `getActor(["admin"])`
+  confirmado antes. Nunca exposto no client bundle.
+- **`app/auth/callback/route.ts`** — rota GET de callback de autenticação (convite,
+  magic link, OAuth). Lida com `token_hash`+`type` (PKCE) e `code` (OAuth). Redireciona
+  para `/login?error=link_invalido_ou_expirado` em falha. Configura `Redirect URLs` no
+  Supabase Dashboard para `{SITE_URL}/auth/callback`.
+- **`lib/actions/admin.ts`** — Server Actions exclusivas de admin (todas usam
+  `createServiceClient()` + `getActor(["admin"])`):
+  - `inviteUser(form)` — envia convite por e-mail via `supabase.auth.admin.inviteUserByEmail`;
+    usuário entra como `responsavel` (trigger `handle_new_user`); redireciona para
+    `/auth/callback?next=/app`.
+  - `promoteRole(form)` — promove/rebaixa papel (`profileId`, `role`) diretamente em
+    `profiles`; contorna `enforce_role_change` via service_role.
+  - `createGuardian(form)` — insere em `guardians` (`full_name`, `relationship`, `phone`,
+    `email`).
+  - `createProfessional(form)` — insere em `professionals` (`full_name`, `specialty`,
+    `registration`).
+  - `createSchool(form)` — insere em `schools` (`name`, `city`, `contact_email`).
+  - `linkProfessionalToChild(form)` — upsert em `child_professionals` (`child_id`,
+    `professional_id`); revalida `/app/profissionais` e `/app/criancas`.
+  - `linkSchoolToChild(form)` — upsert em `child_schools` (`child_id`, `school_id`,
+    `authorized`); revalida `/app/escolas` e `/app/criancas`.
+- **`components/app/create-guardian-dialog.tsx`** — Dialog de cadastro de responsável
+  (nome, vínculo, telefone, e-mail). Toast + reset de formulário ao concluir.
+- **`components/app/create-professional-dialog.tsx`** — Dialog de cadastro de profissional
+  (nome, especialidade, CRN/registro).
+- **`components/app/create-school-dialog.tsx`** — Dialog de cadastro de escola (nome,
+  cidade, e-mail de contato).
+- **`components/app/invite-user-dialog.tsx`** — Dialog de convite de usuário (e-mail).
+  Avisa que o usuário entra como Responsável e pode ser promovido depois.
+- **`components/app/link-professional-dialog.tsx`** — Dialog de vinculação profissional ↔
+  criança (selects de profissional e criança).
+- **`components/app/link-school-dialog.tsx`** — Dialog de vinculação escola ↔ criança
+  (selects de escola e criança; checkbox `authorized`).
+- **`components/app/promote-role-dialog.tsx`** — Dialog de promoção de papel: select de
+  usuário (perfil) + select de papel (`role_type`).
+
+### Alterado
+- **`app/app/responsaveis/page.tsx`** — botão "Adicionar" substituído por
+  `<CreateGuardianDialog />` real.
+- **`app/app/profissionais/page.tsx`** — botões reais: `<CreateProfessionalDialog />` +
+  `<LinkProfessionalDialog />` (condicional: só exibe se houver profissionais e crianças).
+- **`app/app/escolas/page.tsx`** — botões reais: `<CreateSchoolDialog />` +
+  `<LinkSchoolDialog />` (condicional). Carrega `listChildren` em paralelo com `listSchools`.
+- **`app/app/usuarios/page.tsx`** — botões reais: `<InviteUserDialog />` +
+  `<PromoteRoleDialog />`.
+
+### Corrigido (auditoria Fase 1)
+- **`link-professional-dialog.tsx`** / **`link-school-dialog.tsx`** — Props declarava
+  `childList` mas o componente desestruturava `children` (prop reservada do React →
+  conflito de tipo + comportamento silencioso). Renomeado consistentemente para `childList`
+  no interface, na desestruturação e no uso do template.
+- **`profissionais/page.tsx`** / **`escolas/page.tsx`** — passavam `children={...}`
+  violando `react/no-children-prop` (ESLint). Corrigido para `childList={...}`.
+- **`app/auth/callback/route.ts`** — parâmetro `toSet` e seus bindings (`name`, `value`,
+  `options`) tinham tipo implícito `any` em strict mode. Tipagem explícita adicionada.
+
+---
+
 ## [Não lançado] — Sprint 1 · Integridade do produto (2026-06-26)
 
 ### Corrigido

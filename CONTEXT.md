@@ -134,6 +134,9 @@ Camada de governança adicionada para manutenção profissional por equipe:
   erros de leitura classificados (RLS/auth/query/conexão) em vez de engoli-los — **mesmos
   retornos** (resiliência preservada).
 - **Segurança:** `images.remotePatterns` restrito a `*.supabase.co` (sem curinga `**`).
+- **Permissões compartilhadas:** `.claude/settings.json` versionado com allowlist apenas
+  read-only (lint/typecheck/test + MCP de preview/leitura); `settings.local.json` (pessoal)
+  fica fora do git.
 > Esta camada **não altera** regra de negócio, schema, RLS, UI nem integra IA real.
 
 ## Limites do MVP

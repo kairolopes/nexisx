@@ -103,11 +103,12 @@ Vercel + Supabase.
   com `notFound()` e empty states. Perfil organizado em Tabs (Visão geral · Linha do
   tempo · Documentos).
 - **Linha do tempo** — eventos reais (`neuro_timeline_events`).
-- **Tarefas** — leitura + criar + concluir (pontuação, `task_completions`).
-- **Diário dos pais** — leitura + criação.
-- **Solicitações comerciais / salas (admin/consultor)** — listas reais; **formulário
-  público de contato grava lead real** (anônimo permitido pela RLS).
-- **Exames genéticos** — criação + lista.
+- **Tarefas** — criar + concluir + **editar + excluir** (pontuação, `task_completions`). ✅ completo.
+- **Diário dos pais** — criar + listar + **editar + excluir** (confirmação inline). ✅ completo.
+- **Solicitações comerciais / salas (admin/consultor)** — listas reais + **atualização de
+  status operacional** inline; **formulário público de contato grava lead real** (anônimo).
+- **Exames genéticos** — criação + lista + **atualização de status + resumos manuais** (familiar
+  e técnico). ✅ completo.
 - **Triagem M-CHAT** — salva `mchat_sessions` + `mchat_answers`; gera `screening_reports`
   (quando profissional/admin).
 - **Análise facial** — **upload real da foto** (bucket `facial-photos`), `image_path`
@@ -116,27 +117,32 @@ Vercel + Supabase.
   download por **URL assinada temporária** (5 min).
 - **Responsáveis, Profissionais, Escolas, Usuários, Relatórios de triagem, Relatórios
   evolutivos** — listas/agregações reais.
+- **Gestão de admin (Sprint 2):** cadastro de responsável, profissional e escola;
+  vinculação profissional/escola ↔ criança; convite de usuário por e-mail (service_role);
+  promoção de papel por admin. Todos os botões das páginas admin agora têm ação real.
+  Auth callback (`/auth/callback`) para convite, magic link e OAuth.
 
 ### Ainda mock / protótipo (NÃO levar a produção sem integração real)
 | Item | Estado | Pendência |
 |---|---|---|
 | **Análise facial (resultado de IA)** | upload real ✅; resultado **simulado** | integrar serviço de inferência (IA) |
-| **Relatórios em PDF** | inexistente | gerar/exportar PDF |
+| **Relatórios em PDF** | **triagem ✅** (`relatorios/[id]/pdf`, `pdf-lib`); evolutivo ainda não | PDF do relatório evolutivo (Sprint futuro) |
+| **Detalhe do relatório de triagem** | ✅ implementado (`/app/triagem/relatorios/[id]`) — Sprint 1 | — |
 | **Resumos de genética** | campos `family_summary`/`technical_summary` existem | geração automática (IA) |
-| **Jogos** | protótipo visual (jogo da memória) | persistir `game_sessions`; mais jogos |
+| **Jogos** | jogo da memória ✅; `game_sessions` persistido ✅; histórico por criança ✅ | mais jogos (v1.5) |
 | **Visão geral da triagem** | guia estático de etapas | torná-la orientada ao estado real |
 | **Configurações** | formulário **não persiste** | tabela de settings (fase futura) |
-| **Convite/cadastro de usuários** | botões sem fluxo | fluxo de convite + atribuição de papel por admin |
+| **Convite/cadastro de usuários** | ✅ implementado (`inviteUser`, `InviteUserDialog`, `/auth/callback`) | — |
 | **IA (toda)** | mock determinístico (sem SDK/provider real) | integrar provider real por etapa da pipeline / capacidade |
 | **Resumo de genética por IA** | código em `lib/ai/genetics` **dormente** | plugar a `genetic_exam_requests` quando houver provider |
-| **Testes automatizados** | inexistentes; só lint/typecheck/build + CI quality-gate | implementar `TEST_PLAN.md` |
+| **Testes automatizados** | **43 unit (Vitest)** ✅ + **smoke E2E (Playwright)** ✅ — site público e proteção de rota validados **sem login**; testes autenticados (admin) **pendentes por credenciais** (rodam com `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD` via `npm run test:e2e`, senão são pulados). CI ainda **não** roda testes. | integração/RLS + E2E maiores (M-CHAT, Triagem Digital); adicionar testes ao CI — ver `TEST_PLAN.md` |
 
 ### Dependências externas
 - **Supabase** (Auth + Postgres + Storage + RLS) — núcleo. Sem `NEXT_PUBLIC_SUPABASE_*`
   configurado, `/app` só abre em **dev** com perfil **demo admin**; em produção redireciona
   para `/login`.
 - **IA de análise facial** — ainda não integrada (resultado é mock).
-- **Geração de PDF** — ausente.
+- **Geração de PDF** — relatório de triagem ✅ (`pdf-lib`, via `lib/reports/`); evolutivo pendente.
 - **Storage** — buckets `facial-photos`, `genetic-reports`, `child-documents` (privados).
 
 ---
@@ -415,7 +421,7 @@ Server Actions principais: `createChild/updateChild`, `createDiaryEntry`,
 - Geração de PDF dos relatórios.
 - Resumos automáticos de genética.
 - Persistência de `game_sessions` e de configurações.
-- Fluxo de convite/atribuição de papéis por admin.
+- ~~Fluxo de convite/atribuição de papéis por admin.~~ ✅ **Concluído (Sprint 2).**
 
 ### Como deverá evoluir
 1. Integrar serviço de inferência facial → substituir resultado simulado.
@@ -513,6 +519,167 @@ Server Actions principais: `createChild/updateChild`, `createDiaryEntry`,
 
 ---
 
+## 10a. Status da branch `feat/sprint-2-admin-management`
+
+> **Pronto para PR — homologação manual no Supabase ainda pendente.**
+> Não aprovado para merge em `main` nem para produção até os fluxos abaixo serem executados.
+
+| Item | Status |
+|---|---|
+| typecheck | ✅ zero erros |
+| lint | ✅ zero warnings |
+| test | ✅ 39/39 |
+| build | ✅ 35 páginas |
+| `.env.homolog.example` sem segredo real | ✅ |
+| `SUPABASE_SERVICE_ROLE_KEY` isolado no server | ✅ |
+| `/app/diagnostico` protegido por `requireRole(["admin"])` | ✅ |
+| Ambiente de homologação documentado (`DEPLOY.md`) | ✅ |
+| Fluxos manuais no Supabase real | ⏳ pendente |
+| Aprovado para produção | ❌ não |
+
+---
+
+## 10b. Homologação — Sprint 2 (branch `feat/sprint-2-admin-management`)
+
+> Ambiente de homologação = Supabase real + `npm run dev` local (não há ambiente de
+> staging separado neste estágio). Executar **antes** de fazer merge na `main`.
+
+### Pré-requisitos obrigatórios
+
+- [ ] `.env.local` (dev) ou `.env.homolog` (homolog) preenchido — ver `.env.homolog.example`.
+- [ ] **Supabase Dashboard → Authentication → URL Configuration:**
+  - `Site URL` = valor de `NEXT_PUBLIC_SITE_URL`
+  - `Redirect URLs` contém `{SITE_URL}/auth/callback`
+  - **Sem essa configuração o fluxo de convite falha silenciosamente.**
+- [ ] SQLs aplicados na ordem: `schema → schema_rls → storage → screening_digital` (seed só dev).
+- [ ] `npm run dev` sobe sem erro.
+- [ ] Acesso a `/app/diagnostico` como admin confirma todos os checks verdes.
+
+### Checklist de fluxos — Admin
+
+- [ ] **Login admin:** entrar com conta admin real; sidebar exibe todos os itens.
+- [ ] **Convidar usuário:** Usuários → "Convidar usuário" → inserir e-mail → toast de sucesso →
+      e-mail recebido com link → clicar no link → `/auth/callback` processa → redireciona para `/app` →
+      perfil criado como `responsavel`.
+- [ ] **Promover papel:** Usuários → "Alterar papel" → selecionar o usuário convidado → papel
+      `profissional` → salvar → papel atualizado na lista.
+- [ ] **Criar responsável:** Responsáveis → "Adicionar" → preencher nome+e-mail → toast de sucesso →
+      aparece na lista.
+- [ ] **Criar profissional:** Profissionais → "Adicionar" → preencher nome+especialidade →
+      toast de sucesso → aparece na lista.
+- [ ] **Criar escola:** Escolas → "Adicionar" → preencher nome+cidade → toast de sucesso →
+      aparece na lista.
+- [ ] **Vincular profissional a criança:** Profissionais → "Vincular a criança" → selecionar criança
+      e profissional → toast de sucesso → confirmar em Crianças que o profissional está vinculado.
+- [ ] **Vincular escola a criança:** Escolas → "Vincular a criança" → selecionar criança e escola →
+      authorized = true → toast de sucesso.
+- [ ] **RLS — isolamento:** logar com conta `responsavel` (não admin) → tentar acessar
+      `/app/usuarios` → redireciona para `/app` (requireRole bloqueou).
+
+### Checklist de fluxos — Triagem Digital Assistiva
+
+- [ ] Criar criança (ou usar existente do seed).
+- [ ] Triagem → Triagem Digital Assistiva → selecionar criança → aceitar consentimento.
+- [ ] Enviar foto (ou vídeo curto) → processar → resultado exibido (score, sinais, recomendação).
+- [ ] Confirmar no Supabase Dashboard (Table Editor) que foram criados registros em:
+  - `digital_screening_sessions` (status `concluido`)
+  - `behavioral_signals` (sinais da sessão)
+  - `ai_requests` (auditoria, visível só para admin)
+
+### Resultado (preencher após execução)
+
+| Fluxo | Status | Observação |
+|---|---|---|
+| Login admin | — | |
+| Convidar usuário | — | |
+| Callback /auth/callback | — | |
+| Criar responsável | — | |
+| Criar profissional | — | |
+| Criar escola | — | |
+| Vincular profissional → criança | — | |
+| Vincular escola → criança | — | |
+| Promover papel | — | |
+| Triagem Digital — fluxo | — | |
+| Triagem Digital — persistência no banco | — | |
+
+> Atualizar esta tabela com ✅ / ❌ / ⚠️ após execução. Bugs encontrados → corrigir na
+> branch antes do merge. Todos ✅ → abrir PR para `main`.
+
+---
+
+## 10c. Pronto para Homologação Final
+
+> Auditoria consolidada em 2026-06-26, branch `feat/sprint-3-timeline-events` (19 commits
+> acima de `main`, working tree limpo). Esta seção substitui a necessidade de novos
+> checklists soltos — atualizar **aqui** a cada rodada de consolidação.
+
+### Auditoria da branch
+
+| Item | Resultado |
+|---|---|
+| Branch | `feat/sprint-3-timeline-events` |
+| Commits acima de `main` | 19 (`d70ec41`..`e904736`) — Sprint 2 (admin/homolog) + Sprint 3 (tarefas, diário, salas, genética, jogos, config, linha do tempo, análise facial, M-CHAT PDF) |
+| `git status` | limpo (sem alterações não commitadas no momento da auditoria) |
+| Arquivos alterados vs. `main` | 63 arquivos — 3686 inserções / 228 remoções (ver `git diff main...HEAD --stat`) |
+| Migrations pendentes | nenhuma migration versionada (projeto usa SQLs aditivos manuais, não Supabase CLI migrations — ver `TECH_DEBT.md`) |
+| SQLs pendentes de aplicação | `supabase/settings.sql` (tabela `app_settings`) **não estava documentado** na ordem de aplicação do `DEPLOY.md` — corrigido nesta auditoria (agora passo 5/6, antes do `seed.sql`). Confirmar que foi rodado em **todo** ambiente onde a Triagem Digital (`screening_digital.sql`) e o restante do schema já foram aplicados. |
+
+### O que ainda depende de ação manual
+
+**Supabase**
+- [ ] Rodar `supabase/settings.sql` em todo ambiente que ainda não o tem (dev local incluído, se aplicável) — sem ele `/app/configuracoes` falha.
+- [ ] Confirmar RLS habilitado em `app_settings` (Table Editor).
+- [ ] Auth → URL Configuration: `Site URL` + `Redirect URLs` (`{SITE_URL}/auth/callback`) — obrigatório para o fluxo de convite funcionar.
+- [ ] Auth → confirmação de e-mail ligada (B-028, ainda não validado em ambiente real).
+- [ ] Promover manualmente o primeiro usuário admin (`update profiles set role='admin' where id=...`) em qualquer ambiente novo.
+
+**Deploy**
+- [ ] Projeto Vercel (ou equivalente) configurado para o ambiente de homologação, se ainda não existir um separado do dev local.
+- [ ] Variáveis de ambiente (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_SITE_URL`, `AI_PROVIDER`/`AI_PROVIDER_FALLBACK`) carregadas no painel — nunca em arquivo versionado.
+- [ ] Build de produção (`npm run build`) validado no ambiente de destino, não só localmente.
+
+**Credenciais**
+- [ ] `.env.homolog` preenchido a partir de `.env.homolog.example` com projeto Supabase de homologação (não reaproveitar projeto de dev).
+- [ ] `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` definidos para destravar os 6 testes Playwright hoje pulados (login real, acesso a `/usuarios`, `/responsaveis`, `/profissionais`, `/escolas`, `/diagnostico`).
+- [ ] Conta admin real de homologação criada e promovida (não usar a senha de seed `nexisx123` fora de dev).
+
+**Homologação** (checklist detalhado de fluxos em `10b`, reexecutar com o estado atual)
+- [ ] Fluxos de admin (convite, promoção, cadastro/vínculo de responsável/profissional/escola) — checklist `10b` ainda com todas as linhas `—` (não preenchido).
+- [ ] Fluxo da Triagem Digital Assistiva ponta a ponta + confirmação das 3 tabelas no Supabase real.
+- [ ] Validar manualmente os 3 itens novos desta rodada: criação/exclusão de evento na linha do tempo, histórico de análises faciais, link de PDF no resultado do M-CHAT.
+- [ ] Validar `/app/configuracoes` salvando e persistindo após reload (depende do `settings.sql` aplicado).
+
+**Produção** (Sprint 5 do `MASTER_BACKLOG.md` — B-050 a B-055, nenhum iniciado)
+- [ ] B-050 Ambiente de produção (Vercel + Supabase prod) criado.
+- [ ] B-051 Todos os SQLs aplicados em produção, na ordem do item 2 desta seção.
+- [ ] B-052 Checklist de RLS com 2 contas reais em produção.
+- [ ] B-053 Domínio + HTTPS + `NEXT_PUBLIC_SITE_URL` de produção configurados.
+- [ ] B-054 Teste de fumaça completo em produção.
+- [ ] B-055 Onboarding acompanhado do primeiro cliente piloto.
+
+### Varredura de qualidade (auditoria de código, 2026-06-26)
+
+| Verificação | Resultado |
+|---|---|
+| `TODO`/`FIXME`/`@ts-ignore` no código (`app/`, `components/`, `lib/`) | **nenhum** encontrado |
+| Botões sem ação (placeholder) | **nenhum** — convite, promoção, vínculos, configurações, linha do tempo, todos conectados a Server Actions reais |
+| Telas placeholder | **nenhuma** restante; Configurações persiste via `app_settings` |
+| Mock apresentado como resultado real | **nenhum sem aviso** — Triagem Digital exibe disclaimer de "Preview Científico/Modelo Demonstrativo"; Análise facial exibe "Análise pendente de avaliação profissional" (resultado de IA explicitamente não fechado) |
+| Rotas quebradas | nenhuma — todos os `href` de `lib/navigation.ts` e os usados em componentes têm página correspondente; build gera as 35 rotas sem erro |
+| `app_settings` ausente do `/app/diagnostico` | tabela nova não aparece no painel de diagnóstico (`app/app/diagnostico/page.tsx` só verifica tabelas da Triagem Digital) — não bloqueia o MVP, mas reduz a visibilidade operacional; considerar incluir em rodada futura |
+
+### Checks automatizados (rodados nesta auditoria)
+
+| Comando | Resultado |
+|---|---|
+| `npm run typecheck` | ✅ zero erros |
+| `npm run lint` | ✅ zero warnings |
+| `npm run test` (Vitest) | ✅ 43/43 |
+| `npm run test:e2e` (Playwright) | ✅ 16 passed / 6 skipped (autenticados, por falta de `E2E_ADMIN_EMAIL`/`PASSWORD`) |
+| `npm run build` | ✅ 35 páginas geradas sem erro |
+
+---
+
 ## 11. Pendências (por prioridade + dependências)
 
 **P1 — bloqueia produção plena**
@@ -522,7 +689,7 @@ Server Actions principais: `createChild/updateChild`, `createDiaryEntry`,
 
 **P2 — funcional**
 - Persistir **`game_sessions`** + mais jogos. _Dep.:_ action + UI.
-- **Fluxo de convite/atribuição de papéis** por admin. _Dep.:_ service_role.
+- ~~**Fluxo de convite/atribuição de papéis** por admin.~~ ✅ **Concluído (Sprint 2).**
 - **Configurações** persistentes. _Dep.:_ nova tabela `settings`.
 
 **P3 — melhorias**
